@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".View.Fragment.MyTasksFragment">
+
+   <androidx.constraintlayout.widget.ConstraintLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:background="@drawable/custom_background_main_2">
+
+      <TextView
+          android:id="@+id/textView13"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="8dp"
+          android:layout_marginTop="8dp"
+          android:padding="5dp"
+          android:text="@string/mytasks"
+          android:textColor="@color/black"
+          android:textSize="24sp"
+          android:textStyle="bold"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
+
+      <ImageButton
+          android:id="@+id/ibtn_add_task"
+          android:layout_width="40dp"
+          android:layout_height="40dp"
+          android:layout_marginTop="8dp"
+          android:layout_marginEnd="16dp"
+          android:background="@android:color/transparent"
+          android:scaleType="fitCenter"
+          android:src="@drawable/add"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
+
+      <com.github.sundeepk.compactcalendarview.CompactCalendarView
+          android:id="@+id/calendarView"
+          android:layout_width="fill_parent"
+          android:layout_height="380dp"
+          android:layout_marginTop="8dp"
+          android:layout_marginLeft="5dp"
+          android:layout_marginRight="5dp"
+          android:background="@drawable/custom_calendar"
+          app:compactCalendarBackgroundColor="@android:color/transparent"
+          app:compactCalendarCurrentDayBackgroundColor="@color/green"
+          app:compactCalendarCurrentSelectedDayBackgroundColor="@color/lightyellow"
+          app:compactCalendarMultiEventIndicatorColor="@color/red"
+          app:compactCalendarTargetHeight="450dp"
+          app:compactCalendarTextColor="@color/black"
+          app:compactCalendarTextSize="14sp"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0.0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/textView13" />
+
+      <ScrollView
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:orientation="vertical"
+          android:layout_marginTop="8dp"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/calendarView">
+
+<!--         <androidx.recyclerview.widget.RecyclerView-->
+<!--             android:id="@+id/recyclerViewCalendar"-->
+<!--             android:layout_width="match_parent"-->
+<!--             android:layout_height="match_parent"-->
+<!--             tools:listitem="@layout/item_calendar_task" />-->
+         <androidx.constraintlayout.widget.ConstraintLayout
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+               <LinearLayout
+                   android:layout_width="100dp"
+                   android:layout_height="200dp"
+                   android:gravity="center_horizontal"
+                   android:orientation="vertical">
+
+                  <TextView
+                      android:id="@+id/tv_day_number_calendar"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="14"
+                      android:textColor="@color/black"
+                      android:textSize="50dp"
+                      android:textStyle="bold" />
+
+                  <TextView
+                      android:id="@+id/tv_day_of_week_calendar"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="Wed"
+                      android:textColor="@color/black"
+                      android:textSize="25dp" />
+
+               </LinearLayout>
+
+               <ScrollView
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent">
+
+                  <androidx.recyclerview.widget.RecyclerView
+                      android:id="@+id/recyclerViewTasks"
+                      android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      tools:listitem="@layout/item_tasks" />
+               </ScrollView>
+
+            </LinearLayout>
+
+         </androidx.constraintlayout.widget.ConstraintLayout>
+
+      </ScrollView>
+
+   </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

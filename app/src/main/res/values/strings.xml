@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">Paffer</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="projects">Projects</string>
+    <string name="mytasks">My Tasks</string>
+    <string name="chat">Chat</string>
+    <string name="notification">Notification</string>
+    <string name="profile">Profile</string>
+    <string name="enter_password">Enter password</string>
+    <string name="enter_new_password">Enter new password</string>
+    <string name="please_enter_new_password">Please enter new password</string>
+    <string name="please_enter_password">Please enter password</string>
+    <string name="users">Members</string>
+    <string name="project_name"><u>Project name</u><font color='#FF0000'>*</font></string>
+    <string name="email">Email<font color='#FF0000'>*</font></string>
+    <string name="task_name">Task name<font color='#FF0000'>*</font></string>
+    <string name="start_date"><u>Start date</u><font color='#FF0000'>*</font></string>
+    <string name="group_chat_name">Group chat name<font color='#FF0000'>*</font></string>
+    <string name="process"><u>Process</u><font color='#FF0000'>*</font></string>
+    <string name="description"><u>Description</u></string>
+    <string name="issue_type"><u>Issue type</u><font color='#FF0000'>*</font></string>
+    <string name="priority"><u>Priority</u><font color='#FF0000'>*</font></string>
+    <string name="assignee"><u>Assignee</u><font color='#FF0000'>*</font></string>
+    <string name="issue_name"><u>Issue name</u><font color='#FF0000'>*</font></string>
+    <string name="cancel">Cancel</string>
+    <string name="update">Update</string>
+    <string name="estimate_execution_time"><u>Estimate execution time</u></string>
+    <string name="finish_date"><u>Finish date</u></string>
+    <string name="project_estimated_finsish_date"><u>Project estimated finsish date</u><font color='#FF0000'>*</font></string>
+    <string name="project_description"><u>Project description</u></string>
+    <string name="project_type"><u>Project type</u><font color='#FF0000'>*</font></string>
+    <string name="no_result_found">No result found</string>
+    <string name="start_date_2"><u>Start date</u></string>
+    <string name="estimate_finish_date"><u>Estimate finish date</u></string>
+    <string name="estimate_finish_date_2"><u>Estimate finish date</u><font color='#FF0000'>*</font></string>
+    <string name="username"><u>UserName</u><font color='#FF0000'>*</font></string>
+    <string name="password"><u>Password</u><font color='#FF0000'>*</font></string>
+    <string name="confirm_password"><u>Confirm Password</u><font color='#FF0000'>*</font></string>
+</resources>
