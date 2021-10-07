@@ -4,9 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -14,12 +12,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.lvtn_app.R;
-import com.example.lvtn_app.View.Fragment.MemberFragment;
-import com.example.lvtn_app.View.Fragment.MyTasksFragment;
+import com.example.lvtn_app.View.Fragment.MemberChatFragment;
+import com.example.lvtn_app.View.Fragment.MemberProjectFragment;
 
 public class SettingChatActivity extends AppCompatActivity {
 
     TextView tv_show_member_setting_chat, tv_show_warning_delete_setting_chat;
+    LinearLayout linear1;
     FrameLayout frame_setting_chat;
 
     @Override
@@ -29,12 +28,16 @@ public class SettingChatActivity extends AppCompatActivity {
 
         tv_show_member_setting_chat = findViewById(R.id.tv_show_member_setting_chat);
         tv_show_warning_delete_setting_chat = findViewById(R.id.tv_show_warning_delete_setting_chat);
+        linear1 = findViewById(R.id.linear1);
         frame_setting_chat = findViewById(R.id.frame_setting_chat);
+
+        int id = getIntent().getIntExtra("groupChat_id", 129);
+        String name = getIntent().getStringExtra("groupChat_name");
 
         tv_show_member_setting_chat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getSupportFragmentManager().beginTransaction().add(R.id.frame_setting_chat, new MemberFragment()).addToBackStack("MemberFragment return SettingChatActivity").commit();
+                getSupportFragmentManager().beginTransaction().add(R.id.frame_setting_chat, new MemberChatFragment()).addToBackStack("MemberChatFragment return SettingChatActivity").commit();
             }
         });
 

@@ -72,7 +72,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="5"
                     android:gravity="center"
-                    app:errorEnabled="true"
+                    app:errorEnabled="false"
                     app:hintEnabled="false">
 
                     <EditText
@@ -144,6 +144,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="5"
                     android:gravity="center"
+                    app:errorEnabled="false"
                     app:hintEnabled="false">
 
                     <EditText
@@ -228,7 +229,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="6"
                         android:gravity="center"
-                        app:errorEnabled="true"
+                        app:errorEnabled="false"
                         app:hintEnabled="false">
 
                         <EditText
@@ -248,9 +249,8 @@
                     <ImageButton
                         android:id="@+id/calendar_start_date_issue_create"
                         android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_height="match_parent"
                         android:layout_marginLeft="5dp"
-                        android:layout_marginBottom="11dp"
                         android:layout_weight="1"
                         android:background="@android:color/transparent"
                         android:scaleType="fitCenter"
@@ -352,6 +352,80 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/linearLayout6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout5">
+
+                <TextView
+                    android:id="@+id/textView7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/finish_date"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/spinner_issue_type_create" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:weightSum="6"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView5">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/finish_date_issue_create_text_input_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="6"
+                        android:gravity="center"
+                        app:errorEnabled="false"
+                        app:hintEnabled="false">
+
+                        <EditText
+                            android:id="@+id/edt_finish_date_issue_create"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:background="@drawable/custom_edt"
+                            android:inputType="date"
+                            android:padding="8dp"
+                            android:singleLine="true"
+                            android:text=""
+                            android:textSize="18sp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <ImageButton
+                        android:id="@+id/calendar_finish_date_issue_create"
+                        android:layout_width="40dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/calendar" />
+                </LinearLayout>
+
+            </LinearLayout>
+
             <Button
                 android:id="@+id/btn_create_issue"
                 android:layout_width="wrap_content"
@@ -364,7 +438,7 @@
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout6" />
 
             <Button
                 android:id="@+id/btn_cancel_create_issue"
@@ -378,7 +452,7 @@
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout6" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

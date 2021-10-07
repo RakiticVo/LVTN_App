@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.text.Editable;
@@ -25,9 +26,17 @@ import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 import com.example.lvtn_app.View.Activity.LoginActivity;
 import com.example.lvtn_app.View.Activity.MainActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -43,8 +52,18 @@ public class SignUpTabFragment extends Fragment {
     // Khai báo
     TextInputLayout user_name_signup_text_input_layout, email_signup_text_input_layout, pass_signup_text_input_layout, checkpass_signup_text_input_layout;
     Button signup;
+
+    FirebaseAuth auth;
+    DatabaseReference reference;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
+
+    //New User Information
+    String userName = "";
+    String userEmail = "";
+    String userPass = "";
+    String checkpass = "";
+    int id_user = -1;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -98,7 +117,8 @@ public class SignUpTabFragment extends Fragment {
         checkpass_signup_text_input_layout = viewGroup.findViewById(R.id.checkpass_signup_text_input_layout);
         signup = viewGroup.findViewById(R.id.btn_signup);
 
-        sharedPreferences = Objects.requireNonNull(getContext()).getSharedPreferences("User", Context.MODE_PRIVATE);
+        auth = FirebaseAuth.getInstance();
+        sharedPreferences = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
         // Xử lý sự kiện
@@ -202,9 +222,6 @@ public class SignUpTabFragment extends Fragment {
                             if (s.length() == 0){
                                 pass_signup_text_input_layout.setError("Please enter Password");
                                 pass_signup_text_input_layout.setErrorEnabled(true);
-                            }else if (s.length() < 6) {
-                                pass_signup_text_input_layout.setError("Password must be more 6 characters");
-                                pass_signup_text_input_layout.setErrorEnabled(true);
                             }else {
                                 pass_signup_text_input_layout.setErrorEnabled(false);
                             }
@@ -247,9 +264,6 @@ public class SignUpTabFragment extends Fragment {
                             if (s.length() == 0){
                                 checkpass_signup_text_input_layout.setError("Please enter Password");
                                 checkpass_signup_text_input_layout.setErrorEnabled(true);
-                            }else if (s.length() < 6) {
-                                checkpass_signup_text_input_layout.setError("Password must be more 6 characters");
-                                checkpass_signup_text_input_layout.setErrorEnabled(true);
                             }else {
                                 checkpass_signup_text_input_layout.setErrorEnabled(false);
                             }
@@ -267,83 +281,99 @@ public class SignUpTabFragment extends Fragment {
         signup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String username = user_name_signup_text_input_layout.getEditText().getText().toString().trim();
-                String email = email_signup_text_input_layout.getEditText().getText().toString().trim();
-                String password = pass_signup_text_input_layout.getEditText().getText().toString().trim();
-                String checkpass = checkpass_signup_text_input_layout.getEditText().getText().toString().trim();
-                if (password.equals(checkpass)){
-                    checkpass_signup_text_input_layout.setErrorEnabled(false);
-                    if (isValidEmail(email)){
-                        email_signup_text_input_layout.setErrorEnabled(false);
-                        ApiService insertNewUser = ApiUtils.connectRetrofit();
-                        insertNewUser.isCreateNewUserSuccess(username, email, password).enqueue(new Callback<String>() {
-                            @Override
-                            public void onResponse(Call<String> call, Response<String> response) {
-                                String result = response.body();
-                                if (result.equals("SUCCESS")){
-                                    ApiService getUser = ApiUtils.connectRetrofit();
-                                    getUser.getUser().enqueue(new Callback<ArrayList<User>>() {
-                                        @Override
-                                        public void onResponse(Call<ArrayList<User>> call, Response<ArrayList<User>> response) {
-                                            ArrayList<User> temp = response.body();
-                                            int id_user = 0;
-                                            if (temp != null){
-                                                id_user = temp.get(temp.size()-1).getId_user();
-                                            }
+                userName = user_name_signup_text_input_layout.getEditText().getText().toString().trim();
+                userEmail = email_signup_text_input_layout.getEditText().getText().toString().trim();
+                userPass = pass_signup_text_input_layout.getEditText().getText().toString().trim();
+                checkpass = checkpass_signup_text_input_layout.getEditText().getText().toString().trim();
 
-                                            Toast.makeText(getContext(), "Create success" + "\n" + id_user, Toast.LENGTH_SHORT).show();
-                                            ApiService insertNewUserInfomation = ApiUtils.connectRetrofit();
-                                            int finalId_user = id_user;
-                                            insertNewUserInfomation.isInsertNewUserInformationSuccess(id_user).enqueue(new Callback<String>() {
-                                                @Override
-                                                public void onResponse(Call<String> call, Response<String> response) {
-                                                    String result2 = response.body();
-                                                    if (!result2.equals("FAILED")){
-                                                        Toast.makeText(getContext(), "" + response.body(), Toast.LENGTH_SHORT).show();
-                                                        editor.putInt("userId_txt", finalId_user);
-                                                        editor.putString("userName_txt", username);
-                                                        editor.putString("userEmail_txt", email);
-                                                        editor.putString("userPassword_txt", password);
-                                                        editor.putBoolean("userStatus_txt", true);
-                                                        editor.putBoolean("userChecked", true);
-                                                        editor.commit();
-                                                        Intent intent = new Intent(getActivity(), MainActivity.class);
-                                                        startActivity(intent);
-                                                        getActivity().finish();
-                                                    }else {
-                                                        Toast.makeText(getContext(), "Failed \n" + call + "\n" + result2, Toast.LENGTH_SHORT).show();
-                                                    }
-                                                }
+                if (userName.length() == 0){
+                    user_name_signup_text_input_layout.setError("Please enter user name!!!");
+                    user_name_signup_text_input_layout.setErrorEnabled(true);
+                }else user_name_signup_text_input_layout.setErrorEnabled(false);
 
-                                                @Override
-                                                public void onFailure(Call<String> call, Throwable t) {
-                                                    Toast.makeText(getContext(), "Failed \n" + call + "\n" + t, Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
-                                        }
+                if (userEmail.length() == 0){
+                    email_signup_text_input_layout.setError("Please enter user email!!!");
+                    email_signup_text_input_layout.setErrorEnabled(true);
+                }else email_signup_text_input_layout.setErrorEnabled(false);
 
-                                        @Override
-                                        public void onFailure(Call<ArrayList<User>> call, Throwable t) {
-
-                                        }
-                                    });
-                                }else Toast.makeText(getContext(), "" + result, Toast.LENGTH_SHORT).show();
-                            }
-
-                            @Override
-                            public void onFailure(Call<String> call, Throwable t) {
-                                Toast.makeText(getContext(), "" + call +"\n"+ t , Toast.LENGTH_SHORT).show();
-                                Log.e("TAG", "onFailure: " + t );
-                            }
-                        });
-                    }else {
-                        email_signup_text_input_layout.setError("Incorrect Email format");
-                        email_signup_text_input_layout.setErrorEnabled(true);
-                    }
+                if (userPass.length() == 0){
+                    pass_signup_text_input_layout.setError("Please enter user password!!!");
+                    pass_signup_text_input_layout.setErrorEnabled(true);
+                }else if (userPass.length() < 6) {
+                    pass_signup_text_input_layout.setError("Password must be more 6 characters");
+                    pass_signup_text_input_layout.setErrorEnabled(true);
+                }else {
+                    pass_signup_text_input_layout.setErrorEnabled(false);
                 }
-                else{
+
+                if (checkpass.length() == 0){
+                    pass_signup_text_input_layout.setError("Please enter confirm password!!!");
+                    pass_signup_text_input_layout.setErrorEnabled(true);
+                }else if (checkpass.length() < 6) {
+                    pass_signup_text_input_layout.setError("Password must be more 6 characters");
+                    pass_signup_text_input_layout.setErrorEnabled(true);
+                }else if (!checkpass_signup_text_input_layout.getEditText().getText().toString().equals(pass_signup_text_input_layout.getEditText().getText().toString())){
                     checkpass_signup_text_input_layout.setError("Incorrect password");
                     checkpass_signup_text_input_layout.setErrorEnabled(true);
+                }else {
+                    checkpass_signup_text_input_layout.setErrorEnabled(false);
+                }
+
+                if (user_name_signup_text_input_layout.isErrorEnabled() ||
+                    email_signup_text_input_layout.isErrorEnabled() ||
+                    pass_signup_text_input_layout.isErrorEnabled() ||
+                    checkpass_signup_text_input_layout.isErrorEnabled()){
+                    Toast.makeText(getContext(), "Please check error!!!", Toast.LENGTH_SHORT).show();
+                }else {
+                    ApiService insertNewUser = ApiUtils.connectRetrofit();
+                    insertNewUser.isCreateNewUserSuccess(userName, userEmail, userPass).enqueue(new Callback<String>() {
+                        @Override
+                        public void onResponse(Call<String> call, Response<String> response) {
+                            String result = response.body();
+                            if (result.equals("SUCCESS")){
+                                ApiService getUser = ApiUtils.connectRetrofit();
+                                getUser.getUser().enqueue(new Callback<ArrayList<User>>() {
+                                    @Override
+                                    public void onResponse(Call<ArrayList<User>> call, Response<ArrayList<User>> response) {
+                                        ArrayList<User> temp = response.body();
+                                        if (temp != null){
+                                            id_user = temp.get(temp.size()-1).getId_user();
+                                        }
+                                        Toast.makeText(getContext(), "Create success", Toast.LENGTH_SHORT).show();
+                                        ApiService insertNewUserInfomation = ApiUtils.connectRetrofit();
+                                        insertNewUserInfomation.isInsertNewUserInformationSuccess(id_user).enqueue(new Callback<String>() {
+                                            @Override
+                                            public void onResponse(Call<String> call, Response<String> response) {
+                                                String result2 = response.body();
+                                                if (!result2.equals("FAILED")){
+//                                                        Toast.makeText(getContext(), "" + response.body(), Toast.LENGTH_SHORT).show();
+                                                    registerUser(userName, userEmail, userPass);
+                                                }else {
+                                                    Toast.makeText(getContext(), "Failed \n" + call + "\n" + result2, Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onFailure(Call<String> call, Throwable t) {
+                                                Toast.makeText(getContext(), "Failed \n" + call + "\n" + t, Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<ArrayList<User>> call, Throwable t) {
+
+                                    }
+                                });
+                            }else Toast.makeText(getContext(), "" + result, Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onFailure(Call<String> call, Throwable t) {
+                            Toast.makeText(getContext(), "" + call +"\n"+ t , Toast.LENGTH_SHORT).show();
+                            Log.e("TAG", "onFailure: " + t );
+                        }
+                    });
                 }
             }
         });
@@ -352,5 +382,43 @@ public class SignUpTabFragment extends Fragment {
 
     public static boolean isValidEmail(CharSequence target) {
         return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
+    }
+
+    public void registerUser(String userName, String userEmail, String userPass){
+        auth.createUserWithEmailAndPassword(userEmail, userPass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()){
+                    FirebaseUser firebaseUser = auth.getCurrentUser();
+                    String user_ID = firebaseUser.getUid();
+                    reference = FirebaseDatabase.getInstance().getReference("Users").child(user_ID);
+
+                    HashMap<String, String> hashMap = new HashMap<>();
+                    hashMap.put("User_ID", user_ID);
+                    hashMap.put("User_Name", userName);
+                    hashMap.put("User_Email", userEmail);
+                    hashMap.put("User_Pass", userPass);
+                    hashMap.put("User_Status", "online");
+
+                    reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()){
+                                editor.putInt("userId_txt", id_user);
+                                editor.putString("userName_txt", userName);
+                                editor.putString("userEmail_txt", userEmail);
+                                editor.putString("userPassword_txt", userPass);
+                                editor.putBoolean("userStatus_txt", true);
+                                editor.putBoolean("userChecked", true);
+                                editor.commit();
+                                Intent intent = new Intent(getActivity(), MainActivity.class);
+                                startActivity(intent);
+                                getActivity().finish();
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 }

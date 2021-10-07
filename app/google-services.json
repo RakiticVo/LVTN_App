@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "948444403536",
+    "project_id": "paffer-app",
+    "storage_bucket": "paffer-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:948444403536:android:32620aa5ecc36778c5fe55",
+        "android_client_info": {
+          "package_name": "com.example.lvtn_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "948444403536-c1o7pf2b2nb72v5n97p5u5ril8rnloas.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLJbjRsoePSOWH7Gb9TilD7XUrDqcLrao"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "948444403536-c1o7pf2b2nb72v5n97p5u5ril8rnloas.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

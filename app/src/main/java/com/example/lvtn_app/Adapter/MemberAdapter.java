@@ -1,6 +1,7 @@
 package com.example.lvtn_app.Adapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.lvtn_app.Model.Member;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
@@ -25,11 +27,11 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder
     //Khai báo
     private Context context;
     private LayoutInflater mInflater;
-    private ArrayList<Member> members;
+    private ArrayList<User> members;
     private ItemClickListener mClickListener;
 
 
-    public MemberAdapter(Context context, ArrayList<Member> members) {
+    public MemberAdapter(Context context, ArrayList<User> members) {
         this.context = context;
         this.members = members;
         this.mInflater = LayoutInflater.from(context);
@@ -44,17 +46,18 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        if (members.get(position).isStatus()){
+        if (members.get(position).getStatus() == 1){
             Glide.with(context).load(R.drawable.circle_blue).into(holder.imgStatusMember);
         } else {
             Glide.with(context).load(R.drawable.circle_grey).into(holder.imgStatusMember);
         }
-        if (members.get(position).getAvatar().length() == 0){
+        String avatar = members.get(position).getAvatar_PI();
+        if (avatar == null || avatar.length() == 0){
             holder.imgAvatarMember.setImageResource(R.drawable.profile_1);
-        }else {
-            Glide.with(context).load(members.get(position).getAvatar()).centerCrop().into(holder.imgAvatarMember);
+        }else{
+            Glide.with(context).load(avatar).centerCrop().into(holder.imgAvatarMember);
         }
-        holder.tvNameMember.setText(members.get(position).getName());
+        holder.tvNameMember.setText(members.get(position).getUserName());
         holder.tvPositionMember.setText(members.get(position).getPosition());
     }
 
@@ -64,8 +67,7 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        CircleImageView imgAvatarMember;
-        ImageView imgStatusMember;
+        CircleImageView imgStatusMember, imgAvatarMember;
         TextView tvNameMember, tvPositionMember;
         public CheckBox cb_delete_member;
         LinearLayout linearLayout_member_choose;
@@ -92,7 +94,7 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder
         }
     }
     // Lấy data từ vị trí đc click
-    public Member getItem(int id) {
+    public User getItem(int id) {
         return members.get(id);
     }
 

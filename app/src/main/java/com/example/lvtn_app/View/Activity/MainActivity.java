@@ -3,30 +3,19 @@ package com.example.lvtn_app.View.Activity;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
-import com.example.lvtn_app.Controller.Retrofit.ApiService;
-import com.example.lvtn_app.Controller.Retrofit.ApiUtils;
 import com.example.lvtn_app.R;
-import com.example.lvtn_app.View.Fragment.CreateIssueFragment;
 import com.example.lvtn_app.View.Fragment.GroupChatFragment;
-import com.example.lvtn_app.View.Fragment.MemberFragment;
 import com.example.lvtn_app.View.Fragment.MyTasksFragment;
 import com.example.lvtn_app.View.Fragment.NotificationFragment;
 import com.example.lvtn_app.View.Fragment.ProfileFragment;
 import com.example.lvtn_app.View.Fragment.ProjectsFragment;
 
 import java.util.Objects;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     // Khai báo

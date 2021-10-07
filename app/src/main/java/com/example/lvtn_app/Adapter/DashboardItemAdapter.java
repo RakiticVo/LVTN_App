@@ -1,7 +1,7 @@
 package com.example.lvtn_app.Adapter;
 
 import android.content.Context;
-import android.util.Log;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,14 +14,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.lvtn_app.Model.Issue;
 import com.example.lvtn_app.Model.Process;
-import com.example.lvtn_app.Model.Task;
 import com.example.lvtn_app.R;
-import com.example.lvtn_app.View.Fragment.CreateGroupChatFragment;
 import com.example.lvtn_app.View.Fragment.CreateIssueFragment;
-import com.example.lvtn_app.View.Fragment.IssueDetailFragment;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class DashboardItemAdapter  extends RecyclerView.Adapter<DashboardItemAdapter.ViewHolder> {
     //Khai báo
@@ -29,6 +28,7 @@ public class DashboardItemAdapter  extends RecyclerView.Adapter<DashboardItemAda
     private LayoutInflater mInflater;
     private ArrayList<Process> process_list;
     private IssueAdapter issueAdapter;
+    SharedPreferences sharedPreferences_user, sharedPreferences_project;
 
     public DashboardItemAdapter(Context context, ArrayList<Process> process_list) {
         this.context = context;
@@ -74,7 +74,7 @@ public class DashboardItemAdapter  extends RecyclerView.Adapter<DashboardItemAda
         //Khai báo
         TextView tv_process;
         RecyclerView recyclerView_Task_Process;
-        ArrayList<Task> list = new ArrayList<>();
+        ArrayList<Issue> list = new ArrayList<>();
         LinearLayout linear_create_task;
 
         public ViewHolder(@NonNull View itemView) {
@@ -83,6 +83,14 @@ public class DashboardItemAdapter  extends RecyclerView.Adapter<DashboardItemAda
             tv_process = itemView.findViewById(R.id.tv_process);
             recyclerView_Task_Process = itemView.findViewById(R.id.recyclerView_Task_Process);
             linear_create_task = itemView.findViewById(R.id.linear_create_task);
+
+            sharedPreferences_project = Objects.requireNonNull(context).getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
+            sharedPreferences_user = Objects.requireNonNull(context).getSharedPreferences("User", Context.MODE_PRIVATE);
+            String user = sharedPreferences_user.getString("userName_txt", "User");
+            String leader = sharedPreferences_project.getString("projectLeader_txt", "Leader");
+            if (user.equals(leader)){
+                linear_create_task.setVisibility(View.VISIBLE);
+            }else linear_create_task.setVisibility(View.GONE);
 
             linear_create_task.setOnClickListener(new View.OnClickListener() {
                 @Override

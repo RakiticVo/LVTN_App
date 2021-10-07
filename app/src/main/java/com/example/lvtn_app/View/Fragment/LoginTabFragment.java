@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.text.Editable;
@@ -27,9 +28,17 @@ import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 import com.example.lvtn_app.View.Activity.LoginActivity;
 import com.example.lvtn_app.View.Activity.MainActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -107,6 +116,7 @@ public class LoginTabFragment extends Fragment {
         savepass = viewGroup.findViewById(R.id.cb_save_pass_login);
         login = viewGroup.findViewById(R.id.btn_login);
 
+
         sharedPreferences = Objects.requireNonNull(getContext()).getSharedPreferences("User", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
@@ -118,7 +128,7 @@ public class LoginTabFragment extends Fragment {
                 service.isUpdateUserInformationSuccess(id_user, true).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(Call<String> call, Response<String> response) {
-                        Toast.makeText(getContext(), "" + response.body(), Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getContext(), "" + response.body(), Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(getActivity().getApplication(), MainActivity.class);
                         startActivity(intent);
                         getActivity().finish();
@@ -251,7 +261,7 @@ public class LoginTabFragment extends Fragment {
                             service.isUpdateUserInformationSuccess(user.getId_user(), true).enqueue(new Callback<String>() {
                                 @Override
                                 public void onResponse(Call<String> call, Response<String> response) {
-                                    Toast.makeText(getContext(), "" + response.body(), Toast.LENGTH_SHORT).show();
+//                                    Toast.makeText(getContext(), "" + response.body(), Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(getActivity().getApplication(), MainActivity.class);
                                     startActivity(intent);
                                     getActivity().finish();
@@ -281,4 +291,6 @@ public class LoginTabFragment extends Fragment {
     public static boolean isValidEmail(CharSequence target) {
         return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
     }
+
+
 }

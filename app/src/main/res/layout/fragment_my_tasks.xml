@@ -37,25 +37,74 @@
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintTop_toTopOf="parent" />
 
-      <com.github.sundeepk.compactcalendarview.CompactCalendarView
-          android:id="@+id/calendarView"
-          android:layout_width="fill_parent"
-          android:layout_height="380dp"
-          android:layout_marginTop="8dp"
-          android:layout_marginLeft="5dp"
-          android:layout_marginRight="5dp"
+      <LinearLayout
+          android:id="@+id/linearLayout_calendarView"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_margin="10dp"
+          android:padding="5dp"
           android:background="@drawable/custom_calendar"
-          app:compactCalendarBackgroundColor="@android:color/transparent"
-          app:compactCalendarCurrentDayBackgroundColor="@color/green"
-          app:compactCalendarCurrentSelectedDayBackgroundColor="@color/lightyellow"
-          app:compactCalendarMultiEventIndicatorColor="@color/red"
-          app:compactCalendarTargetHeight="450dp"
-          app:compactCalendarTextColor="@color/black"
-          app:compactCalendarTextSize="14sp"
+          android:gravity="center"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintHorizontal_bias="0.0"
           app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/textView13" />
+          app:layout_constraintTop_toBottomOf="@+id/textView13"
+          android:orientation="vertical">
+
+         <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="60dp"
+             android:gravity="center"
+             android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginLeft="5dp"
+                android:src="@drawable/back"
+                android:scaleType="fitCenter"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center">
+
+               <TextView
+                   android:id="@+id/tv_today"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_gravity="center"
+                   android:text="Date"
+                   android:textColor="@color/black"
+                   android:textSize="20dp"
+                   android:textStyle="bold" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/right_arrow"
+                android:scaleType="fitCenter"/>
+
+         </LinearLayout>
+
+         <com.github.sundeepk.compactcalendarview.CompactCalendarView
+             android:id="@+id/calendarView"
+             android:layout_width="fill_parent"
+             android:layout_height="380dp"
+             android:layout_marginLeft="5dp"
+             android:layout_marginRight="5dp"
+             app:compactCalendarBackgroundColor="@android:color/transparent"
+             app:compactCalendarCurrentDayBackgroundColor="@color/green"
+             app:compactCalendarCurrentSelectedDayBackgroundColor="@color/lightyellow"
+             app:compactCalendarMultiEventIndicatorColor="@color/purple"
+             app:compactCalendarTargetHeight="450dp"
+             app:compactCalendarTextColor="@color/black"
+             app:compactCalendarTextSize="14sp" />
+
+      </LinearLayout>
 
       <ScrollView
           android:layout_width="match_parent"
@@ -65,7 +114,7 @@
           app:layout_constraintBottom_toBottomOf="parent"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/calendarView">
+          app:layout_constraintTop_toBottomOf="@+id/linearLayout_calendarView">
 
 <!--         <androidx.recyclerview.widget.RecyclerView-->
 <!--             android:id="@+id/recyclerViewCalendar"-->

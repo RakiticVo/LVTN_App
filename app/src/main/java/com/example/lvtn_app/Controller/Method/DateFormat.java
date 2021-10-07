@@ -32,17 +32,16 @@ public class DateFormat {
         return flag;
     }
 
-    public Date checkFormatDate(String start_date){
-        String pattern = "(0?[1-9]|[12][0-9]|3[01])\\/(0?[1-9]|1[0-2])\\/([0-9]{4})";
-        sdf.setLenient(false);
-        if (start_date.matches(pattern)) {
-            try {
-                Date date = sdf.parse(start_date);
-                return date;
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+    public boolean isValidDate(String date) {
+        boolean valid = false;
+        try {
+            sdf.parse(date);
+            sdf.setLenient(false);
+            valid = true;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            valid = false;
         }
-        return null;
+        return valid;
     }
 }
