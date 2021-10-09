@@ -1,6 +1,7 @@
 package com.example.lvtn_app.Adapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.lvtn_app.Model.Member;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
@@ -27,17 +29,17 @@ public class MemberDeleteAdapter extends RecyclerView.Adapter<MemberDeleteAdapte
     //Khai báo
     private Context context;
     private LayoutInflater mInflater;
-    private ArrayList<Member> members, members_checked;
+    private ArrayList<User> members, members_checked;
 
-    public ArrayList<Member> getMembers_checked() {
+    public ArrayList<User> getMembers_checked() {
         return members_checked;
     }
 
-    public void setMembers_checked(ArrayList<Member> members_checked) {
+    public void setMembers_checked(ArrayList<User> members_checked) {
         this.members_checked = members_checked;
     }
 
-    public MemberDeleteAdapter(Context context, ArrayList<Member> members) {
+    public MemberDeleteAdapter(Context context, ArrayList<User> members) {
         this.context = context;
         this.members = members;
         this.mInflater = LayoutInflater.from(context);
@@ -53,17 +55,22 @@ public class MemberDeleteAdapter extends RecyclerView.Adapter<MemberDeleteAdapte
     @Override
     public void onBindViewHolder(@NonNull MemberDeleteAdapter.ViewHolder holder, int position) {
         members_checked = new ArrayList<>();
-        if (members.get(position).isStatus()){
+        if (members.get(position).getStatus() == 1){
             Glide.with(context).load(R.drawable.circle_blue).into(holder.imgStatusMember);
         } else {
             Glide.with(context).load(R.drawable.circle_grey).into(holder.imgStatusMember);
         }
-        if (members.get(position).getAvatar().length() == 0){
-            holder.imgAvatarMember.setImageResource(R.drawable.profile_1);
+        String avatar = members.get(position).getAvatar_PI();
+        if (avatar.length() > 0){
+            Glide.with(context).load(avatar)
+                    .onlyRetrieveFromCache(true)
+                    .override(50)
+                    .centerCrop()
+                    .into(holder.imgAvatarMember);
         }else {
-            Glide.with(context).load(members.get(position).getAvatar()).centerCrop().into(holder.imgAvatarMember);
+            Glide.with(context).load(members.get(position).getAvatar_PI()).centerCrop().into(holder.imgAvatarMember);
         }
-        holder.tvNameMember.setText(members.get(position).getName());
+        holder.tvNameMember.setText(members.get(position).getUserName());
         holder.tvPositionMember.setText(members.get(position).getPosition());
 
         holder.cb_delete_member.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -74,9 +81,9 @@ public class MemberDeleteAdapter extends RecyclerView.Adapter<MemberDeleteAdapte
                     members_checked.add(members.get(holder.getAdapterPosition()));
                 }else {
                     Toast.makeText(context, "Checkbox " + (holder.getAdapterPosition() + 1) + " is unchecked", Toast.LENGTH_SHORT).show();
-                    String member_name = members.get(holder.getAdapterPosition()).getName();
+                    String member_name = members.get(holder.getAdapterPosition()).getUserName();
                     for (int i = 0; i < members_checked.size(); i++) {
-                        if (members_checked.get(i).getName().equals(member_name)){
+                        if (members_checked.get(i).getUserName().equals(member_name)){
                             members_checked.remove(i);
                             break;
                         }
@@ -92,8 +99,7 @@ public class MemberDeleteAdapter extends RecyclerView.Adapter<MemberDeleteAdapte
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        CircleImageView imgAvatarMember;
-        ImageView imgStatusMember;
+        CircleImageView imgStatusMember, imgAvatarMember;
         TextView tvNameMember, tvPositionMember;
         public CheckBox cb_delete_member;
         LinearLayout linearLayout_member_choose;

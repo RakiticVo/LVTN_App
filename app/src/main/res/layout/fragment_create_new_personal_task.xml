@@ -78,7 +78,7 @@
                         android:layout_marginTop="8dp"
                         android:padding="10dp"
                         android:background="@drawable/custom_edt"
-                        android:hint="Enter task name"
+                        android:hint="Enter issue name"
                         android:textColor="@color/black"
                         android:textSize="18sp" />
 
@@ -113,7 +113,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="5"
                     android:gravity="center"
-                    app:errorEnabled="true"
+                    app:errorEnabled="false"
                     app:hintEnabled="false">
 
                     <EditText

@@ -44,6 +44,7 @@ public class ProjectInfoFragment extends DialogFragment {
 
     DateFormat dateFormat = new DateFormat();
     Calendar myCalendar = Calendar.getInstance();
+    Date date1 = new Date();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -76,11 +77,17 @@ public class ProjectInfoFragment extends DialogFragment {
                 myCalendar.set(Calendar.MONTH, month);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                 edt_finish_date_text_input_layout.getEditText().setText(dateFormat.formatDate(myCalendar.getTime()));
-                Date date = dateFormat.checkFormatDate(edt_finish_date_text_input_layout.getEditText().getText().toString());
-                if (date.getTime() < Calendar.getInstance().getTime().getTime()){
-                    edt_finish_date_text_input_layout.setError("Wrong day!!!");
-                    edt_finish_date_text_input_layout.setErrorEnabled(true);
-                }else edt_finish_date_text_input_layout.setErrorEnabled(false);
+                if (dateFormat.isValidDate(edt_finish_date_text_input_layout.getEditText().getText().toString())){
+                    try {
+                        date1 = dateFormat.sdf.parse(edt_finish_date_text_input_layout.getEditText().getText().toString());
+                        if (date1.getTime() < Calendar.getInstance().getTime().getTime()){
+                            edt_finish_date_text_input_layout.setError("Wrong day!!!");
+                            edt_finish_date_text_input_layout.setErrorEnabled(true);
+                        }else edt_finish_date_text_input_layout.setErrorEnabled(false);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         };
 
@@ -188,11 +195,17 @@ public class ProjectInfoFragment extends DialogFragment {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
-                    Date date = dateFormat.checkFormatDate(edt_finish_date_text_input_layout.getEditText().getText().toString());
-                    if (date.getTime() < Calendar.getInstance().getTime().getTime()){
-                        edt_finish_date_text_input_layout.setError("Wrong day!!!");
-                        edt_finish_date_text_input_layout.setErrorEnabled(true);
-                    }else edt_finish_date_text_input_layout.setErrorEnabled(false);
+                    if (dateFormat.isValidDate(edt_finish_date_text_input_layout.getEditText().getText().toString())){
+                        try {
+                            date1 = dateFormat.sdf.parse(edt_finish_date_text_input_layout.getEditText().getText().toString());
+                            if (date1.getTime() < Calendar.getInstance().getTime().getTime()){
+                                edt_finish_date_text_input_layout.setError("Wrong day!!!");
+                                edt_finish_date_text_input_layout.setErrorEnabled(true);
+                            }else edt_finish_date_text_input_layout.setErrorEnabled(false);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         });

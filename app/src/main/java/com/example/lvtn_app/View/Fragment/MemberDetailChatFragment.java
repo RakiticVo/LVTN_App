@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,10 +27,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link MemberDetailFragment#newInstance} factory method to
+ * Use the {@link MemberDetailChatFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MemberDetailFragment extends DialogFragment {
+public class MemberDetailChatFragment extends DialogFragment {
     //Declare
     CircleImageView avatar_member_detail;
     TextView tv_username_member_detail, tv_email_member_detail, tv_phoneNumber_member_detail, tv_position_member_detail;
@@ -39,7 +38,9 @@ public class MemberDetailFragment extends DialogFragment {
     Button btn_confirm_update_profile;
     TextInputLayout position_member_detail_text_input_layout;
 
-    SharedPreferences sharedPreferences_user, sharedPreferences_leader;
+    SharedPreferences sharedPreferences_user, sharedPreferences_group;
+    String username = "";
+    String leader = "";
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -50,7 +51,7 @@ public class MemberDetailFragment extends DialogFragment {
     private String mParam1;
     private String mParam2;
 
-    public MemberDetailFragment() {
+    public MemberDetailChatFragment() {
         // Required empty public constructor
     }
 
@@ -63,8 +64,8 @@ public class MemberDetailFragment extends DialogFragment {
      * @return A new instance of fragment MemberDetailFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static MemberDetailFragment newInstance(String param1, String param2) {
-        MemberDetailFragment fragment = new MemberDetailFragment();
+    public static MemberDetailProjectFragment newInstance(String param1, String param2) {
+        MemberDetailProjectFragment fragment = new MemberDetailProjectFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -85,25 +86,24 @@ public class MemberDetailFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         //Declare
-        View view = inflater.inflate(R.layout.fragment_member_detail, container, false);
+        View view = inflater.inflate(R.layout.fragment_member_detail_chat, container, false);
 
         if (getDialog() != null && getDialog().getWindow() != null) {
             getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
-        avatar_member_detail = view.findViewById(R.id.avatar_member_detail);
-        tv_username_member_detail = view.findViewById(R.id.tv_username_member_detail);
-        tv_email_member_detail = view.findViewById(R.id.tv_email_member_detail);
-        tv_phoneNumber_member_detail = view.findViewById(R.id.tv_phoneNumber_member_detail);
-        tv_position_member_detail = view.findViewById(R.id.tv_position_member_detail);
-        ibtn_back_member_detail = view.findViewById(R.id.ibtn_back_member_detail);
-        btn_confirm_update_profile = view.findViewById(R.id.btn_confirm_update_profile);
-        position_member_detail_text_input_layout = view.findViewById(R.id.position_member_detail_text_input_layout);
+        avatar_member_detail = view.findViewById(R.id.avatar_member_detail_chat);
+        tv_username_member_detail = view.findViewById(R.id.tv_username_member_detail_chat);
+        tv_email_member_detail = view.findViewById(R.id.tv_email_member_detail_chat);
+        tv_phoneNumber_member_detail = view.findViewById(R.id.tv_phoneNumber_member_detail_chat);
+        tv_position_member_detail = view.findViewById(R.id.tv_position_member_detail_chat);
+        ibtn_back_member_detail = view.findViewById(R.id.ibtn_back_member_detail_chat);
+        btn_confirm_update_profile = view.findViewById(R.id.btn_confirm_update_profile_chat);
+        position_member_detail_text_input_layout = view.findViewById(R.id.position_member_detail_chat_text_input_layout);
 
         sharedPreferences_user = Objects.requireNonNull(getContext()).getSharedPreferences("User", Context.MODE_PRIVATE);
-        sharedPreferences_leader = Objects.requireNonNull(getContext()).getSharedPreferences("Leader", Context.MODE_PRIVATE);
+        sharedPreferences_group = Objects.requireNonNull(getContext()).getSharedPreferences("Chat", Context.MODE_PRIVATE);
 
-        //Set up
         Bundle bundle = getArguments();
         int member_id = bundle.getInt("member_id_txt", -1);
         String member_avatar = bundle.getString("member_avatar_txt", "");
@@ -112,8 +112,8 @@ public class MemberDetailFragment extends DialogFragment {
         String member_phone = bundle.getString("member_phone_txt", "Phone");
         String member_position = bundle.getString("member_position_txt", "Position");
 
-        String username = sharedPreferences_user.getString("username_txt", "");
-        String leadername = sharedPreferences_leader.getString("name_leader", "");
+        username = sharedPreferences_user.getString("userName_txt", "abc");
+        leader = sharedPreferences_group.getString("groupChat_creator", "abc");
 
         //Set data
         if (member_avatar.length() >0){
@@ -125,9 +125,9 @@ public class MemberDetailFragment extends DialogFragment {
         tv_position_member_detail.setText(member_position);
         position_member_detail_text_input_layout.getEditText().setText(member_position);
 
-        Toast.makeText(getContext(), "" + username +"\n" + leadername, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "" + member_name + "\n" + username +"\n" + leader, Toast.LENGTH_SHORT).show();
 
-        if (username.equals(leadername)){
+        if (username.equals(leader)){
             btn_confirm_update_profile.setVisibility(View.VISIBLE);
             tv_position_member_detail.setVisibility(View.GONE);
             position_member_detail_text_input_layout.setVisibility(View.VISIBLE);
@@ -150,7 +150,7 @@ public class MemberDetailFragment extends DialogFragment {
             public void onClick(View v) {
                 if (member_id>0 && position_member_detail_text_input_layout.getEditText().getText().toString().length()>0){
                     position_member_detail_text_input_layout.setErrorEnabled(false);
-                    MemberFragment.getInstance().updatePosition(member_id-1, position_member_detail_text_input_layout.getEditText().getText().toString());
+                    MemberChatFragment.getInstance().updatePosition(member_id-1, position_member_detail_text_input_layout.getEditText().getText().toString());
                     dismiss();
                 }else{
                     position_member_detail_text_input_layout.setError("Please enter Position");

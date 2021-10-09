@@ -17,7 +17,10 @@ import com.example.lvtn_app.Model.Message;
 import com.example.lvtn_app.Model.Project;
 import com.example.lvtn_app.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -30,11 +33,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     private LayoutInflater mInflater;
     private ArrayList<Message> message_list;
     SharedPreferences sharedPreferences;
+    String userName = "";
 
     public MessageAdapter(Context context, ArrayList<Message> message_list) {
         this.context = context;
         this.message_list = message_list;
         this.mInflater = LayoutInflater.from(context);
+        sharedPreferences = Objects.requireNonNull(context).getSharedPreferences("User", Context.MODE_PRIVATE);
     }
 
     @NonNull
@@ -61,16 +66,21 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         }else {
             holder.temp2.setVisibility(View.VISIBLE);
         }
-        if (message_list.get(position).getImg_sender() == null || message_list.get(position).getImg_sender().equals("")){
+        if (message_list.get(position).getImg_sender() == null || message_list.get(position).getImg_sender().equals(" ")){
             holder.avatar_user.setImageResource(R.drawable.user);
             holder.avatar_user.setScaleType(CircleImageView.ScaleType.CENTER_CROP);
         }else {
             Glide.with(context).load(message_list.get(position).getImg_sender()).centerCrop().into(holder.avatar_user);
         }
-        if (position == message_list.size()-1)
+        if (position == message_list.size() - 1)
         {
             holder.tv_seen.setVisibility(View.VISIBLE);
-            holder.tv_seen.setText("Seen");
+//            Toast.makeText(context, "" + userName, Toast.LENGTH_SHORT).show();
+            if (message_list.get(position).getSender().equals(userName)){
+                holder.tv_seen.setText(message_list.get(position).getStatus());
+            }else {
+                holder.tv_seen.setVisibility(View.GONE);
+            }
         }
         else
         {
@@ -96,13 +106,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             tv_seen = itemView.findViewById(R.id.tv_seen);
             temp1 = itemView.findViewById(R.id.temp1);
             temp2 = itemView.findViewById(R.id.temp2);
+
+            userName = sharedPreferences.getString("userName_txt", "User Name");
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        sharedPreferences = Objects.requireNonNull(context).getSharedPreferences("User", Context.MODE_PRIVATE);
-        if (message_list.get(position).getSender().equals(sharedPreferences.getString("username_txt", "User Name"))){
+        if (message_list.get(position).getSender().equals(sharedPreferences.getString("userName_txt", "User Name"))){
             return RIGHT;
         }else {
             return LEFT;

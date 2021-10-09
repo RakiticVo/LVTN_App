@@ -37,4 +37,5 @@
     <string name="username"><u>UserName</u><font color='#FF0000'>*</font></string>
     <string name="password"><u>Password</u><font color='#FF0000'>*</font></string>
     <string name="confirm_password"><u>Confirm Password</u><font color='#FF0000'>*</font></string>
+    <string name="default_notification_channel_id">abc</string>
 </resources>

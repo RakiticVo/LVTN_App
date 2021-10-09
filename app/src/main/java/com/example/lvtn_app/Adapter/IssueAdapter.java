@@ -13,9 +13,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.lvtn_app.Model.Task;
+import com.example.lvtn_app.Model.Issue;
 import com.example.lvtn_app.R;
-import com.example.lvtn_app.View.Fragment.CreateIssueFragment;
 import com.example.lvtn_app.View.Fragment.IssueDetailFragment;
 
 import java.util.ArrayList;
@@ -25,13 +24,13 @@ public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.ViewHolder>{
     //Khai báo
     private Context context;
     private LayoutInflater mInflater;
-    private ArrayList<Task> task_list;
+    private ArrayList<Issue> issue_list;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
 
-    public IssueAdapter(Context context, ArrayList<Task> task_list) {
+    public IssueAdapter(Context context, ArrayList<Issue> issue_list) {
         this.context = context;
-        this.task_list = task_list;
+        this.issue_list = issue_list;
         this.mInflater = LayoutInflater.from(context);
     }
 
@@ -44,10 +43,10 @@ public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.ViewHolder>{
 
     @Override
     public void onBindViewHolder(@NonNull IssueAdapter.ViewHolder holder, int position) {
-        holder.tv_name_issue.setText(task_list.get(position).getName());
-        holder.tv_name_assignee.setText(task_list.get(position).getAssignee());
-        holder.tv_start_date_issue.setText(task_list.get(position).getStart_date());
-        switch (task_list.get(position).getIssue_type()){
+        holder.tv_name_issue.setText(issue_list.get(position).getIssueName());
+        holder.tv_name_assignee.setText(issue_list.get(position).getIssueAssignee());
+        holder.tv_start_date_issue.setText(issue_list.get(position).getIssueStartDate());
+        switch (issue_list.get(position).getIssueType()){
             case "Task":
                 holder.img_issue_type.setImageResource(R.drawable.task);
                 break;
@@ -58,7 +57,7 @@ public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.ViewHolder>{
                 holder.img_issue_type.setImageResource(R.drawable.user_story);
                 break;
         }
-        switch (task_list.get(position).getPriority()){
+        switch (issue_list.get(position).getIssuePriority()){
             case "High":
                 holder.img_priority_issue.setImageResource(R.drawable.high);
                 break;
@@ -73,7 +72,7 @@ public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.ViewHolder>{
 
     @Override
     public int getItemCount() {
-        return task_list.size();
+        return issue_list.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -96,12 +95,12 @@ public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.ViewHolder>{
                 public void onClick(View v) {
                     sharedPreferences = Objects.requireNonNull(context).getSharedPreferences("Task", Context.MODE_PRIVATE);
                     editor = sharedPreferences.edit();
-                    editor.putInt("task_id", task_list.get(getAdapterPosition()).getId());
-                    editor.putString("task_name", task_list.get(getAdapterPosition()).getName());
-                    editor.putString("task_name_assignee", task_list.get(getAdapterPosition()).getAssignee());
-                    editor.putString("task_start_date", task_list.get(getAdapterPosition()).getStart_date());
-                    editor.putString("task_type", task_list.get(getAdapterPosition()).getIssue_type());
-                    editor.putString("task_priority", task_list.get(getAdapterPosition()).getPriority());
+                    editor.putInt("task_id", issue_list.get(getAdapterPosition()).getId_Issue());
+                    editor.putString("task_name", issue_list.get(getAdapterPosition()).getIssueName());
+                    editor.putString("task_name_assignee", issue_list.get(getAdapterPosition()).getIssueAssignee());
+                    editor.putString("task_start_date", issue_list.get(getAdapterPosition()).getIssueStartDate());
+                    editor.putString("task_type", issue_list.get(getAdapterPosition()).getIssueType());
+                    editor.putString("task_priority", issue_list.get(getAdapterPosition()).getIssuePriority());
                     editor.commit();
                     IssueDetailFragment dialog = new IssueDetailFragment();
                     dialog.show(((AppCompatActivity) context).getSupportFragmentManager(), "IssueDetailFragment");

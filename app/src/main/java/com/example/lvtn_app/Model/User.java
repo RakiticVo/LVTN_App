@@ -5,14 +5,15 @@ public class User {
     private String userName;
     private String userEmail;
     private String userPass;
-    private boolean status;
+    private int status;
     private String gender_PI;
     private String phone_PI;
     private String dob_PI;
     private String address_PI;
     private String avatar_PI;
+    private String position;
 
-    public User(int id_user, String userName, String userEmail, String userPass, boolean status, String gender_PI, String phone_PI, String dob_PI, String address_PI, String avatar_PI) {
+    public User(int id_user, String userName, String userEmail, String userPass, int status, String gender_PI, String phone_PI, String dob_PI, String address_PI, String avatar_PI) {
         this.id_user = id_user;
         this.userName = userName;
         this.userEmail = userEmail;
@@ -25,6 +26,16 @@ public class User {
         this.avatar_PI = avatar_PI;
     }
 
+    public User(int id_user, String userName, String userEmail, int status, String phone_PI, String avatar_PI, String position) {
+        this.id_user = id_user;
+        this.userName = userName;
+        this.userEmail = userEmail;
+        this.status = status;
+        this.phone_PI = phone_PI;
+        this.avatar_PI = avatar_PI;
+        this.position = position;
+    }
+
     public User(String userName, String gender_PI, String phone_PI, String dob_PI, String address_PI, String avatar_PI) {
         this.userName = userName;
         this.gender_PI = gender_PI;
@@ -34,7 +45,7 @@ public class User {
         this.avatar_PI = avatar_PI;
     }
 
-    public User(int id_user, String userName, String userEmail, String userPass, boolean status) {
+    public User(int id_user, String userName, String userEmail, String userPass, int status) {
         this.id_user = id_user;
         this.userName = userName;
         this.userEmail = userEmail;
@@ -74,11 +85,11 @@ public class User {
         this.userPass = userPass;
     }
 
-    public boolean isStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 
@@ -120,5 +131,13 @@ public class User {
 
     public void setAvatar_PI(String avatar_PI) {
         this.avatar_PI = avatar_PI;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
     }
 }

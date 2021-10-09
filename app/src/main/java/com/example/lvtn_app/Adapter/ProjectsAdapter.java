@@ -52,7 +52,7 @@ public class ProjectsAdapter extends RecyclerView.Adapter<ProjectsAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ProjectsAdapter.ViewHolder holder, int position) {
 //        Glide.with(context).load(project_list.get(position).getProject_image()).centerCrop().into(holder.img_project);
-        holder.CardView_background.setBackgroundColor(project_list.get(position).getProjectBackground());
+        holder.CardView_background.setCardBackgroundColor(project_list.get(position).getProjectBackground());
         switch (project_list.get(position).getProjectType().toString()){
 
             case "Normal":
@@ -98,14 +98,14 @@ public class ProjectsAdapter extends RecyclerView.Adapter<ProjectsAdapter.ViewHo
 
         @Override
         public void onClick(View v) {
-            Toast.makeText(context, "" + project_list.get(getAdapterPosition()).getId_project() + "\n"
-                    + project_list.get(getAdapterPosition()).getProjectName() + "\n"
-                    + project_list.get(getAdapterPosition()).getProjectDescription() + "\n"
-                    + project_list.get(getAdapterPosition()).getProjectFinishDate() + "\n"
-                    + project_list.get(getAdapterPosition()).getProjectType() + "\n"
-                    + project_list.get(getAdapterPosition()).getProjectDateCreate() + "\n"
-                    + project_list.get(getAdapterPosition()).getProjectLeader() + "\n"
-                    + project_list.get(getAdapterPosition()).getProjectBackground() + "\n", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, "" + project_list.get(getAdapterPosition()).getId_project() + "\n"
+//                    + project_list.get(getAdapterPosition()).getProjectName() + "\n"
+//                    + project_list.get(getAdapterPosition()).getProjectDescription() + "\n"
+//                    + project_list.get(getAdapterPosition()).getProjectFinishDate() + "\n"
+//                    + project_list.get(getAdapterPosition()).getProjectType() + "\n"
+//                    + project_list.get(getAdapterPosition()).getProjectDateCreate() + "\n"
+//                    + project_list.get(getAdapterPosition()).getProjectLeader() + "\n"
+//                    + project_list.get(getAdapterPosition()).getProjectBackground() + "\n", Toast.LENGTH_SHORT).show();
 
             sharedPreferences = Objects.requireNonNull(context).getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
             editor = sharedPreferences.edit();

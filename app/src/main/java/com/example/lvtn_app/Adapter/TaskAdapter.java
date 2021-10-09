@@ -11,10 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.lvtn_app.Model.Task;
+import com.example.lvtn_app.Model.Issue;
 import com.example.lvtn_app.R;
 import com.example.lvtn_app.View.Fragment.IssueDetailFragment;
-import com.example.lvtn_app.View.Fragment.ProjectDetailFragment;
+import com.example.lvtn_app.View.Fragment.TaskDetailFragment;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -23,11 +23,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>{
     //Khai báo
     private Context context;
     private LayoutInflater mInflater;
-    private ArrayList<Task> tasks_list;
+    private ArrayList<Issue> tasks_list;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
 
-    public TaskAdapter(Context context, ArrayList<Task> tasks_list) {
+    public TaskAdapter(Context context, ArrayList<Issue> tasks_list) {
         this.context = context;
         this.tasks_list = tasks_list;
         this.mInflater = LayoutInflater.from(context);
@@ -42,7 +42,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>{
 
     @Override
     public void onBindViewHolder(@NonNull TaskAdapter.ViewHolder holder, int position) {
-        holder.tv_task_name.setText(tasks_list.get(position).getName());
+        holder.tv_task_name.setText(tasks_list.get(position).getIssueName());
     }
 
     @Override
@@ -64,11 +64,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>{
                 public void onClick(View v) {
                     sharedPreferences = Objects.requireNonNull(context).getSharedPreferences("Task", Context.MODE_PRIVATE);
                     editor = sharedPreferences.edit();
-                    editor.putInt("task_id", tasks_list.get(getAdapterPosition()).getId());
-                    editor.putString("task_name", (tasks_list.get(getAdapterPosition()).getName()));
+                    editor.putInt("task_id", tasks_list.get(getAdapterPosition()).getId_Issue());
+                    editor.putString("task_name", (tasks_list.get(getAdapterPosition()).getIssueName()));
                     editor.commit();
-                    AppCompatActivity activity = (AppCompatActivity) context;
-                    activity.getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, new IssueDetailFragment()).commit();
+                    TaskDetailFragment dialog = new TaskDetailFragment();
+                    dialog.show(((AppCompatActivity) context).getSupportFragmentManager(), "TaskDetailFragment");
                 }
             });
         }

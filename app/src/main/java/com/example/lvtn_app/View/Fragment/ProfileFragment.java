@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,6 +45,7 @@ import com.example.lvtn_app.View.Activity.LoginActivity;
 import com.example.lvtn_app.View.Activity.MainActivity;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,9 +56,13 @@ import java.util.Locale;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.http.Multipart;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -73,8 +79,17 @@ public class ProfileFragment extends Fragment {
     Button btn_logout, btn_confirm_update_profile;
     CircleImageView avatar_profile;
 
-    Uri chosenImageUri;
+    //User info
     int user_id;
+    String username = "";
+    String email = "";
+    String gender = "Male";
+    String phone = "";
+    String dob = "";
+    String address = "";
+    String avatar = "";//Path which can access to the storage to download image
+    String avatar_path = "";//Path where image is stored when uploaded
+
 
     Calendar myCalendar = Calendar.getInstance();
     DateFormat dateFormat = new DateFormat();
@@ -181,7 +196,7 @@ public class ProfileFragment extends Fragment {
             }
         };
 
-        mSharedPreferences = Objects.requireNonNull(getContext()).getSharedPreferences("User", Context.MODE_PRIVATE);
+        mSharedPreferences = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
         editor = mSharedPreferences.edit();
 
         //Set data
@@ -229,17 +244,15 @@ public class ProfileFragment extends Fragment {
         tv_DOB_profile.setText(mSharedPreferences.getString("dob_PI_txt", ""));
         tv_address_profile.setText(mSharedPreferences.getString("address_PI_txt", ""));
 
-        if (!mSharedPreferences.getString("avatar_PI_txt", "").equals("")){
-            Glide.with(getContext()).load(Uri.parse(mSharedPreferences.getString("avatar_PI_txt", ""))).centerCrop().into(avatar_profile);
+        avatar_profile.setImageResource(R.drawable.profile_1);
+
+        avatar = mSharedPreferences.getString("avatar_PI_txt", "");
+//        Toast.makeText(getContext(), "" + avatar, Toast.LENGTH_SHORT).show();
+        if (!avatar.equals("")){
+            Glide.with(getContext()).load(avatar).into(avatar_profile);
         }else {
             avatar_profile.setImageResource(R.drawable.profile_1);
         }
-//        if (!mSharedPreferences.getString("avatar_PI_txt", "").equals("")){
-//            Toast.makeText(getContext(), "" + mSharedPreferences.getString("avatar_PI_txt", ""), Toast.LENGTH_SHORT).show();
-//            Glide.with(getContext()).load(Uri.parse(mSharedPreferences.getString("avatar_PI_txt", ""))).centerCrop().into(avatar_profile);
-//        }else {
-//
-//        }
 
         username_profile_text_input_layout.getEditText().setText(mSharedPreferences.getString("userName_txt", "UserName"));
         email_profile_text_input_layout.getEditText().setText(mSharedPreferences.getString("userEmail_txt", ""));
@@ -505,25 +518,23 @@ public class ProfileFragment extends Fragment {
                     || phoneNumber_profile_text_input_layout.isErrorEnabled() || DOB_profile_text_input_layout.isErrorEnabled()){
                     Toast.makeText(getContext(), "Please check error", Toast.LENGTH_SHORT).show();
                 }else{
-
                     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which){
                                 case DialogInterface.BUTTON_POSITIVE:
                                     //Yes button clicked
-                                    String username = username_profile_text_input_layout.getEditText().getText().toString();
-                                    String email = email_profile_text_input_layout.getEditText().getText().toString();
-                                    String gender = "Male";
+                                    username = username_profile_text_input_layout.getEditText().getText().toString();
+                                    email = email_profile_text_input_layout.getEditText().getText().toString();
                                     if (rg_gender.getCheckedRadioButtonId() == rbtn_female.getId()) {
                                         gender = rbtn_female.getText().toString();
                                     }
                                     if (rg_gender.getCheckedRadioButtonId() == rbtn_male.getId()) {
                                         gender = rbtn_male.getText().toString();
                                     }
-                                    String phone = phoneNumber_profile_text_input_layout.getEditText().getText().toString();
-                                    String dob = DOB_profile_text_input_layout.getEditText().getText().toString();
-                                    String address = address_profile_text_input_layout.getEditText().getText().toString();
+                                    phone = phoneNumber_profile_text_input_layout.getEditText().getText().toString();
+                                    dob = DOB_profile_text_input_layout.getEditText().getText().toString();
+                                    address = address_profile_text_input_layout.getEditText().getText().toString();
 
 //                                    Toast.makeText(getContext(), "" + username + "\n"
 //                                            + email + "\n"
@@ -533,51 +544,57 @@ public class ProfileFragment extends Fragment {
 //                                            + address + "\n", Toast.LENGTH_SHORT).show();
                                     editor = mSharedPreferences.edit();
                                     ApiService updateUserName = ApiUtils.connectRetrofit();
-                                    updateUserName.isUpdateUserSuccess(user_id,username, email).enqueue(new Callback<String>() {
+                                    updateUserName.isUpdateUserSuccess(user_id, username, email).enqueue(new Callback<String>() {
                                         @Override
                                         public void onResponse(Call<String> call, Response<String> response) {
-                                            Toast.makeText(getContext(), "Successs: \n" + response.body(), Toast.LENGTH_SHORT).show();
-                                            editor.putString("username_txt", username);
+//                                            Toast.makeText(getContext(), "Successs: \n" + response.body(), Toast.LENGTH_SHORT).show();
+                                            editor.putString("userName_txt", username);
                                             editor.putString("userEmail_txt", email);
                                             editor.commit();
                                         }
 
                                         @Override
                                         public void onFailure(Call<String> call, Throwable t) {
-
-                                        }
-                                    });
-                                    String avatar = "";
-                                    if (chosenImageUri != null){
-                                        avatar = chosenImageUri.toString();
-                                    }
-                                    ApiService updateUserInfo = ApiUtils.connectRetrofit();
-                                    String finalGender = gender;
-                                    String finalAvatar = avatar;
-//                                    Toast.makeText(getContext(), "" + user_id, Toast.LENGTH_SHORT).show();
-                                    updateUserInfo.isUpdateUserInformationSuccess(user_id, gender, phone, dob, address, avatar).enqueue(new Callback<String>() {
-                                        @Override
-                                        public void onResponse(Call<String> call, Response<String> response) {
-                                            Toast.makeText(getContext(), "Successs: \n" + response.body(), Toast.LENGTH_SHORT).show();
-                                            editor.putString("gender_PI_txt", finalGender);
-                                            editor.putString("phone_PI_txt", phone);
-                                            editor.putString("dob_PI_txt", dob);
-                                            editor.putString("address_PI_txt", address);
-                                            editor.putString("avatar_PI_txt", finalAvatar);
-                                            editor.commit();
-                                        }
-
-                                        @Override
-                                        public void onFailure(Call<String> call, Throwable t) {
-
+                                            Toast.makeText(getContext(), "" + call + "\n" + t, Toast.LENGTH_LONG).show();
+                                            Log.e("TAG", "onFailure: " + call + "\n" + t);
                                         }
                                     });
 
-                                    if (!mSharedPreferences.getString("avatar_PI_txt", "").equals("")){
-                                       Glide.with(getContext()).load(Uri.parse(finalAvatar)).centerCrop().into(avatar_profile);
+                                    // Todo: Upload Image and insert information to Database
+                                    File file = new File(avatar_path.toString());
+                                    String file_path = file.getAbsolutePath();
+//                                    Toast.makeText(getContext(), "" + file_path, Toast.LENGTH_SHORT).show();
+                                    if (file_path.length() > 1){
+                                        String[] array_file_name = file_path.split("\\.");
+                                        file_path = array_file_name[0] + System.currentTimeMillis() + "." + array_file_name[1];
+//                                    Toast.makeText(getContext(), "" + file_path, Toast.LENGTH_SHORT).show();
+                                        RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
+                                        MultipartBody.Part body =
+                                                MultipartBody.Part.createFormData("upload_file", file_path, requestFile);
+                                        ApiService uploadImage = ApiUtils.connectRetrofit();
+                                        uploadImage.isUploadUserImageSuccess(body).enqueue(new Callback<String>() {
+                                            @Override
+                                            public void onResponse(Call<String> call, Response<String> response) {
+                                                if (response != null){
+                                                    String message = response.body();
+                                                    if (message.length() > 0){
+                                                        avatar = ApiUtils.baseUrl + "image/" + message;
+                                                        if (avatar != null){
+                                                            updateUserInformation(user_id, gender, phone, dob, address, avatar);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            @Override
+                                            public void onFailure(Call<String> call, Throwable t) {
+                                                Toast.makeText(getContext(), "" + t.getMessage(), Toast.LENGTH_LONG).show();
+                                                Log.e("BBB", "onFailure: " + t.getMessage() );
+                                            }
+                                        });
                                     }else {
-                                        avatar_profile.setImageResource(R.drawable.profile_1);
+                                        updateUserInformation(user_id, gender, phone, dob, address, avatar);
                                     }
+
                                     tv_username_profile.setText(username);
                                     tv_email_profile.setText(email);
                                     tv_gender_profile.setText(gender);
@@ -623,7 +640,7 @@ public class ProfileFragment extends Fragment {
         ibtn_choose_avatar_profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
                 photoPickerIntent.setType("image/*");
                 startActivityForResult(photoPickerIntent, 1);
             }
@@ -646,7 +663,7 @@ public class ProfileFragment extends Fragment {
                     service.isUpdateUserInformationSuccess(id_user, false).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(Call<String> call, Response<String> response) {
-                            Toast.makeText(getContext(), "" + response.body(), Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(getContext(), "" + response.body(), Toast.LENGTH_SHORT).show();
                             editor = mSharedPreferences.edit();
                             editor.putBoolean("userChecked", false);
                             editor.commit();
@@ -672,13 +689,13 @@ public class ProfileFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            chosenImageUri = data.getData();
-
+            Uri chosenImageUri = data.getData();
+            avatar_path = getRealPathFromURI(chosenImageUri);
             Bitmap mBitmap = null;
             try {
                 mBitmap = MediaStore.Images.Media.getBitmap(this.getContext().getContentResolver(), chosenImageUri);
-                Toast.makeText(getContext(), "Update Avatar Success", Toast.LENGTH_SHORT).show();
                 avatar_profile.setImageBitmap(mBitmap);
+//                Toast.makeText(getContext(), "" + avatar_path, Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -713,5 +730,39 @@ public class ProfileFragment extends Fragment {
             // return false if nothing matches the input
         else
             return false;
+    }
+
+    public void updateUserInformation(int user_id, String gender, String phone, String dob, String address,String avatar){
+        ApiService updateUserInfo = ApiUtils.connectRetrofit();
+        updateUserInfo.isUpdateUserInformationSuccess(user_id, gender, phone, dob, address, avatar).enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+//                Toast.makeText(getContext(), "" + response.body(), Toast.LENGTH_SHORT).show();
+                editor.putString("gender_PI_txt", gender);
+                editor.putString("phone_PI_txt", phone);
+                editor.putString("dob_PI_txt", dob);
+                editor.putString("address_PI_txt", address);
+                editor.putString("avatar_PI_txt", avatar);
+                editor.commit();
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Toast.makeText(getContext(), "" + call + "\n" + t, Toast.LENGTH_LONG).show();
+                Log.e("TAG", "onFailure: " + call + "\n" + t);
+            }
+        });
+    }
+
+    public String getRealPathFromURI(Uri uri) {
+        String path = null;
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContext().getContentResolver().query(uri, filePathColumn, null, null, null);
+        if (cursor.moveToFirst()) {
+            int columnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+            path = cursor.getString(columnIndex);
+        }
+        cursor.close();
+        return path;
     }
 }

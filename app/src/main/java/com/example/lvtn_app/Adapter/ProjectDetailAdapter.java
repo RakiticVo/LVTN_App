@@ -9,9 +9,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.example.lvtn_app.View.Fragment.DashBoardFragment;
-import com.example.lvtn_app.View.Fragment.LoginTabFragment;
-import com.example.lvtn_app.View.Fragment.MemberFragment;
-import com.example.lvtn_app.View.Fragment.SignUpTabFragment;
+import com.example.lvtn_app.View.Fragment.MemberProjectFragment;
 import com.example.lvtn_app.View.Fragment.StatisticFragment;
 
 public class ProjectDetailAdapter extends FragmentPagerAdapter {
@@ -40,8 +38,8 @@ public class ProjectDetailAdapter extends FragmentPagerAdapter {
                 StatisticFragment statisticFragment = new StatisticFragment();
                 return  statisticFragment;
             case 2:
-                MemberFragment memberFragment = new MemberFragment();
-                return  memberFragment;
+                MemberProjectFragment memberProjectFragment = new MemberProjectFragment();
+                return memberProjectFragment;
             default:
                 return new DashBoardFragment();
         }

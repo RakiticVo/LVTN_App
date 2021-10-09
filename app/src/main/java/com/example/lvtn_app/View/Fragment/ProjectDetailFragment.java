@@ -35,7 +35,7 @@ public class ProjectDetailFragment extends Fragment {
     TextView tv_project_name_details;
     ImageButton ibtn_back_project_detail, ibtn_info_project;
     float v=0;
-    SharedPreferences sharedPreferences_user, sharedPreferences_leader;
+    SharedPreferences sharedPreferences;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -89,13 +89,8 @@ public class ProjectDetailFragment extends Fragment {
         ibtn_info_project = view.findViewById(R.id.ibtn_info_project);
 
         //Set data
-        sharedPreferences_leader = Objects.requireNonNull(getContext()).getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
-        sharedPreferences_user = Objects.requireNonNull(getContext()).getSharedPreferences("User", Context.MODE_PRIVATE);
-        tv_project_name_details.setText(sharedPreferences_leader.getString("projectName_txt", "Project Name"));
-
-        String user = sharedPreferences_user.getString("userName_txt", "User");
-        String leader = sharedPreferences_leader.getString("projectLeader_txt", "Leader");
-        Toast.makeText(getContext(), "" + user + "-" + leader + "\n" + user.equals(leader),Toast.LENGTH_SHORT).show();
+        sharedPreferences = Objects.requireNonNull(getContext()).getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
+        tv_project_name_details.setText(sharedPreferences.getString("projectName_txt", "Project Name"));
 
         //Set up
         tabLayout.setupWithViewPager(viewPager);

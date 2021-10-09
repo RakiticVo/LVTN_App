@@ -33,6 +33,7 @@ import com.example.lvtn_app.Adapter.AssigneeAdapter;
 import com.example.lvtn_app.Adapter.IssueTypeAdapter;
 import com.example.lvtn_app.Adapter.PriorityAdapter;
 import com.example.lvtn_app.Adapter.ProcessTypeAdapter;
+import com.example.lvtn_app.Controller.Method.DateFormat;
 import com.example.lvtn_app.Model.IssueType;
 import com.example.lvtn_app.Model.Member;
 import com.example.lvtn_app.Model.ProcessType;
@@ -42,7 +43,6 @@ import com.example.lvtn_app.Model.Priority;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -64,19 +64,39 @@ public class IssueDetailFragment extends DialogFragment {
     ImageButton ibtn_back_issue_detail, ibtn_confirm_done_issue, calendar_start_date_issue_detail;
     TextInputLayout description_issue_detail_text_input_layout, start_date_issue_detail_text_input_layout, estimate_time_issue_detail_text_input_layout;
     Button btn_update_issue_detail, btn_cancel_issue_detail;
+
+    //Array List for Spinner
     ArrayList<IssueType> issueType_list;
     ArrayList<ProcessType> processType_list;
     ArrayList<Priority> priority_list;
     ArrayList<Member> member_list;
+
+    //Adapter for Spinner
     IssueTypeAdapter issueTypeAdapter;
     ProcessTypeAdapter processTypeAdapter;
     PriorityAdapter priorityAdapter;
     AssigneeAdapter assigneeAdapter;
 
+    //Date formate
     final Calendar myCalendar = Calendar.getInstance();
+    DateFormat dateFormat = new DateFormat();
+    Date date1 = new Date();
+
+    //SharedPreferences
     SharedPreferences sharedPreferences;
 
-    String process_type, issue_type, priority, assignee;
+    //New issue information
+    String issuename = "";
+    String process_type = "";
+    String decription = "";
+    String issue_type = "";
+    String startdate = "";
+    String priority = "";
+    String assignee = "";
+    String estimatetime = "";
+    String creator = "";
+    String finishdate = "";
+    int project_id = -1;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -121,7 +141,7 @@ public class IssueDetailFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        //Set up
         View view = inflater.inflate(R.layout.fragment_issue_detail, container, false);
 
         if (getDialog() != null && getDialog().getWindow() != null) {
@@ -147,8 +167,6 @@ public class IssueDetailFragment extends DialogFragment {
         btn_update_issue_detail = view.findViewById(R.id.btn_update_issue_detail);
         btn_cancel_issue_detail = view.findViewById(R.id.btn_cancel_issue_detail);
 
-
-        //Set data
         issueType_list = new ArrayList<>();
         issueType_list.add(new IssueType(R.drawable.task, "Task"));
         issueType_list.add(new IssueType(R.drawable.bug, "Bug"));
@@ -169,7 +187,6 @@ public class IssueDetailFragment extends DialogFragment {
         member_list.add(new Member(1, "Thiện Võ", "https://progameguides.com/wp-content/uploads/2021/07/Genshin-Impact-Character-Raiden-Shogun-1.jpg"));
         member_list.add(new Member(1, "Rakitic Võ", ""));
 
-        //Set up
         issueTypeAdapter = new IssueTypeAdapter(getContext(), issueType_list);
         spinner_issue_type_detail.setAdapter(issueTypeAdapter);
 
@@ -182,8 +199,7 @@ public class IssueDetailFragment extends DialogFragment {
         assigneeAdapter = new AssigneeAdapter(getContext(), member_list);
         spinner_assignee_issue_detail.setAdapter(assigneeAdapter);
 
-        String myFormat = "dd/MM/yyyy"; //In which you need put here
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.getDefault());
+        start_date_issue_detail_text_input_layout.getEditText().setText(dateFormat.sdf.format(Calendar.getInstance().getTime()));
 
         DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -191,13 +207,15 @@ public class IssueDetailFragment extends DialogFragment {
                 myCalendar.set(Calendar.YEAR, year);
                 myCalendar.set(Calendar.MONTH, month);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                updateLabel();
+                start_date_issue_detail_text_input_layout.getEditText().setText(dateFormat.sdf.format(myCalendar.getTime()));
+                checkRightStartDate(start_date_issue_detail_text_input_layout.getEditText().getText().toString());
             }
         };
 
         sharedPreferences = Objects.requireNonNull(getActivity()).getSharedPreferences("User", Context.MODE_PRIVATE);
 
         //Bắt sự kiện
+        //Todo: Xử lý sự kiện rời khỏi Fragment
         ibtn_back_issue_detail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -205,6 +223,7 @@ public class IssueDetailFragment extends DialogFragment {
             }
         });
 
+        //Todo: Xử lý sự kiện rời khỏi Fragment
         btn_cancel_issue_detail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -212,6 +231,11 @@ public class IssueDetailFragment extends DialogFragment {
             }
         });
 
+        //Todo: Xử lý sự kiện cập nhật một Issue
+        // - Kiểm tra rỗng cho các text ----- (Incomplete)
+        // - Lấy các text cần dùng ----- (Done)
+        // - Gọi Api Service để cập nhật thông tin Issue trên database ----- (Incomplete)
+        // - Gọi một Instance để cập nhật một Issue ----- (Incomplete)
         btn_update_issue_detail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -225,14 +249,14 @@ public class IssueDetailFragment extends DialogFragment {
                             case DialogInterface.BUTTON_POSITIVE:
                                 //Yes button clicked
                                 // Todo: remember check date must be >= today
-                                String username = sharedPreferences.getString("username_txt", "User Name");
-                                String issuename = tv_name_issue_detail.getText().toString();
-                                String decription = description_issue_detail_text_input_layout.getEditText().getText().toString();
-                                String startdate = start_date_issue_detail_text_input_layout.getEditText().getText().toString();
-                                String estimatetime = estimate_time_issue_detail_text_input_layout.getEditText().getText().toString();
-                                String finishdate = tv_issue_finish_date.getText().toString();
+                                creator = sharedPreferences.getString("userName_txt", "User Name");
+                                issuename = tv_name_issue_detail.getText().toString();
+                                decription = description_issue_detail_text_input_layout.getEditText().getText().toString();
+                                startdate = start_date_issue_detail_text_input_layout.getEditText().getText().toString();
+                                estimatetime = estimate_time_issue_detail_text_input_layout.getEditText().getText().toString();
+                                finishdate = tv_issue_finish_date.getText().toString();
 
-                                Toast.makeText(getContext(), "" + username + "\n"
+                                Toast.makeText(getContext(), "" + creator + "\n"
                                         + issuename + "\n"
                                         + process_type + "\n"
                                         + decription + "\n"
@@ -260,6 +284,9 @@ public class IssueDetailFragment extends DialogFragment {
             }
         });
 
+        //Todo: Xử lý sự kiện hoàn thành một Issue
+        // - Gọi Api Service để xác nhận hoàn thành một Issue trên database ----- (Incomplete)
+        // - Gọi một Instance để xác nhận hoàn thành một Issue ----- (Incomplete)
         ibtn_confirm_done_issue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -287,6 +314,7 @@ public class IssueDetailFragment extends DialogFragment {
             }
         });
 
+        //Todo: Xử lý sự kiện chọn ngày từ Calendar View
         calendar_start_date_issue_detail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -296,6 +324,15 @@ public class IssueDetailFragment extends DialogFragment {
             }
         });
 
+        //Todo: Xử lý sự kiện nhập và kiểm tra rỗng Issue Detail Estimate Time
+        estimate_time_issue_detail_text_input_layout.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus){
+                    checkRightEstimateTime(estimate_time_issue_detail_text_input_layout.getEditText().getText().toString());
+                }
+            }
+        });
         estimate_time_issue_detail_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -304,10 +341,8 @@ public class IssueDetailFragment extends DialogFragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String last = estimate_time_issue_detail_text_input_layout.getEditText().getText().toString();
-                last = last.substring(last.length() - 1);
-                if (s.length() >= 0 && s.length() < 2 || (!last.equals("d") && !last.equals("m") && !last.equals("w"))) {
-                    estimate_time_issue_detail_text_input_layout.setError("Ex: 1d, 2w, 3m");
+                if (s.length() == 0){
+                    estimate_time_issue_detail_text_input_layout.setError("Wrong time!!!");
                     estimate_time_issue_detail_text_input_layout.setErrorEnabled(true);
                 } else {
                     estimate_time_issue_detail_text_input_layout.setErrorEnabled(false);
@@ -316,41 +351,45 @@ public class IssueDetailFragment extends DialogFragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-
+                checkRightEstimateTime(s.toString());
             }
         });
 
+        //Todo: Xử lý sự kiện nhập và kiểm tra rỗng Issue Detail Start Date
         start_date_issue_detail_text_input_layout.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
-                    // the user is done typing.
-                    String pattern = "(0?[1-9]|[12][0-9]|3[01])\\/(0?[1-9]|1[0-2])\\/([0-9]{4})";
-                    String start_date = start_date_issue_detail_text_input_layout.getEditText().getText().toString();
-                    sdf.setLenient(false);
-                    boolean flag = false;
-                    if (start_date.matches(pattern)) {
-                        try {
-                            Date date = sdf.parse(start_date);
-                            flag = true;
-                            if (!sdf.format(date).equals(sdf.format(Calendar.getInstance().getTime()))){
-                                if (date.getTime() < Calendar.getInstance().getTime().getTime()){
-                                    start_date_issue_detail_text_input_layout.setError("Wrong start day!!!");
-                                    start_date_issue_detail_text_input_layout.setErrorEnabled(true);
-                                }else start_date_issue_detail_text_input_layout.setErrorEnabled(false);
-                            }else start_date_issue_detail_text_input_layout.setErrorEnabled(false);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
+                    startdate = start_date_issue_detail_text_input_layout.getEditText().getText().toString();
+//                    Toast.makeText(getContext(), "" + start_date, Toast.LENGTH_SHORT).show();
+                    checkRightStartDate(startdate);
+                }else {
+                    start_date_issue_detail_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
                         }
-                    }
-                    if (flag == false){
-                        start_date_issue_detail_text_input_layout.setError("Wrong format. Ex: dd/MM/yyy");
-                        start_date_issue_detail_text_input_layout.setErrorEnabled(true);
-                    }
+
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+                            if (s.length() == 0){
+                                start_date_issue_detail_text_input_layout.setError("Please choose day!!!");
+                                start_date_issue_detail_text_input_layout.setErrorEnabled(true);
+                            }else{
+                                start_date_issue_detail_text_input_layout.setErrorEnabled(false);
+                            }
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable s) {
+                            checkRightStartDate(s.toString());
+                        }
+                    });
                 }
             }
         });
 
+        //Todo: Xử lý sự kiện lấy Issue Detail Issue Type và hiện hình ảnh theo Issue Type
         spinner_issue_type_detail.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -365,6 +404,7 @@ public class IssueDetailFragment extends DialogFragment {
             }
         });
 
+        //Todo: Xử lý sự kiện lấy Issue Detail Process Type
         spinner_process_issue_detail.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -378,6 +418,7 @@ public class IssueDetailFragment extends DialogFragment {
             }
         });
 
+        //Todo: Xử lý sự kiện lấy Issue Detail Priority
         spinner_priority_issue_detail.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -391,6 +432,7 @@ public class IssueDetailFragment extends DialogFragment {
             }
         });
 
+        //Todo: Xử lý sự kiện lấy Issue Detail Assignee
         spinner_assignee_issue_detail.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -406,32 +448,31 @@ public class IssueDetailFragment extends DialogFragment {
 
         return view;
     }
-    private void updateLabel() {
-        String myFormat = "dd/MM/yyyy"; //In which you need put here
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.getDefault());
 
-        start_date_issue_detail_text_input_layout.getEditText().setText(sdf.format(myCalendar.getTime()));
-        String pattern = "(0?[1-9]|[12][0-9]|3[01])\\/(0?[1-9]|1[0-2])\\/([0-9]{4})";
-        String start_date = start_date_issue_detail_text_input_layout.getEditText().getText().toString();
-        sdf.setLenient(false);
-        boolean flag = false;
-        if (start_date.matches(pattern)) {
+    public void checkRightStartDate(String date){
+        if (!dateFormat.isValidDate(date)){
+            start_date_issue_detail_text_input_layout.setError("Wrong format. Ex: dd/MM/yyy");
+            start_date_issue_detail_text_input_layout.setErrorEnabled(true);
+        }else{
             try {
-                Date date = sdf.parse(start_date);
-                flag = true;
-                if (!sdf.format(date).equals(sdf.format(Calendar.getInstance().getTime()))){
-                    if (date.getTime() < Calendar.getInstance().getTime().getTime()){
-                        start_date_issue_detail_text_input_layout.setError("Wrong start day!!!");
-                        start_date_issue_detail_text_input_layout.setErrorEnabled(true);
-                    }else start_date_issue_detail_text_input_layout.setErrorEnabled(false);
+                date1 = dateFormat.sdf.parse(date);
+                if (date1.getTime() < Calendar.getInstance().getTime().getTime()){
+                    start_date_issue_detail_text_input_layout.setError("Wrong start day!!!");
+                    start_date_issue_detail_text_input_layout.setErrorEnabled(true);
                 }else start_date_issue_detail_text_input_layout.setErrorEnabled(false);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
-        if (flag == false){
-            start_date_issue_detail_text_input_layout.setError("Wrong format. Ex: dd/MM/yyy");
-            start_date_issue_detail_text_input_layout.setErrorEnabled(true);
+    }
+
+    public void checkRightEstimateTime(String date){
+        String last = date.substring(date.length() - 1);
+        if (date.length() >= 0 && date.length() < 2 || (!last.equals("d") && !last.equals("m") && !last.equals("w"))) {
+            estimate_time_issue_detail_text_input_layout.setError("Wrong format!!! Ex: 1d, 2w, 3m");
+            estimate_time_issue_detail_text_input_layout.setErrorEnabled(true);
+        } else {
+            estimate_time_issue_detail_text_input_layout.setErrorEnabled(false);
         }
     }
 }

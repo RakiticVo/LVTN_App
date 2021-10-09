@@ -6,12 +6,14 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,14 +24,31 @@ import android.widget.Toast;
 
 import com.example.lvtn_app.Adapter.GroupChatAdapter;
 import com.example.lvtn_app.Adapter.ProjectsAdapter;
+import com.example.lvtn_app.Controller.Retrofit.ApiService;
+import com.example.lvtn_app.Controller.Retrofit.ApiUtils;
 import com.example.lvtn_app.Model.GroupChat;
+import com.example.lvtn_app.Model.Message;
 import com.example.lvtn_app.Model.Project;
 import com.example.lvtn_app.R;
+import com.example.lvtn_app.View.Notification.Token;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingService;
 
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Objects;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -44,8 +63,15 @@ public class GroupChatFragment extends Fragment {
     RecyclerView recyclerViewGroupChat;
     GroupChatAdapter groupChatAdapter;
     ArrayList<GroupChat> groupChat_list;
-    ArrayList<GroupChat> groupChat_search = new ArrayList<>();
-    SharedPreferences sharedPreferences;
+    ArrayList<GroupChat> groupChat_search;
+    ArrayList<Message> messageArrayList, messages;
+
+    DatabaseReference reference;
+
+    SharedPreferences sharedPreferences, sharedPreferences_chat;
+    int id_user, id_group;
+
+    String userName;
 
     static GroupChatFragment instance;
 
@@ -96,7 +122,7 @@ public class GroupChatFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Ánh xạ
+        //Set up
         View view = inflater.inflate(R.layout.fragment_group_chat, container, false);
         ibtn_add = view.findViewById(R.id.ibtn_add_group_chat);
         ibtn_search = view.findViewById(R.id.ibtn_search_group_chat);
@@ -106,27 +132,27 @@ public class GroupChatFragment extends Fragment {
 
         instance = this;
 
-        //Tạo dữ liệu
-        sharedPreferences = Objects.requireNonNull(getContext()).getSharedPreferences("User", Context.MODE_PRIVATE);
-        String user = sharedPreferences.getString("username_txt", "User Name");
+        sharedPreferences = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
+        id_user = sharedPreferences.getInt("userId_txt", -1);
+        userName = sharedPreferences.getString("userName_txt", "User Name");
+        sharedPreferences_chat = requireContext().getSharedPreferences("Chat", Context.MODE_PRIVATE);
+        id_group = sharedPreferences_chat.getInt("groupChat_id", -1);
         groupChat_list = new ArrayList<>();
-        groupChat_list.add(new GroupChat(1, "Scrum 1", user));
-        groupChat_list.add(new GroupChat(2, "Test 1", user));
-        groupChat_list.add(new GroupChat(3, "Test 2", user));
+        groupChat_search = new ArrayList<>();
+        messageArrayList = new ArrayList<>();
+        groupChat_list.add(new GroupChat(1, "Scrum 1", "", userName, "" , userName));
+        groupChat_list.add(new GroupChat(2, "Test 1", "", userName, "", userName));
+        groupChat_list.add(new GroupChat(3, "Test 2", "", userName, "", userName));
 
-        //Set up
         recyclerViewGroupChat.setLayoutManager(new LinearLayoutManager(getContext()));
         groupChatAdapter = new GroupChatAdapter(getContext(), groupChat_list);
         recyclerViewGroupChat.setAdapter(groupChatAdapter);
 
-        // Bắt sự kiện
-        ibtn_search.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                search_group_chat_text_input_layout.setVisibility(View.VISIBLE);
-            }
-        });
+        getGroupChatListByUser(id_user);
+        readMessage();
 
+        // Bắt sự kiện
+        //Todo: Xử lý sự kiện chuyển đến Fragment tạo Group Chat
         ibtn_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -135,6 +161,7 @@ public class GroupChatFragment extends Fragment {
             }
         });
 
+        //Todo: Xử lý sự kiện nhập và kiểm tra rỗng Search Group Chat
         search_group_chat_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -147,7 +174,7 @@ public class GroupChatFragment extends Fragment {
                     groupChat_search.clear();
                     for (GroupChat groupChat : groupChat_list){
 //                        Toast.makeText(getContext(), "" + groupChat.getName().toLowerCase(), Toast.LENGTH_SHORT).show();
-                        if (groupChat.getName().toLowerCase(Locale.ROOT).contains(s)){
+                        if (groupChat.getGroupName().toLowerCase(Locale.ROOT).contains(s)){
                             groupChat_search.add(groupChat);
                         }
                     }
@@ -173,18 +200,144 @@ public class GroupChatFragment extends Fragment {
 
             }
         });
-
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                updateToken(task.getResult().toString());
+            }
+        });
         return view;
     }
 
-    public void createGroupChat(String name, Uri avatar, String creator){
+    //Todo: Hàm tạo ra một Group Chat
+    // - Gọi Api Service để thêm 1 Group chat trên database ----- (Done)
+    // - Thêm một Group Chat mới và hiển thị lên màn hình ----- (Done)
+    public void createGroupChat(String name, String avatar, String creator){
         GroupChatFragment.this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                groupChat_list.add(new GroupChat(groupChat_list.size()+1, name, avatar, creator));
-                search_group_chat_text_input_layout.getEditText().setText("");
-                search_group_chat_text_input_layout.getEditText().clearFocus();
+//                Toast.makeText(getContext(), "" + avatar + "\n" + creator, Toast.LENGTH_SHORT).show();
+                ApiService insertNewGroupChat = ApiUtils.connectRetrofit();
+                insertNewGroupChat.isCreateNewGroupChatSuccess(name, avatar, creator, "This group has just been created", "")
+                    .enqueue(new Callback<String>() {
+                        @Override
+                        public void onResponse(Call<String> call, Response<String> response) {
+                            ApiService getLastGroupChatID = ApiUtils.connectRetrofit();
+                            getLastGroupChatID.getGroupChat().enqueue(new Callback<ArrayList<GroupChat>>() {
+                                @Override
+                                public void onResponse(Call<ArrayList<GroupChat>> call, Response<ArrayList<GroupChat>> response) {
+                                    if (response.body() != null){
+                                        int last = response.body().get(response.body().size()-1).getId_Group();
+                                        insertNewUserForGroupChat(id_user, last);
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<ArrayList<GroupChat>> call, Throwable t) {
+                                    Toast.makeText(getContext(), "" + t.getMessage(), Toast.LENGTH_LONG).show();
+                                    Log.e("BBB", "onFailure: " + t.getMessage() );
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Call<String> call, Throwable t) {
+                            Toast.makeText(getContext(), "" + t.getMessage(), Toast.LENGTH_LONG).show();
+                            Log.e("BBB", "onFailure: " + t.getMessage() );
+                        }
+                    });
             }
         });
+    }
+
+    //Todo: Hàm tạo thêm User là leader cho Group Chat
+    // - Gọi Api Service để thêm 1 Leader cho Group chat trên database ----- (Done)
+    // - Gọi và cập nhật lại List Group Chat trên màn hình ----- (Done)//
+    public void insertNewUserForGroupChat(int id_user, int last){
+        ApiService insertNewUserForGroupChat = ApiUtils.connectRetrofit();
+        insertNewUserForGroupChat.isCreateNewUserForGroupChatSuccess(id_user, last, "Leader").enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                Toast.makeText(getContext(), "Create " + response.body().toLowerCase(), Toast.LENGTH_SHORT).show();
+                getGroupChatListByUser(id_user);
+                recyclerViewGroupChat.scrollToPosition(groupChat_list.size() - 1);
+                recyclerViewGroupChat.clearFocus();
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Toast.makeText(getContext(), "" + t.getMessage(), Toast.LENGTH_LONG).show();
+                Log.e("BBB", "onFailure: " + t.getMessage() );
+            }
+        });
+    }
+
+    //Todo: Hàm lấy Group Chat list theo id của User
+    // - Gọi Api Service tìm kiếm các Group Chat mà User có tham gia ----- (Done)
+    // - Reset lại groupchat list và hiển thị lên màn hình ----- (Done)//
+    public void getGroupChatListByUser(int id_user){
+        groupChat_list.clear();
+        ApiService getGroupChatList = ApiUtils.connectRetrofit();
+//        Toast.makeText(getContext(), "" + id_user, Toast.LENGTH_SHORT).show();
+        if (id_user > 0) {
+//            Toast.makeText(getContext(), "" + sharedPreferences_user.getString("userName_txt", ""), Toast.LENGTH_SHORT).show();
+            getGroupChatList.getGroupChatListByUser(id_user).enqueue(new Callback<ArrayList<GroupChat>>() {
+                @Override
+                public void onResponse(Call<ArrayList<GroupChat>> call, Response<ArrayList<GroupChat>> response) {
+                    for (GroupChat groupChat : response.body()) {
+                        groupChat_list.add(new GroupChat(groupChat.getId_Group(), groupChat.getGroupName(), groupChat.getGroupImage(),
+                                groupChat.getGroupCreator(), groupChat.getGroupLastMess(), groupChat.getGroupLastSender()));
+                    }
+                    groupChatAdapter.notifyDataSetChanged();
+                    recyclerViewGroupChat.scrollToPosition(0);
+                    recyclerViewGroupChat.clearFocus();
+                }
+
+                @Override
+                public void onFailure(Call<ArrayList<GroupChat>> call, Throwable t) {
+                    groupChat_list.clear();
+                    groupChatAdapter.notifyDataSetChanged();
+//                    Toast.makeText(getContext(), "" + t.getMessage(), Toast.LENGTH_LONG).show();
+                    Log.e("BBB", "onFailure: " + t.getMessage() );
+                }
+            });
+        }
+    }
+
+    public void readMessage()
+    {
+        messageArrayList.clear();
+        reference = FirebaseDatabase.getInstance().getReference("Chat");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot dataSnapshot : snapshot.getChildren())
+                {
+                    Message message = dataSnapshot.getValue(Message.class);
+                    messageArrayList.add(message);
+                }
+                if (messageArrayList.size() == 0){
+                    messageArrayList = new ArrayList<>();
+                }
+//                }
+                for (GroupChat groupChat : groupChat_list){
+                    if (groupChat.getId_Group() == messageArrayList.get(messageArrayList.size() - 1).getId_Group()){
+                        groupChat.setGroupLastMess(messageArrayList.get(messageArrayList.size() - 1).getMessage());
+                        groupChat.setGroupLastSender(messageArrayList.get(messageArrayList.size() - 1).getSender());
+                    }
+                }
+                groupChatAdapter.notifyDataSetChanged();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void updateToken(String token){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notification");
+        Token refreshtoken = new Token(token);
+        reference.child("Message").child(id_group+"").child(userName).setValue(refreshtoken);
     }
 }

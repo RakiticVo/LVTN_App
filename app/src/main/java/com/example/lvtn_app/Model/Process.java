@@ -6,9 +6,9 @@ public class Process {
     private int id;
     private String project_name;
     private String name;
-    private ArrayList<Task> list;
+    private ArrayList<Issue> list;
 
-    public Process(int id, String project_name, String name, ArrayList<Task> list) {
+    public Process(int id, String project_name, String name, ArrayList<Issue> list) {
         this.id = id;
         this.project_name = project_name;
         this.name = name;
@@ -39,11 +39,11 @@ public class Process {
         this.name = name;
     }
 
-    public ArrayList<Task> getList() {
+    public ArrayList<Issue> getList() {
         return list;
     }
 
-    public void setList(ArrayList<Task> list) {
+    public void setList(ArrayList<Issue> list) {
         this.list = list;
     }
 }

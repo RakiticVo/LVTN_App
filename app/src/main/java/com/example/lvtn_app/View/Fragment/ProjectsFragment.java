@@ -52,8 +52,9 @@ public class ProjectsFragment extends Fragment {
     ProjectsAdapter projectsAdapter;
     ArrayList<Project> projects, projects_search;
 
-    SharedPreferences sharedPreferences_user, sharedPreferences_leader;
-    SharedPreferences.Editor editor_leader;
+    SharedPreferences sharedPreferences_user;
+    int id_user;
+    String user;
 
     static ProjectsFragment instance;
 
@@ -114,11 +115,10 @@ public class ProjectsFragment extends Fragment {
 
         instance = this;
 
-        sharedPreferences_user = Objects.requireNonNull(getContext()).getSharedPreferences("User", Context.MODE_PRIVATE);
-        sharedPreferences_leader = Objects.requireNonNull(getContext()).getSharedPreferences("Leader", Context.MODE_PRIVATE);
-        editor_leader = sharedPreferences_leader.edit();
+        sharedPreferences_user = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
 
-        String user = sharedPreferences_user.getString("userName_txt", "");
+        user = sharedPreferences_user.getString("userName_txt", "");
+        id_user = sharedPreferences_user.getInt("userId_txt", -1);
 
         // Set data
         projects = new ArrayList<>();
@@ -133,7 +133,7 @@ public class ProjectsFragment extends Fragment {
         projectsAdapter = new ProjectsAdapter(getContext(), projects);
         recyclerViewProjects.setAdapter(projectsAdapter);
 
-        getProject();
+        getProjectListByUser();
 
         //Todo: get User is Leader of project to check permission of function
 //        editor_leader.putString("name_leader", "Chí Thiện");
@@ -205,8 +205,33 @@ public class ProjectsFragment extends Fragment {
                     @Override
                     public void onResponse(Call<String> call, Response<String> response) {
                         Log.e("TAG", "onResponse: " + call.toString());
-                        Toast.makeText(getContext(), "ABC: " + response.body(), Toast.LENGTH_SHORT).show();
-                        getProject();
+                        ApiService getLastProjectID = ApiUtils.connectRetrofit();
+                        getLastProjectID.getProject().enqueue(new Callback<ArrayList<Project>>() {
+                            @Override
+                            public void onResponse(Call<ArrayList<Project>> call, Response<ArrayList<Project>> response) {
+                                int last = response.body().get(response.body().size()-1).getId_project();
+                                ApiService insertNewUserForProject = ApiUtils.connectRetrofit();
+                                insertNewUserForProject.isCreateNewUserForProjectSuccess(last, id_user, "Leader").enqueue(new Callback<String>() {
+                                    @Override
+                                    public void onResponse(Call<String> call, Response<String> response) {
+//                                        Toast.makeText(getContext(), "" + response.body(), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "Create project success", Toast.LENGTH_SHORT).show();
+                                        getProjectListByUser();
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<String> call, Throwable t) {
+//                                        Toast.makeText(getContext(), "" + call + "\n" + t, Toast.LENGTH_SHORT).show();
+                                        Log.e("TAG", "onFailure: \n" + call + "\n" + t );
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onFailure(Call<ArrayList<Project>> call, Throwable t) {
+
+                            }
+                        });
                     }
 
                     @Override
@@ -217,19 +242,22 @@ public class ProjectsFragment extends Fragment {
             }
         });
     }
-    public void getProject(){
+
+    public void getProjectListByUser(){
         projects.clear();
-        ApiService getProject = ApiUtils.connectRetrofit();
-        getProject.getProject().enqueue(new Callback<ArrayList<Project>>() {
-            @Override
-            public void onResponse(Call<ArrayList<Project>> call, Response<ArrayList<Project>> response) {
+        ApiService getProjectList = ApiUtils.connectRetrofit();
+        if (id_user > 0) {
+//            Toast.makeText(getContext(), "" + sharedPreferences_user.getString("userName_txt", ""), Toast.LENGTH_SHORT).show();
+            getProjectList.getProjectListByUser(id_user).enqueue(new Callback<ArrayList<Project>>() {
+                @Override
+                public void onResponse(Call<ArrayList<Project>> call, Response<ArrayList<Project>> response) {
 //                ArrayList<Project> temp = response.body();
 //                Toast.makeText(getContext(), "Success" + temp.size(), Toast.LENGTH_SHORT).show();
-                for (Project project : response.body()){
-                    projects.add(new Project(project.getId_project(), project.getProjectName(), project.getProjectDescription(),
-                            project.getProjectFinishDate(), project.getProjectType(), project.getProjectDateCreate(),
-                            project.getProjectLeader(), project.getProjectBackground()));
-                    Toast.makeText(getContext(),  "*" +project.getProjectName()+ "*", Toast.LENGTH_SHORT).show();
+                    for (Project project : response.body()) {
+                        projects.add(new Project(project.getId_project(), project.getProjectName(), project.getProjectDescription(),
+                                project.getProjectFinishDate(), project.getProjectType(), project.getProjectDateCreate(),
+                                project.getProjectLeader(), project.getProjectBackground()));
+//                        Toast.makeText(getContext(), "*" + project.getProjectName() + "*", Toast.LENGTH_SHORT).show();
 //                    Toast.makeText(getContext(), "" + project.getId_project() + "\n"
 //                            + project.getProjectName() + "\n"
 //                            + project.getProjectDescription() + "\n"
@@ -238,17 +266,20 @@ public class ProjectsFragment extends Fragment {
 //                            + project.getProjectDateCreate() + "\n"
 //                            + project.getProjectLeader() + "\n"
 //                            + project.getProjectBackground() + "\n", Toast.LENGTH_SHORT).show();
+                    }
+                    projectsAdapter.notifyDataSetChanged();
+                    recyclerViewProjects.scrollToPosition(0);
+                    recyclerViewProjects.clearFocus();
                 }
-                projectsAdapter.notifyDataSetChanged();
-                recyclerViewProjects.scrollToPosition(projects.size()-1);
-                recyclerViewProjects.clearFocus();
-            }
 
-            @Override
-            public void onFailure(Call<ArrayList<Project>> call, Throwable t) {
-                Toast.makeText(getContext(), "" + call +"\n"+ t, Toast.LENGTH_SHORT).show();
-                Log.e("TAG", "onFailure: " + call +"\n"+ t);
-            }
-        });
+                @Override
+                public void onFailure(Call<ArrayList<Project>> call, Throwable t) {
+                    projects.clear();
+                    projectsAdapter.notifyDataSetChanged();
+//                    Toast.makeText(getContext(), "Saiiiiiiiiiiiiiii" + call + "\n" + t, Toast.LENGTH_SHORT).show();
+                    Log.e("TAG", "onFailure: " + call + "\n" + t);
+                }
+            });
+        }
     }
 }

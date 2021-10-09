@@ -2,6 +2,7 @@ package com.example.lvtn_app.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
@@ -14,12 +15,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.lvtn_app.Model.GroupChat;
 import com.example.lvtn_app.R;
 import com.example.lvtn_app.View.Activity.ChatActivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -28,8 +31,8 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.View
     private Context context;
     private LayoutInflater mInflater;
     private ArrayList<GroupChat> groupChats;
-//    SharedPreferences sharedPreferences;
-//    SharedPreferences.Editor editor;
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
 
     public GroupChatAdapter(Context context, ArrayList<GroupChat> groupChats) {
         this.context = context;
@@ -46,27 +49,19 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull GroupChatAdapter.ViewHolder holder, int position) {
-        if (groupChats.get(position).getUriImage() != null){
-//            Glide.with(context).load(groupChats.get(position).getImage1()).centerCrop().into(holder.imgAvatarChat);
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), groupChats.get(position).getUriImage());
-                holder.imgAvatarChat.setImageBitmap(bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (groupChats.get(position).getGroupImage() != null){
+            Glide.with(context).load(groupChats.get(position).getGroupImage()).centerCrop().into(holder.imgAvatarChat);
         }else holder.imgAvatarChat.setImageResource(R.drawable.blueprint);
 
-//        else if (!groupChats.get(position).getImage1().equals("") || groupChats.get(position).getImage1() != null){
-//            Glide.with(context).load(groupChats.get(position).getImage1()).centerCrop().into(holder.imgAvatarChat);
-//        }
-
-        if (groupChats.get(position).getLast_message().equals("This group has been created")){
-            holder.tvReceiverLatest.setVisibility(View.GONE);
+        if (groupChats.get(position).getGroupLastSender() == null
+                || groupChats.get(position).getGroupLastSender().equals(" ")
+                || groupChats.get(position).getGroupLastSender().length() == 0){
+            holder.tvSenderLatest.setText("");
         }else {
-            holder.tvReceiverLatest.setText(groupChats.get(position).getLast_sender());
+            holder.tvSenderLatest.setText(groupChats.get(position).getGroupLastSender() + ": ");
         }
-        holder.tvNameGroupChat.setText(groupChats.get(position).getName());
-        holder.tvLatestMessageChat.setText(groupChats.get(position).getLast_message());
+        holder.tvNameGroupChat.setText(groupChats.get(position).getGroupName());
+        holder.tvLatestMessageChat.setText(groupChats.get(position).getGroupLastMess());
     }
 
     @Override
@@ -77,15 +72,17 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.View
     public class ViewHolder extends RecyclerView.ViewHolder {
         //Khai báo
         CircleImageView imgAvatarChat;
-        TextView tvNameGroupChat, tvReceiverLatest, tvLatestMessageChat;
+        TextView tvNameGroupChat, tvSenderLatest, tvLatestMessageChat;
         LinearLayout linearLayout_group_chat;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imgAvatarChat = itemView.findViewById(R.id.imgAvatarChat);
             tvNameGroupChat = itemView.findViewById(R.id.tvNameGroupChat);
-            tvReceiverLatest  = itemView.findViewById(R.id.tvReceiverLatest);
+            tvSenderLatest  = itemView.findViewById(R.id.tvSenderLatest);
             tvLatestMessageChat = itemView.findViewById(R.id.tvLatestMessageChat);
             linearLayout_group_chat = itemView.findViewById(R.id.linearLayout_group_chat);
+
+            sharedPreferences = Objects.requireNonNull(context).getSharedPreferences("Chat", Context.MODE_PRIVATE);
 
             linearLayout_group_chat.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -99,8 +96,14 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.View
 //                    activity.getSupportFragmentManager().beginTransaction().addToBackStack("MessageFragment return ChatFragment").replace(R.id.frame_main, new MessageFragment()).commit();
                     AppCompatActivity activity = (AppCompatActivity) v.getContext();
                     Intent intent = new Intent(activity, ChatActivity.class);
-                    intent.putExtra("groupChat_id", groupChats.get(getAdapterPosition()).getId());
-                    intent.putExtra("groupChat_name", groupChats.get(getAdapterPosition()).getName());
+                    editor = sharedPreferences.edit();
+                    editor.putInt("groupChat_id", groupChats.get(getAdapterPosition()).getId_Group());
+                    editor.putString("groupChat_name", groupChats.get(getAdapterPosition()).getGroupName());
+                    editor.putString("groupChat_img", groupChats.get(getAdapterPosition()).getGroupImage());
+                    editor.putString("groupChat_creator", groupChats.get(getAdapterPosition()).getGroupCreator());
+                    editor.putString("groupChat_lastmess", groupChats.get(getAdapterPosition()).getGroupLastMess());
+                    editor.putString("groupChat_lastsender", groupChats.get(getAdapterPosition()).getGroupLastSender());
+                    editor.commit();
                     activity.startActivity(intent);
                 }
             });
