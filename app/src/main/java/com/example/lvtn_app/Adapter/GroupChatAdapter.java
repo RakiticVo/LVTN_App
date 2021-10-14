@@ -49,19 +49,19 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull GroupChatAdapter.ViewHolder holder, int position) {
-        if (groupChats.get(position).getGroupImage() != null){
-            Glide.with(context).load(groupChats.get(position).getGroupImage()).centerCrop().into(holder.imgAvatarChat);
+        if (groupChats.get(position).getGroup_Image() != null){
+            Glide.with(context).load(groupChats.get(position).getGroup_Image()).centerCrop().into(holder.imgAvatarChat);
         }else holder.imgAvatarChat.setImageResource(R.drawable.blueprint);
 
-        if (groupChats.get(position).getGroupLastSender() == null
-                || groupChats.get(position).getGroupLastSender().equals(" ")
-                || groupChats.get(position).getGroupLastSender().length() == 0){
+        if (groupChats.get(position).getGroup_LastSender() == null
+                || groupChats.get(position).getGroup_LastSender().equals(" ")
+                || groupChats.get(position).getGroup_LastSender().length() == 0){
             holder.tvSenderLatest.setText("");
         }else {
-            holder.tvSenderLatest.setText(groupChats.get(position).getGroupLastSender() + ": ");
+            holder.tvSenderLatest.setText(groupChats.get(position).getGroup_LastSender() + ": ");
         }
-        holder.tvNameGroupChat.setText(groupChats.get(position).getGroupName());
-        holder.tvLatestMessageChat.setText(groupChats.get(position).getGroupLastMess());
+        holder.tvNameGroupChat.setText(groupChats.get(position).getGroup_Name());
+        holder.tvLatestMessageChat.setText(groupChats.get(position).getGroup_LastMess());
     }
 
     @Override
@@ -97,12 +97,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.View
                     AppCompatActivity activity = (AppCompatActivity) v.getContext();
                     Intent intent = new Intent(activity, ChatActivity.class);
                     editor = sharedPreferences.edit();
-                    editor.putInt("groupChat_id", groupChats.get(getAdapterPosition()).getId_Group());
-                    editor.putString("groupChat_name", groupChats.get(getAdapterPosition()).getGroupName());
-                    editor.putString("groupChat_img", groupChats.get(getAdapterPosition()).getGroupImage());
-                    editor.putString("groupChat_creator", groupChats.get(getAdapterPosition()).getGroupCreator());
-                    editor.putString("groupChat_lastmess", groupChats.get(getAdapterPosition()).getGroupLastMess());
-                    editor.putString("groupChat_lastsender", groupChats.get(getAdapterPosition()).getGroupLastSender());
+                    editor.putString("group_ID", groupChats.get(getAdapterPosition()).getGroup_ID());
                     editor.commit();
                     activity.startActivity(intent);
                 }

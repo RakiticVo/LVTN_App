@@ -2,6 +2,8 @@ package com.example.lvtn_app.View.Fragment;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +14,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
@@ -23,20 +27,30 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.example.lvtn_app.Controller.Retrofit.ApiService;
-import com.example.lvtn_app.Controller.Retrofit.ApiUtils;
-import com.example.lvtn_app.Model.GroupChat;
+import com.bumptech.glide.Glide;
 import com.example.lvtn_app.R;
-import com.example.lvtn_app.View.Activity.MainActivity;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -53,12 +67,24 @@ public class CreateGroupChatFragment extends DialogFragment{
     ImageButton ibtn_choose_avatar_group_chat;
     TextInputLayout create_group_chat_name_text_input_layout;
     Button btn_create_group_chat, btn_cancel_create_group_chat;
+
     SharedPreferences sharedPreferences;
+    FirebaseAuth auth;
+    FirebaseUser firebaseUser;
+    DatabaseReference reference1, reference2;
+
+    StorageReference storageReference;
+    private static final int IMG_REQUEST = 1234;
+    private Uri imageUri;
+    private StorageTask uploadTask;
 
     //New group chat infomation
-    String creator = "";
-    String group_chat_name = "";
-    String avatar_group = "";
+    String group_ID;
+    String group_Name;
+    String group_Image;
+    String group_Creator;
+    String group_LastMess;
+    String group_LastSender;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -76,7 +102,7 @@ public class CreateGroupChatFragment extends DialogFragment{
         btn_create_group_chat = view.findViewById(R.id.btn_create_group_chat);
         btn_cancel_create_group_chat = view.findViewById(R.id.btn_cancel_create_group_chat);
 
-        sharedPreferences = Objects.requireNonNull(getActivity()).getSharedPreferences("User", Context.MODE_PRIVATE);
+        sharedPreferences = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
 
         //Bắt sự kiện
         //Todo: Xử lý sự kiện chọn hình ảnh từ thiết bị: gọi Intent để chuyển đến thư mục hình ảnh
@@ -85,7 +111,7 @@ public class CreateGroupChatFragment extends DialogFragment{
             public void onClick(View v) {
                 Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
                 photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, 1);
+                startActivityForResult(photoPickerIntent, IMG_REQUEST);
             }
         });
 
@@ -143,42 +169,21 @@ public class CreateGroupChatFragment extends DialogFragment{
                     create_group_chat_name_text_input_layout.setErrorEnabled(true);
                 }else {
                     create_group_chat_name_text_input_layout.setErrorEnabled(false);
-                    creator = sharedPreferences.getString("userName_txt", "User Name");
-                    group_chat_name = create_group_chat_name_text_input_layout.getEditText().getText().toString();
-
-                    File file = new File(avatar_group.toString());
-                    String file_path = file.getAbsolutePath();
-//                    Toast.makeText(getContext(), "" + file_path, Toast.LENGTH_SHORT).show();
-                    if (file_path.length() > 1){
-                        String[] array_file_name = file_path.split("\\.");
-                        if (!array_file_name[1].equals("png") || !array_file_name[1].equals("jpg")){
-                            array_file_name[1] = "png";
+                    auth = FirebaseAuth.getInstance();
+                    firebaseUser = auth.getCurrentUser();
+                    storageReference = FirebaseStorage.getInstance().getReference("Uploads");
+                    String user_ID = sharedPreferences.getString("user_ID", "token");
+                    if (user_ID.equals(firebaseUser.getUid())){
+                        group_Name = create_group_chat_name_text_input_layout.getEditText().getText().toString();
+                        group_Creator = user_ID;
+                        group_LastMess = "This group has been created";
+                        group_LastSender = " ";
+                        if (uploadTask != null && uploadTask.isInProgress()){
+                            Toast.makeText(getContext(), "Upload into database", Toast.LENGTH_SHORT).show();
+                        }else {
+                            createGroupChat(group_Name, group_Creator, group_LastMess, group_LastSender);
                         }
-                        file_path = array_file_name[0] + System.currentTimeMillis() + "." + array_file_name[1];
-//                        Toast.makeText(getContext(), "" + file_path, Toast.LENGTH_SHORT).show();
-                        RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
-                        MultipartBody.Part body =
-                                MultipartBody.Part.createFormData("upload_file", file_path, requestFile);
-                        ApiService uploadImage = ApiUtils.connectRetrofit();
-                        uploadImage.isUploadUserImageSuccess(body).enqueue(new Callback<String>() {
-                            @Override
-                            public void onResponse(Call<String> call, Response<String> response) {
-                                if (response != null){
-                                    String message = response.body();
-                                    avatar_group = ApiUtils.baseUrl + "image/" + message;
-                                    GroupChatFragment.getInstance().createGroupChat(group_chat_name, avatar_group, creator);
-                                }
-                            }
-                            @Override
-                            public void onFailure(Call<String> call, Throwable t) {
-//                                Toast.makeText(getDialog().getWindow().getContext(), "" + t.getMessage(), Toast.LENGTH_LONG).show();
-                                Log.e("BBB", "onFailure: " + t.getMessage() );
-                            }
-                        });
-                    }else {
-                        GroupChatFragment.getInstance().createGroupChat(group_chat_name, null, creator);
                     }
-                    dismiss();
                 }
             }
         });
@@ -186,50 +191,93 @@ public class CreateGroupChatFragment extends DialogFragment{
         return view;
     }
 
-    //Todo: Phương thức xử lý hình ảnh và hiển thị
+    private String getFileExtension(Uri uri){
+        ContentResolver contentResolver = getContext().getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
+    }
+
+    // Todo: Upload Image and insert information to Database
+    private void createGroupChat(String group_Name, String group_Creator, String group_LastMess, String group_LastSender){
+        if (imageUri != null){
+            final ProgressDialog progressDialog = new ProgressDialog(getContext());
+            progressDialog.setMessage("Creating");
+            progressDialog.show();
+            final StorageReference fileReference = storageReference.child(System.currentTimeMillis()+"."+getFileExtension(imageUri));
+            uploadTask = fileReference.putFile(imageUri);
+            uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()){
+                        throw task.getException();
+                    }
+                    return fileReference.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()){
+                        Uri downloadUri = task.getResult();
+                        String mUri = downloadUri.toString();
+                        reference1 = FirebaseDatabase.getInstance().getReference("GroupChats");
+                        group_ID = reference1.push().getKey();
+                        HashMap<String, Object> hashMap = new HashMap<>();
+                        hashMap.put("group_ID", group_ID);
+                        hashMap.put("group_Name", group_Name);
+                        hashMap.put("group_Image", mUri);
+                        hashMap.put("group_Creator", group_Creator);
+                        hashMap.put("group_LastMess", group_LastMess);
+                        hashMap.put("group_LastSender", group_LastSender);
+                        AppCompatActivity activity = (AppCompatActivity) getContext();
+                        reference1.child(group_ID).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                    reference2 = FirebaseDatabase.getInstance().getReference("User_List_By_Group_Chat").child(group_ID);
+                                    String key = reference2.push().getKey();
+                                    HashMap<String, Object> hashMap1 = new HashMap<>();
+                                    hashMap1.put("user_ID", group_Creator);
+                                    hashMap1.put("group_ID", group_ID);
+                                    hashMap1.put("position", "Leader");
+                                    hashMap1.put("key", key);
+                                    reference2.child(key).setValue(hashMap1).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                                Toast.makeText(activity, "Create success", Toast.LENGTH_SHORT).show();
+                                                GroupChatFragment.getInstance().showGroupChatList(group_Creator);
+                                            }else {
+                                                Toast.makeText(activity, "Create failed", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                        progressDialog.dismiss();
+                        dismiss();
+                    }else {
+                        Toast.makeText(getContext(), "Failed" + task.getException(), Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getContext(), "Failed" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                }
+            });
+        }else {
+            Toast.makeText(getContext(), "Please select image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            Uri chosenImageUri = data.getData();
-            avatar_group = getRealPathFromURI(chosenImageUri);
-            Bitmap mBitmap = null;
-            try {
-                mBitmap = MediaStore.Images.Media.getBitmap(this.getContext().getContentResolver(), chosenImageUri);
-                avatar_group_chat.setImageBitmap(mBitmap);
-//                Toast.makeText(getContext(), "" + avatar_path, Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (resultCode == RESULT_OK && requestCode == IMG_REQUEST && data != null && data.getData() != null) {
+            imageUri = data.getData();
+            Glide.with(getContext()).load(imageUri).into(avatar_group_chat);
         }
-    }
-
-    //Todo: Phương thức upload hình ảnh lên database
-    public void updateUserInformation(int user_id, String gender, String phone, String dob, String address,String avatar){
-        ApiService updateUserInfo = ApiUtils.connectRetrofit();
-        updateUserInfo.isUpdateUserInformationSuccess(user_id, gender, phone, dob, address, avatar).enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                Toast.makeText(getContext(), "Create " + response.body().toLowerCase(), Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                Toast.makeText(getContext(), "" + call + "\n" + t, Toast.LENGTH_LONG).show();
-                Log.e("TAG", "onFailure: " + call + "\n" + t);
-            }
-        });
-    }
-
-    //Todo: Phương thức lấy địa chỉ thật của hình ảnh trong thiết bị
-    public String getRealPathFromURI(Uri uri) {
-        String path = null;
-        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-        Cursor cursor = getContext().getContentResolver().query(uri, filePathColumn, null, null, null);
-        if (cursor.moveToFirst()) {
-            int columnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-            path = cursor.getString(columnIndex);
-        }
-        cursor.close();
-        return path;
     }
 }

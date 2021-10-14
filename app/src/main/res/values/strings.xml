@@ -13,7 +13,7 @@
     <string name="please_enter_password">Please enter password</string>
     <string name="users">Members</string>
     <string name="project_name"><u>Project name</u><font color='#FF0000'>*</font></string>
-    <string name="email">Email<font color='#FF0000'>*</font></string>
+    <string name="email"><u>Email</u><font color='#FF0000'>*</font></string>
     <string name="task_name">Task name<font color='#FF0000'>*</font></string>
     <string name="start_date"><u>Start date</u><font color='#FF0000'>*</font></string>
     <string name="group_chat_name">Group chat name<font color='#FF0000'>*</font></string>
@@ -38,4 +38,5 @@
     <string name="password"><u>Password</u><font color='#FF0000'>*</font></string>
     <string name="confirm_password"><u>Confirm Password</u><font color='#FF0000'>*</font></string>
     <string name="default_notification_channel_id">abc</string>
+    <string name="position"><u>Position</u><font color='#FF0000'>*</font></string>
 </resources>

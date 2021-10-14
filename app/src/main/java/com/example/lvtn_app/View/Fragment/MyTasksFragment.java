@@ -1,11 +1,13 @@
 package com.example.lvtn_app.View.Fragment;
 
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,18 +18,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.lvtn_app.Adapter.TaskAdapter;
 import com.example.lvtn_app.Controller.Method.DateFormat;
-import com.example.lvtn_app.Controller.Retrofit.ApiService;
-import com.example.lvtn_app.Controller.Retrofit.ApiUtils;
-import com.example.lvtn_app.Model.Issue;
+import com.example.lvtn_app.Model.Task;
 import com.example.lvtn_app.R;
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 import com.github.sundeepk.compactcalendarview.domain.Event;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,7 +59,7 @@ public class MyTasksFragment extends Fragment {
     CompactCalendarView calendarView;
     RecyclerView recyclerViewTasks;
     TaskAdapter taskAdapter;
-    ArrayList<Issue> issues, issue_date;
+    ArrayList<Task> tasks, daily_tasks;
     ArrayList<Event> events;
 
     String selectedDate = "";
@@ -63,6 +68,10 @@ public class MyTasksFragment extends Fragment {
 
     SharedPreferences sharedPreferences_user;
     String username = "";
+
+    FirebaseAuth auth;
+    FirebaseUser firebaseUser;
+    DatabaseReference reference;
 
     DateFormat dateFormat;
     Calendar myCalendar = Calendar.getInstance();
@@ -135,7 +144,7 @@ public class MyTasksFragment extends Fragment {
 
         selectedDate = dateFormat.formatDate(Calendar.getInstance().getTime());
 
-        sharedPreferences_user = Objects.requireNonNull(getActivity()).getSharedPreferences("User", Context.MODE_PRIVATE);
+        sharedPreferences_user = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
         username = sharedPreferences_user.getString("userName_txt", "abc");
 
         calendarView.setLocale(TimeZone.getDefault(), Locale.getDefault());
@@ -143,13 +152,13 @@ public class MyTasksFragment extends Fragment {
         calendarView.shouldDrawIndicatorsBelowSelectedDays(true);
 
         //Set data
-        issues = new ArrayList<>();
-        issue_date = new ArrayList<>();
+        tasks = new ArrayList<>();
+        daily_tasks = new ArrayList<>();
         events = new ArrayList<>();
-        issues.add(new Issue(1, "Làm mô tả chi tiết", "", selectedDate, username));
-        issues.add(new Issue(2, "Phân tích các chức năng và phi chức năng", "", "19/09/2021", username));
-        issues.add(new Issue(3, "Báo cáo tiến độ", "", "18/09/2021", username));
-        issues.add(new Issue(4, "Demo thử ứng dụng", "", selectedDate, username));
+        tasks.add(new Task("1", "Làm mô tả chi tiết", "", selectedDate, username));
+        tasks.add(new Task("2", "Phân tích các chức năng và phi chức năng", "", "19/09/2021", username));
+        tasks.add(new Task("3", "Báo cáo tiến độ", "", "18/09/2021", username));
+        tasks.add(new Task("4", "Demo thử ứng dụng", "", selectedDate, username));
 
         today = new SimpleDateFormat("EE, dd/MM/yyyy", Locale.getDefault()).format(Calendar.getInstance().getTime());
         tv_today.setText(today);
@@ -173,10 +182,13 @@ public class MyTasksFragment extends Fragment {
             }
         };
 
-        taskAdapter = new TaskAdapter(getContext(), issue_date);
+        taskAdapter = new TaskAdapter(getContext(), daily_tasks);
         recyclerViewTasks.setAdapter(taskAdapter);
 
-        getTaskListByUser(selectedDate);
+        auth = FirebaseAuth.getInstance();
+        firebaseUser = auth.getCurrentUser();
+
+        getTaskByDate(selectedDate);
 
         //Bắt sự kiện
         tv_today.setOnClickListener(new View.OnClickListener() {
@@ -204,17 +216,17 @@ public class MyTasksFragment extends Fragment {
             public void onDayClick(Date dateClicked) {
                 today = new SimpleDateFormat("EE, dd/MM/yyyy", Locale.getDefault()).format(dateClicked);
                 tv_today.setText(today);
-                issue_date.clear();
+                daily_tasks.clear();
                 events.clear();
                 setDay(dateClicked);
                 selectedDate = dateFormat.formatDate(dateClicked);
                 try {
                     date = dateFormat.sdf.parse(selectedDate);
                     //                setTaskInCalendar(selectedDate, tasks, task_date, events);
-                    for (Issue issue : issues){
-                        if (issue.getIssueStartDate().equals(selectedDate)){
-                            events.add(new Event(R.color.red, date.getTime(), issue.getIssueName()));
-                            issue_date.add(issue);
+                    for (Task issue : tasks){
+                        if (issue.getTask_StartDate().equals(selectedDate)){
+                            events.add(new Event(R.color.red, date.getTime(), issue.getTask_Name()));
+                            daily_tasks.add(issue);
                         }
                     }
 
@@ -242,34 +254,6 @@ public class MyTasksFragment extends Fragment {
         return view;
     }
 
-    public void createTask(String issueName, String issueDecription, String issueStartDate, String issueCreator){
-        if (dateFormat.isValidDate(issueStartDate)){
-            try {
-                date = dateFormat.sdf.parse(issueStartDate);
-                today = new SimpleDateFormat("EE, dd/MM/yyyy", Locale.getDefault()).format(date);
-                tv_today.setText(today);
-                calendarView.setCurrentDate(date);
-                setDay(date);
-                ApiService createTask = ApiUtils.connectRetrofit();
-                createTask.isCreateNewTaskSuccess(issueName, issueDecription, issueStartDate, issueCreator).enqueue(new Callback<String>() {
-                    @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
-                        Toast.makeText(getContext(), "Create " + response.body().toLowerCase().toString(), Toast.LENGTH_SHORT).show();
-                        issues.add(new Issue(issue_date.size()+1, issueName, issueDecription, issueStartDate, issueCreator));
-                        getTaskListByUser(issueStartDate);
-                    }
-
-                    @Override
-                    public void onFailure(Call<String> call, Throwable t) {
-
-                    }
-                });
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public void setDay(Date date){
         String dow = new SimpleDateFormat("EE", Locale.getDefault()).format(date);
         String day = new SimpleDateFormat("dd", Locale.getDefault()).format(date);
@@ -278,54 +262,53 @@ public class MyTasksFragment extends Fragment {
 //        Toast.makeText(getContext(), ""+ tv_day_of_week_calendar.getText().toString() +"-"+tv_day_number_calendar.getText().toString(), Toast.LENGTH_SHORT).show();
     }
 
-    public void getTaskListByUser(String issueStartDate){
-        issues.clear();
-        issue_date.clear();
-        events.clear();
-        ApiService getTaskListByUser = ApiUtils.connectRetrofit();
-        if (username.length() > 0 && !username.equals("abc")) {
-//            Toast.makeText(getContext(), "" + username, Toast.LENGTH_SHORT).show();
-            getTaskListByUser.getTaskListbyUser(username).enqueue(new Callback<ArrayList<Issue>>() {
-                @Override
-                public void onResponse(Call<ArrayList<Issue>> call, Response<ArrayList<Issue>> response) {
-                    if (response.body() != null){
-//                        Toast.makeText(getContext(), "Success", Toast.LENGTH_SHORT).show();
-                        issues.addAll(response.body());
-                        for (Issue task : issues){
-                            try {
-                                date = dateFormat.sdf.parse(task.getIssueStartDate());
-                                events.add(new Event(R.color.red, date.getTime(), task.getIssueName()));
-                                if (task.getIssueStartDate().equals(issueStartDate)){
-                                    issue_date.add(task);
-                                }
-                                taskAdapter.notifyDataSetChanged();
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
+    public void getTaskByDate(String today){
+        final ProgressDialog progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Waiting!!!");
+        reference = FirebaseDatabase.getInstance().getReference("Tasks");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                progressDialog.show();
+                tasks.clear();
+                daily_tasks.clear();
+                events.clear();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    Task task = dataSnapshot.getValue(Task.class);
+//                    Toast.makeText(getContext(), "" + task.getTask_ID(), Toast.LENGTH_SHORT).show();
+                    if (task.getTask_Creator().equals(firebaseUser.getUid())){
+                        tasks.add(task);
+                    }
+                }
+                for (Task task : tasks){
+                    try {
+                        date = dateFormat.sdf.parse(task.getTask_StartDate());
+                        events.add(new Event(R.color.red, date.getTime(), task.getTask_Name()));
+                        if (task.getTask_StartDate().equals(today)){
+                            daily_tasks.add(task);
                         }
-
+                        taskAdapter.notifyDataSetChanged();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
 //                        for (Issue issue : issue_date){
 //                            Toast.makeText(getContext(), "" + issue.getIssueName(),  Toast.LENGTH_SHORT).show();
 //                        }
-                        if (events!=null){
-                            calendarView.getEvents(date).clear();
-                            for (Event event : events){
-                                calendarView.removeEvent(event);
-                                calendarView.addEvent(event);
-                            }
-                        }
-                    }else Toast.makeText(getContext(), "Failed", Toast.LENGTH_SHORT).show();
+                if (events!=null){
+                    calendarView.getEvents(date).clear();
+                    for (Event event : events){
+                        calendarView.removeEvent(event);
+                        calendarView.addEvent(event);
+                    }
                 }
+                progressDialog.dismiss();
+            }
 
-                @Override
-                public void onFailure(Call<ArrayList<Issue>> call, Throwable t) {
-                    issues.clear();
-                    issue_date.clear();
-                    taskAdapter.notifyDataSetChanged();
-//                    Toast.makeText(getContext(), "Saiiiiiiiiiiiiiii" + call + "\n" + t, Toast.LENGTH_SHORT).show();
-                    Log.e("TAG", "onFailure: " + call + "\n" + t);
-                }
-            });
-        }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 }

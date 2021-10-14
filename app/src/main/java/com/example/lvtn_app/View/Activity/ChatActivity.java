@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -18,25 +17,27 @@ import android.widget.Toast;
 
 import com.example.lvtn_app.Adapter.MessageAdapter;
 import com.example.lvtn_app.Controller.Method.DateFormat;
-import com.example.lvtn_app.Controller.Retrofit.ApiService;
 import com.example.lvtn_app.Controller.Retrofit.ApiServiceFirebase;
-import com.example.lvtn_app.Controller.Retrofit.ApiUtils;
 import com.example.lvtn_app.Controller.Retrofit.RetrofitClient;
+import com.example.lvtn_app.Model.Group_Chat_Users;
 import com.example.lvtn_app.Model.Message;
+import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 import com.example.lvtn_app.View.Fragment.GroupChatFragment;
 import com.example.lvtn_app.View.Notification.Data;
 import com.example.lvtn_app.View.Notification.MyResponse;
 import com.example.lvtn_app.View.Notification.Sender;
 import com.example.lvtn_app.View.Notification.Token;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingService;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -58,20 +59,29 @@ public class ChatActivity extends AppCompatActivity {
     RecyclerView recyclerViewMessage;
     MessageAdapter messageAdapter;
     ArrayList<Message> messageArrayList, temp;
-    private DatabaseReference reference;
     ValueEventListener seenListener;
 
     SharedPreferences sharedPreferences, sharedPreferences_chat;
+    SharedPreferences.Editor editor;
+    FirebaseAuth auth;
+    FirebaseUser firebaseUser;
+    DatabaseReference reference1, reference2, reference3;
+    String id_group, id_user;
 
     DateFormat dateFormat = new DateFormat();
     Date date = Calendar.getInstance().getTime();
     String currentDate = "";
     String currentTime = "";
 
-    int id_group = 0, id_user = 0;
-    String groupName = "";
-    String userName = "";
-    String avatar = "";
+    //Message infomation
+    String message_ID;
+    String message_group_ID;
+    String message_sender;
+    String message_img_sender;
+    String message_text;
+    String message_send_time;
+    String message_send_date;
+    String message_send_status;
 
     ApiServiceFirebase apiService;
     boolean notify = false;
@@ -91,13 +101,9 @@ public class ChatActivity extends AppCompatActivity {
         recyclerViewMessage.setHasFixedSize(true);
 
         sharedPreferences_chat = Objects.requireNonNull(this).getSharedPreferences("Chat", Context.MODE_PRIVATE);
-        id_group = sharedPreferences_chat.getInt("groupChat_id", -1);
-        groupName = sharedPreferences_chat.getString("groupChat_name", "name");
-
         sharedPreferences = Objects.requireNonNull(this).getSharedPreferences("User", Context.MODE_PRIVATE);
-        userName = sharedPreferences.getString("userName_txt", "User Name");
-        id_user = sharedPreferences.getInt("userId_txt", -1);
-        avatar = sharedPreferences.getString("avatar_PI_txt", " ");
+        id_group = sharedPreferences_chat.getString("group_ID", "token");
+        id_user = sharedPreferences.getString("user_ID", "token");
 
         apiService = RetrofitClient.getClient("https://fcm.googleapis.com/").create(ApiServiceFirebase.class);
 
@@ -105,14 +111,8 @@ public class ChatActivity extends AppCompatActivity {
         currentTime = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(Calendar.getInstance().getTime());
         messageArrayList = new ArrayList<>();
         temp = new ArrayList<>();
-        messageArrayList.add(new Message(1, id_group, "Rakitic", " ", "test 1", currentTime, currentDate, ""));
-        messageArrayList.add(new Message(2, id_group, "Rakitic Võ", avatar, "test 1", currentTime, currentDate, ""));
-        //Set up
-//        Toast.makeText(this, "" + id_group, Toast.LENGTH_SHORT).show();
-//        readMessage();
-        if (groupName != null){
-            tvGroupChatName.setText(groupName);
-        }
+        messageArrayList.add(new Message("1", id_group, "Rakitic", " ", "test 1", currentTime, currentDate, ""));
+        messageArrayList.add(new Message("2", id_group, "Rakitic Võ", " ", "test 1", currentTime, currentDate, ""));
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerViewMessage.setLayoutManager(linearLayoutManager);
@@ -120,17 +120,21 @@ public class ChatActivity extends AppCompatActivity {
         recyclerViewMessage.setAdapter(messageAdapter);
 
         if (recyclerViewMessage.getAdapter().getItemCount() > 0) {
-            chageLayout();
+            changeLayout();
         }
 
-        readMessage();
-        seenMessage(id_group, userName);
+        auth =FirebaseAuth.getInstance();
+        firebaseUser = auth.getCurrentUser();
+
+//        messageArrayList.clear();
+        readMessage(id_group);
+//        seenMessage(id_group, id_user);
 
         //Bắt sự kiện
         if (!edt_send_message.isFocusableInTouchMode()){
             edt_send_message.setFocusableInTouchMode(true);
             if (recyclerViewMessage.getAdapter().getItemCount() > 0) {
-                chageLayout();
+                changeLayout();
             }
         }
 
@@ -138,7 +142,6 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
-                GroupChatFragment.getInstance().readMessage();
             }
         });
 
@@ -147,19 +150,35 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View v) {
                 notify = true;
                 String mess =  edt_send_message.getText().toString().trim() ;
-                if (!mess.equals(""))
-                {
-//                    sendMessage(userChat.getTokenSender(), userChat.getId() ,mess);
-                    currentTime = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(Calendar.getInstance().getTime());
-//                    Toast.makeText(ChatActivity.this,
-//                                            "" + id_group + "\n" +
-//                                                    userName + "\n" +
-//                                                    avatar + "\n" +
-//                                                    mess + "\n" +
-//                                                    currentTime + "\n" +
-//                                                    currentDate + "\n" ,Toast.LENGTH_SHORT).show();
-//                    updateLastMessage(id_group, userName, avatar, mess, currentTime.toString(), currentDate.toString());
-                    sendMessage(id_group, userName, avatar, mess, currentTime,  currentDate);
+                currentTime = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(Calendar.getInstance().getTime());
+                if (!mess.equals("")) {
+                    if (id_user.equals(firebaseUser.getUid())){
+                        reference1 = FirebaseDatabase.getInstance().getReference("Users").child(id_user);
+                        reference1.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                User user = snapshot.getValue(User.class);
+
+                                //Get all information of message
+                                message_group_ID = id_group;
+                                message_sender = user.getUser_Name();
+                                message_img_sender = user.getUser_Avatar();
+                                message_text = mess;
+                                message_send_time = currentTime;
+                                message_send_date = currentDate;
+                                editor = sharedPreferences.edit();
+                                editor.putString("user_Name", user.getUser_Name());
+                                editor.putString("user_Avatar", user.getUser_Avatar());
+                                editor.commit();
+                                sendMessage(message_group_ID, message_sender, message_img_sender, message_text, message_send_time, message_send_date);
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+                    }
                 }
                 edt_send_message.setText("");
             }
@@ -174,7 +193,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    public void chageLayout(){
+    public void changeLayout(){
         recyclerViewMessage.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v,
@@ -187,42 +206,43 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    private void sendMessage(int id_Group, String sender, String img_sender, String message, String send_date, String send_time)
+    private void sendMessage(String message_group_ID, String message_sender, String message_img_sender, String message_text, String message_send_time, String message_send_date)
     {
-        reference = FirebaseDatabase.getInstance().getReference();
+        reference2 = FirebaseDatabase.getInstance().getReference("Chats");
+        message_ID = reference2.push().getKey().toString();
         HashMap<String , Object> hashMap = new HashMap<>();
-        hashMap.put("id_Group", id_Group);
-        hashMap.put("sender", sender);
-        hashMap.put("img_sender", img_sender);
-        hashMap.put("message", message);
-        hashMap.put("send_date", send_date);
-        hashMap.put("send_time", send_time);
-        hashMap.put("status", "sent");
-        reference.child("Chat").push().setValue(hashMap);
-        updateLastMess(id_Group, message, sender);
-        readMessage();
-
-        final String msg = message;
-        reference = FirebaseDatabase.getInstance().getReference("Chat");
-        reference.addValueEventListener(new ValueEventListener() {
+        hashMap.put("message_ID", message_ID);
+        hashMap.put("message_group_ID", message_group_ID);
+        hashMap.put("message_sender", message_sender);
+        hashMap.put("message_img_sender", message_img_sender);
+        hashMap.put("message_text", message_text);
+        hashMap.put("message_send_time", message_send_time);
+        hashMap.put("message_send_date", message_send_date);
+        hashMap.put("message_send_status", "sent");
+        reference2.child(message_group_ID).child(message_ID).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                temp.clear();
-                for(DataSnapshot dataSnapshot : snapshot.getChildren())
-                {
-                    Message message = dataSnapshot.getValue(Message.class);
-                    if (message.getId_Group() == id_group){
-                        temp.add(message);
-                    }
-                }
-                String lastSender = temp.get(temp.size() - 1).getSender().toString();
-                if (userName.equals(userName)){
-                    if (notify){
-                        sendNotification(id_Group, lastSender, msg);
-                    }
-                    notify = false;
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+//                    Toast.makeText(ChatActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                    readMessage(message_group_ID);
+                    GroupChatFragment.getInstance().readMessage();
                 }
             }
+        });
+        seenMessage(message_group_ID, firebaseUser.getUid());
+
+        final String msg = message_text;
+        reference3 = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+        reference3.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User user = snapshot.getValue(User.class);
+                if (notify){
+                    getUserIDAndSendNoti(message_group_ID, user.getUser_Name(), msg, user.getUser_ID());
+                }
+                notify = false;
+            }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
@@ -230,57 +250,70 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    private void sendNotification(int id_group, String lastSender, String msg){
-        DatabaseReference token = FirebaseDatabase.getInstance().getReference("Notification").child("Message").child(id_group+"");
-        Query query = token.orderByKey().equalTo(lastSender);
-        query.addValueEventListener(new ValueEventListener() {
+    private void getUserIDAndSendNoti(String id_group_receive, String sender_name, String message, String userid){
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("User_List_By_Group_Chat").child(id_group_receive);
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ArrayList<String> list = new ArrayList<>();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-                    Token token1 = dataSnapshot.getValue(Token.class);
-//                    Toast.makeText(ChatActivity.this, "ABC: " + token1.getToken(), Toast.LENGTH_SHORT).show();
-                    Data data = new Data(id_group, R.mipmap.ic_launcher, lastSender + ": " + msg, "New message", lastSender);
-                    Sender sender = new Sender(data, token1.getToken());
+                    Group_Chat_Users users = dataSnapshot.getValue(Group_Chat_Users.class);
+                    if (!userid.equals(users.getUser_ID())){
+                        list.add(users.getUser_ID());
+                    }
+                }
+                sendNotification(list, sender_name, message);
+            }
 
-                    apiService.sendNotification(sender)
-                            .enqueue(new Callback<MyResponse>() {
-                                @Override
-                                public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
-//                                    Toast.makeText(ChatActivity.this, "" + response.code(), Toast.LENGTH_SHORT).show();
-                                    if (response.code() == 200){
-                                        if (response.body().success != 1){
-//                                            Toast.makeText(ChatActivity.this, "Failed" + response.body(), Toast.LENGTH_SHORT).show();
-                                            Log.e("TAG", "onResponse: " + response.body());
-                                        }else {
-                                            Toast.makeText(ChatActivity.this, "Sucesss" + response.body(), Toast.LENGTH_SHORT).show();
-                                            Log.e("TAG", "onResponse: " + response.body());
-                                        }
-                                    }else {
-                                        Toast.makeText(ChatActivity.this, "Failed code" + response.code(), Toast.LENGTH_SHORT).show();
-                                        Log.e("TAG", "onResponse: " + response.code());
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void sendNotification(ArrayList<String> receiver, String sender_name, String message){
+        DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
+        for (String s : receiver){
+            Query query = tokens.orderByKey().equalTo(s);
+            query.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                        Token token = dataSnapshot.getValue(Token.class);
+                        Data data = new Data(firebaseUser.getUid(), R.mipmap.ic_launcher, sender_name+": " + message,
+                                "New message", s);
+                        Sender sender = new Sender(data, token.getToken());
+                        apiService.sendNotification(sender).enqueue(new Callback<MyResponse>() {
+                            @Override
+                            public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+                                if (response.code() == 200){
+                                    if (response.body().success != 1){
+                                        Toast.makeText(ChatActivity.this, "Failed!!!", Toast.LENGTH_SHORT).show();
                                     }
                                 }
+                            }
 
-                                @Override
-                                public void onFailure(Call<MyResponse> call, Throwable t) {
-                                    Log.e("TAG", "onFailure: " + t.getMessage());
-                                    Toast.makeText(ChatActivity.this, "Failed" + t.getMessage(), Toast.LENGTH_SHORT).show();
-                                }
-                            });
+                            @Override
+                            public void onFailure(Call<MyResponse> call, Throwable t) {
+
+                            }
+                        });
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
 
-            }
-        });
+                }
+            });
+        }
     }
 
-    private void seenMessage (int id_group, String userName)
+    private void seenMessage (String id_group, String id_user)
     {
-        reference = FirebaseDatabase.getInstance().getReference("Chat");
-        seenListener = reference.addValueEventListener(new ValueEventListener() {
+        reference2 = FirebaseDatabase.getInstance().getReference("Chats").child(id_group);
+        seenListener = reference2.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for(DataSnapshot dataSnapshot : snapshot.getChildren())
@@ -288,12 +321,12 @@ public class ChatActivity extends AppCompatActivity {
                     Message message = dataSnapshot.getValue(Message.class);
                     // token là người gửi.
                     //     Log.e("L","Receiver"+ message.getReceiver() + " | sender " + message.getSender() + " | " + message.getStatus()+ "token" + token );
-                    if(message.getId_Group() == id_group)
+                    if(message.getMessage_group_ID().equals(id_group))
                     {
-                        if (!message.getSender().equals(userName)){
+                        if (!message.getMessage_sender().equals(id_user)){
                             HashMap<String , Object> hashMap = new HashMap<>();
-                            Log.e("seen", "VAO Seen");
-                            hashMap.put("status", "seen");
+//                            Log.e("seen", "VAO Seen");
+                            hashMap.put("message_send_status", "seen");
                             dataSnapshot.getRef().updateChildren(hashMap);
                         }
                     }
@@ -307,63 +340,46 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    private void readMessage()
+    private void readMessage(String id_group)
     {
-        reference = FirebaseDatabase.getInstance().getReference("Chat");
-        reference.addValueEventListener(new ValueEventListener() {
+        messageArrayList.clear();
+        reference2 = FirebaseDatabase.getInstance().getReference("Chats").child(id_group);
+        reference2.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 messageArrayList.clear();
-                for(DataSnapshot dataSnapshot : snapshot.getChildren())
-                {
+                for(DataSnapshot dataSnapshot : snapshot.getChildren()){
                     Message message = dataSnapshot.getValue(Message.class);
-                    if (message.getId_Group() == id_group){
+//                    Toast.makeText(ChatActivity.this, "" + message.getMessage_group_ID(), Toast.LENGTH_SHORT).show();
+                    if (message.getMessage_group_ID().equals(id_group)){
                         messageArrayList.add(message);
                     }
+                    messageAdapter.notifyDataSetChanged();
                 }
                 if (messageArrayList.size() == 0){
-                    messageArrayList = new ArrayList<>();
+//                    messageArrayList.add(new Message("abc", id_group, "Chí Thiện", " ", "This group has been created", currentTime, currentDate, " "));
+//                    Toast.makeText(ChatActivity.this, "" + messageArrayList.get(0).getMessage_sender() + "\n"
+//                            + messageArrayList.get(0).getMessage_text() + "\n"
+//                            + messageArrayList.get(0).getMessage_send_date() + "\n"
+//                            + messageArrayList.get(0).getMessage_send_time() + "\n"
+//                            + messageArrayList.get(0).getMessage_group_ID() + "\n", Toast.LENGTH_SHORT).show();
+                    messageAdapter.notifyDataSetChanged();
                 }
-//                for (Message message : messageArrayList){
-//                    Toast.makeText(ChatActivity.this, ""
-//                                + message.getId_Chat() + "\n"
-//                                + message.getId_Group() + "\n"
-//                                + message.getSender() + "\n"
-//                                + message.getImg_sender() + "\n"
-//                                + message.getMessage() + "\n"
-//                                + message.getSend_time() + "\n"
-//                                + message.getSend_date() + "\n", Toast.LENGTH_SHORT).show();
-//                }
-                messageAdapter.notifyDataSetChanged();
-                recyclerViewMessage.scrollToPosition(messageArrayList.size() - 1);
-
+                if (messageArrayList.size() > 0){
+                    recyclerViewMessage.scrollToPosition(messageArrayList.size() - 1);
+                    messageAdapter.notifyDataSetChanged();
+                }
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
         });
-    }
-
-    private void updateLastMess(int id_Group, String groupLastMess, String groupLastSender){
-        ApiService updateLastMess = ApiUtils.connectRetrofit();
-        updateLastMess.isUpdateLastMessSuccess(id_Group, groupLastMess, groupLastSender).enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-//                Toast.makeText(ChatActivity.this, "Update" + response.body().toLowerCase(), Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                Toast.makeText(ChatActivity.this, "" + t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.e("TAG", "onFailure: " + t.getMessage());
-            }
-        });
+        messageAdapter.notifyDataSetChanged();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        GroupChatFragment.getInstance().readMessage();
     }
 }

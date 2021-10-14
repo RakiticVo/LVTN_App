@@ -76,9 +76,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:padding="10dp"
                         android:background="@drawable/custom_edt"
-                        android:hint="Enter issue name"
+                        android:hint="Enter task name"
+                        android:padding="10dp"
                         android:textColor="@color/black"
                         android:textSize="18sp" />
 

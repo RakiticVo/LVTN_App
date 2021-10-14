@@ -4,6 +4,8 @@ import static android.app.Activity.RESULT_OK;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,22 +15,21 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
-import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -37,32 +38,32 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.lvtn_app.Controller.Method.DateFormat;
-import com.example.lvtn_app.Controller.Retrofit.ApiService;
-import com.example.lvtn_app.Controller.Retrofit.ApiUtils;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 import com.example.lvtn_app.View.Activity.LoginActivity;
-import com.example.lvtn_app.View.Activity.MainActivity;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
+import com.google.firebase.storage.UploadTask;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.http.Multipart;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -79,16 +80,25 @@ public class ProfileFragment extends Fragment {
     Button btn_logout, btn_confirm_update_profile;
     CircleImageView avatar_profile;
 
+    FirebaseAuth auth;
+    FirebaseUser firebaseUser;
+    DatabaseReference reference;
+
+    StorageReference storageReference;
+    private static final int IMG_REQUEST = 1234;
+    private Uri imageUri;
+    private StorageTask uploadTask;
+
     //User info
-    int user_id;
-    String username = "";
-    String email = "";
-    String gender = "Male";
-    String phone = "";
-    String dob = "";
-    String address = "";
-    String avatar = "";//Path which can access to the storage to download image
-    String avatar_path = "";//Path where image is stored when uploaded
+    String user_ID;
+    String user_Name;
+    String user_Email;
+    String user_Pass;
+    String user_Gender;
+    String user_Phone;
+    String user_DOB;
+    String user_Address;
+    String user_Avatar;
 
 
     Calendar myCalendar = Calendar.getInstance();
@@ -199,71 +209,78 @@ public class ProfileFragment extends Fragment {
         mSharedPreferences = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
         editor = mSharedPreferences.edit();
 
-        //Set data
-        user_id = mSharedPreferences.getInt("userId_txt", -1);
-        if (user_id > 0){
-//            Toast.makeText(getContext(), "" + user_id, Toast.LENGTH_SHORT).show();
-            ApiService getUserInfo = ApiUtils.connectRetrofit();
-            getUserInfo.getUserInformation().enqueue(new Callback<ArrayList<User>>() {
+        auth = FirebaseAuth.getInstance();
+        storageReference = FirebaseStorage.getInstance().getReference("Uploads");
+        firebaseUser = auth.getCurrentUser();
+        if (firebaseUser == null){
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(getActivity(), LoginActivity.class));
+            getActivity().finish();
+        }
+        String uid = mSharedPreferences.getString("user_ID", "token");
+        user_ID = firebaseUser.getUid();
+
+        if (!user_ID.equals("token") && uid.equals(user_ID)){
+            reference = FirebaseDatabase.getInstance().getReference("Users").child(user_ID);
+            reference.addValueEventListener(new ValueEventListener() {
                 @Override
-                public void onResponse(Call<ArrayList<User>> call, Response<ArrayList<User>> response) {
-                    ArrayList<User> temp = response.body();
-                    for (User user : temp){
-                        if (user.getId_user() == user_id){
-//                            Toast.makeText(getContext(), "" + user.getId_user() + "\n"
-//                                    + user.getUserName() + "\n"
-//                                    + user.getUserEmail() + "\n"
-//                                    + user.getGender_PI() + "\n"
-//                                    + user.getPhone_PI() + "\n"
-//                                    + "status: Online" + "\n", Toast.LENGTH_SHORT).show();
-                            editor.putString("gender_PI_txt", user.getGender_PI());
-                            editor.putString("phone_PI_txt", user.getPhone_PI());
-                            editor.putString("dob_PI_txt", user.getDob_PI());
-                            editor.putString("address_PI_txt", user.getAddress_PI());
-                            editor.putString("avatar_PI_txt", user.getAvatar_PI());
-                            editor.commit();
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        User user = snapshot.getValue(User.class);
+//                        Toast.makeText(getContext(), "" + user.getUser_ID(), Toast.LENGTH_SHORT).show();
+
+                        user_ID = user.getUser_ID();
+                        user_Name = user.getUser_Name();
+                        user_Email = user.getUser_Email();
+                        user_Pass = user.getUser_Pass();
+                        user_Gender = user.getUser_Gender();
+                        user_Phone = user.getUser_Phone();
+                        user_DOB = user.getUser_DOB();
+                        user_Address = user.getUser_Address();
+                        user_Avatar= user.getUser_Avatar();
+
+                        editor.putString("user_Email", user_Email);
+                        editor.putString("user_Pass", user_Pass);
+                        editor.commit();
+
+                        tv_username_profile.setText(user_Name);
+                        username_profile_text_input_layout.getEditText().setText(user_Name);
+
+                        tv_email_profile.setText(user_Email);
+                        email_profile_text_input_layout.getEditText().setText(user_Email);
+
+                        tv_gender_profile.setText(user_Gender);
+                        if (user_Gender.equals(" ")){
+                            rbtn_male.setChecked(true);
+                        }else if (user_Gender.toLowerCase().equals("male")){
+                            rbtn_male.setChecked(true);
+                        }else{
+                            rbtn_female.setChecked(true);
                         }
+
+                        tv_phoneNumber_profile.setText(user_Phone);
+                        phoneNumber_profile_text_input_layout.getEditText().setText(user_Phone);
+
+                        tv_DOB_profile.setText(user_DOB);
+                        DOB_profile_text_input_layout.getEditText().setText(user_DOB);
+
+                        tv_address_profile.setText(user_Address);
+                        address_profile_text_input_layout.getEditText().setText(user_Address);
+
+                        if (user_Avatar != null && user_Avatar.length() > 0
+                            && !user_Avatar.equals(" ")){
+                            Glide.with(getContext()).load(user_Avatar).centerCrop().into(avatar_profile);
+                        }else {
+                            avatar_profile.setImageResource(R.drawable.profile_1);
+                        }
+
                     }
-                }
 
                 @Override
-                public void onFailure(Call<ArrayList<User>> call, Throwable t) {
-                    Toast.makeText(getContext(), "" + call + "\n" + t, Toast.LENGTH_SHORT).show();
-                    Log.e("TAG", "onFailure: " + call + "\n" + t);
+                public void onCancelled(@NonNull DatabaseError error) {
+
                 }
             });
-        }else {
-//            Toast.makeText(getContext(), "" + user_id, Toast.LENGTH_SHORT).show();
         }
-
-
-        tv_username_profile.setText(mSharedPreferences.getString("userName_txt", "UserName"));
-        tv_email_profile.setText(mSharedPreferences.getString("userEmail_txt", ""));
-        tv_gender_profile.setText(mSharedPreferences.getString("gender_PI_txt", ""));
-        tv_phoneNumber_profile.setText(mSharedPreferences.getString("phone_PI_txt", ""));
-        tv_DOB_profile.setText(mSharedPreferences.getString("dob_PI_txt", ""));
-        tv_address_profile.setText(mSharedPreferences.getString("address_PI_txt", ""));
-
-        avatar_profile.setImageResource(R.drawable.profile_1);
-
-        avatar = mSharedPreferences.getString("avatar_PI_txt", "");
-//        Toast.makeText(getContext(), "" + avatar, Toast.LENGTH_SHORT).show();
-        if (!avatar.equals("")){
-            Glide.with(getContext()).load(avatar).into(avatar_profile);
-        }else {
-            avatar_profile.setImageResource(R.drawable.profile_1);
-        }
-
-        username_profile_text_input_layout.getEditText().setText(mSharedPreferences.getString("userName_txt", "UserName"));
-        email_profile_text_input_layout.getEditText().setText(mSharedPreferences.getString("userEmail_txt", ""));
-        if (mSharedPreferences.getString("gender_PI_txt", "").toLowerCase().equals("male")){
-            rbtn_male.setChecked(true);
-        }else{
-            rbtn_female.setChecked(true);
-        }
-        phoneNumber_profile_text_input_layout.getEditText().setText(mSharedPreferences.getString("phone_PI_txt", ""));
-        DOB_profile_text_input_layout.getEditText().setText(mSharedPreferences.getString("dob_PI_txt", ""));
-        address_profile_text_input_layout.getEditText().setText(mSharedPreferences.getString("address_PI_txt", ""));
 
         //Bắt sự kiện
         ibtn_edit_profile.setOnClickListener(new View.OnClickListener() {
@@ -284,7 +301,6 @@ public class ProfileFragment extends Fragment {
                 ibtn_calendar_dob.setVisibility(View.VISIBLE);
                 address_profile_text_input_layout.setVisibility(View.VISIBLE);
                 ibtn_back_profile.setVisibility(View.VISIBLE);
-                ibtn_choose_avatar_profile.setVisibility(View.VISIBLE);
 
                 btn_logout.setVisibility(View.GONE);
                 btn_confirm_update_profile.setVisibility(View.VISIBLE);
@@ -372,8 +388,9 @@ public class ProfileFragment extends Fragment {
                         phoneNumber_profile_text_input_layout.setError("Please enter phone number!!!");
                         phoneNumber_profile_text_input_layout.setErrorEnabled(true);
                     } else {
-                        if (validatePhoneNumber(phoneNumber_profile_text_input_layout.getEditText().getText().toString())) {
-                            if (phoneNumber_profile_text_input_layout.getEditText().getText().toString().subSequence(0,1).equals("0")){
+                        if (phoneNumber_profile_text_input_layout.getEditText().getText().toString().length() > 9
+                            && phoneNumber_profile_text_input_layout.getEditText().getText().toString().length() < 12) {
+                            if (phoneNumber_profile_text_input_layout.getEditText().getText().toString().subSequence(1,2).equals("0")){
                                 phoneNumber_profile_text_input_layout.setErrorEnabled(false);
                             }else {
                                 phoneNumber_profile_text_input_layout.setError("Wrong format!!! Please try again");
@@ -487,19 +504,32 @@ public class ProfileFragment extends Fragment {
         btn_confirm_update_profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (username_profile_text_input_layout.getEditText().getText().length() == 0){
+                    username_profile_text_input_layout.setError("Wrong format!!! Please try again");
+                    username_profile_text_input_layout.setErrorEnabled(true);
+                }else username_profile_text_input_layout.setErrorEnabled(false);
+
                 if (!isValidEmail(email_profile_text_input_layout.getEditText().getText())) {
                     email_profile_text_input_layout.setError("Wrong format!!! Please try again");
                     email_profile_text_input_layout.setErrorEnabled(true);
-                }
+                }else email_profile_text_input_layout.setErrorEnabled(false);
 
-                if (validatePhoneNumber(phoneNumber_profile_text_input_layout.getEditText().getText().toString())) {
-                    if (!phoneNumber_profile_text_input_layout.getEditText().getText().toString().subSequence(0,1).equals("0")){
+                if (phoneNumber_profile_text_input_layout.getEditText().getText().length() < 1) {
+                    phoneNumber_profile_text_input_layout.setError("Please enter phone number!!!");
+                    phoneNumber_profile_text_input_layout.setErrorEnabled(true);
+                } else {
+                    if (phoneNumber_profile_text_input_layout.getEditText().getText().toString().length() > 9
+                            && phoneNumber_profile_text_input_layout.getEditText().getText().toString().length() < 12) {
+                        if (phoneNumber_profile_text_input_layout.getEditText().getText().toString().subSequence(1,2).equals("0")){
+                            phoneNumber_profile_text_input_layout.setErrorEnabled(false);
+                        }else {
+                            phoneNumber_profile_text_input_layout.setError("Wrong format!!! Please try again");
+                            phoneNumber_profile_text_input_layout.setErrorEnabled(true);
+                        }
+                    } else {
                         phoneNumber_profile_text_input_layout.setError("Wrong format!!! Please try again");
                         phoneNumber_profile_text_input_layout.setErrorEnabled(true);
                     }
-                } else {
-                    phoneNumber_profile_text_input_layout.setError("Wrong format!!! Please try again");
-                    phoneNumber_profile_text_input_layout.setErrorEnabled(true);
                 }
 
                 try {
@@ -524,103 +554,66 @@ public class ProfileFragment extends Fragment {
                             switch (which){
                                 case DialogInterface.BUTTON_POSITIVE:
                                     //Yes button clicked
-                                    username = username_profile_text_input_layout.getEditText().getText().toString();
-                                    email = email_profile_text_input_layout.getEditText().getText().toString();
+                                    user_Name = username_profile_text_input_layout.getEditText().getText().toString();
+                                    user_Email = email_profile_text_input_layout.getEditText().getText().toString();
                                     if (rg_gender.getCheckedRadioButtonId() == rbtn_female.getId()) {
-                                        gender = rbtn_female.getText().toString();
+                                        user_Gender = rbtn_female.getText().toString();
                                     }
                                     if (rg_gender.getCheckedRadioButtonId() == rbtn_male.getId()) {
-                                        gender = rbtn_male.getText().toString();
+                                        user_Gender = rbtn_male.getText().toString();
                                     }
-                                    phone = phoneNumber_profile_text_input_layout.getEditText().getText().toString();
-                                    dob = DOB_profile_text_input_layout.getEditText().getText().toString();
-                                    address = address_profile_text_input_layout.getEditText().getText().toString();
+                                    user_Phone = phoneNumber_profile_text_input_layout.getEditText().getText().toString();
+                                    user_DOB = DOB_profile_text_input_layout.getEditText().getText().toString();
+                                    user_Address = address_profile_text_input_layout.getEditText().getText().toString();
+                                    if (user_Address.length() == 0){
+                                        user_Address = " ";
+                                    }
 
-//                                    Toast.makeText(getContext(), "" + username + "\n"
-//                                            + email + "\n"
-//                                            + gender + "\n"
-//                                            + phone + "\n"
-//                                            + dob + "\n"
-//                                            + address + "\n", Toast.LENGTH_SHORT).show();
-                                    editor = mSharedPreferences.edit();
-                                    ApiService updateUserName = ApiUtils.connectRetrofit();
-                                    updateUserName.isUpdateUserSuccess(user_id, username, email).enqueue(new Callback<String>() {
-                                        @Override
-                                        public void onResponse(Call<String> call, Response<String> response) {
-//                                            Toast.makeText(getContext(), "Successs: \n" + response.body(), Toast.LENGTH_SHORT).show();
-                                            editor.putString("userName_txt", username);
-                                            editor.putString("userEmail_txt", email);
-                                            editor.commit();
-                                        }
+                                    final ProgressDialog progressDialog = new ProgressDialog(getContext());
+                                    progressDialog.setMessage("Updating");
+                                    progressDialog.show();
 
+                                    HashMap<String, Object> hashMap = new HashMap<>();
+                                    hashMap.put("user_Name", user_Name);
+                                    hashMap.put("user_Email", user_Email);
+                                    hashMap.put("user_Gender", user_Gender);
+                                    hashMap.put("user_Phone", user_Phone);
+                                    hashMap.put("user_DOB", user_DOB);
+                                    hashMap.put("user_Address", user_Address);
+
+                                    reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
-                                        public void onFailure(Call<String> call, Throwable t) {
-                                            Toast.makeText(getContext(), "" + call + "\n" + t, Toast.LENGTH_LONG).show();
-                                            Log.e("TAG", "onFailure: " + call + "\n" + t);
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                                Toast.makeText(getContext(), "Update success", Toast.LENGTH_SHORT).show();
+                                                tv_username_profile.setText(user_Name);
+                                                tv_email_profile.setText(user_Email);
+                                                tv_gender_profile.setText(user_Gender);
+                                                tv_phoneNumber_profile.setText(user_Phone);
+                                                tv_DOB_profile.setText(user_DOB);
+                                                tv_address_profile.setText(user_Address);
+
+                                                btn_logout.setVisibility(View.VISIBLE);
+                                                tv_username_profile.setVisibility(View.VISIBLE);
+                                                tv_email_profile.setVisibility(View.VISIBLE);
+                                                tv_gender_profile.setVisibility(View.VISIBLE);
+                                                tv_phoneNumber_profile.setVisibility(View.VISIBLE);
+                                                tv_DOB_profile.setVisibility(View.VISIBLE);
+                                                tv_address_profile.setVisibility(View.VISIBLE);
+
+                                                username_profile_text_input_layout.setVisibility(View.GONE);
+                                                email_profile_text_input_layout.setVisibility(View.GONE);
+                                                rg_gender.setVisibility(View.GONE);
+                                                phoneNumber_profile_text_input_layout.setVisibility(View.GONE);
+                                                DOB_profile_text_input_layout.setVisibility(View.GONE);
+                                                ibtn_calendar_dob.setVisibility(View.GONE);
+                                                address_profile_text_input_layout.setVisibility(View.GONE);
+                                                btn_confirm_update_profile.setVisibility(View.GONE);
+                                                ibtn_back_profile.setVisibility(View.GONE);
+                                            }
                                         }
                                     });
-
-                                    // Todo: Upload Image and insert information to Database
-                                    File file = new File(avatar_path.toString());
-                                    String file_path = file.getAbsolutePath();
-//                                    Toast.makeText(getContext(), "" + file_path, Toast.LENGTH_SHORT).show();
-                                    if (file_path.length() > 1){
-                                        String[] array_file_name = file_path.split("\\.");
-                                        file_path = array_file_name[0] + System.currentTimeMillis() + "." + array_file_name[1];
-//                                    Toast.makeText(getContext(), "" + file_path, Toast.LENGTH_SHORT).show();
-                                        RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
-                                        MultipartBody.Part body =
-                                                MultipartBody.Part.createFormData("upload_file", file_path, requestFile);
-                                        ApiService uploadImage = ApiUtils.connectRetrofit();
-                                        uploadImage.isUploadUserImageSuccess(body).enqueue(new Callback<String>() {
-                                            @Override
-                                            public void onResponse(Call<String> call, Response<String> response) {
-                                                if (response != null){
-                                                    String message = response.body();
-                                                    if (message.length() > 0){
-                                                        avatar = ApiUtils.baseUrl + "image/" + message;
-                                                        if (avatar != null){
-                                                            updateUserInformation(user_id, gender, phone, dob, address, avatar);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            @Override
-                                            public void onFailure(Call<String> call, Throwable t) {
-                                                Toast.makeText(getContext(), "" + t.getMessage(), Toast.LENGTH_LONG).show();
-                                                Log.e("BBB", "onFailure: " + t.getMessage() );
-                                            }
-                                        });
-                                    }else {
-                                        updateUserInformation(user_id, gender, phone, dob, address, avatar);
-                                    }
-
-                                    tv_username_profile.setText(username);
-                                    tv_email_profile.setText(email);
-                                    tv_gender_profile.setText(gender);
-                                    tv_phoneNumber_profile.setText(phone);
-                                    tv_DOB_profile.setText(dob);
-                                    tv_address_profile.setText(address);
-
-                                    btn_logout.setVisibility(View.VISIBLE);
-                                    tv_username_profile.setVisibility(View.VISIBLE);
-                                    tv_email_profile.setVisibility(View.VISIBLE);
-                                    tv_gender_profile.setVisibility(View.VISIBLE);
-                                    tv_phoneNumber_profile.setVisibility(View.VISIBLE);
-                                    tv_DOB_profile.setVisibility(View.VISIBLE);
-                                    tv_address_profile.setVisibility(View.VISIBLE);
-
-                                    username_profile_text_input_layout.setVisibility(View.GONE);
-                                    email_profile_text_input_layout.setVisibility(View.GONE);
-                                    rg_gender.setVisibility(View.GONE);
-                                    phoneNumber_profile_text_input_layout.setVisibility(View.GONE);
-                                    DOB_profile_text_input_layout.setVisibility(View.GONE);
-                                    ibtn_calendar_dob.setVisibility(View.GONE);
-                                    address_profile_text_input_layout.setVisibility(View.GONE);
-                                    btn_confirm_update_profile.setVisibility(View.GONE);
-                                    ibtn_back_profile.setVisibility(View.GONE);
-
-                                    Toast.makeText(getContext(), "Update success", Toast.LENGTH_SHORT).show();
+                                    progressDialog.dismiss();
                                     break;
                                 case DialogInterface.BUTTON_NEGATIVE:
                                     //No button clicked
@@ -631,7 +624,7 @@ public class ProfileFragment extends Fragment {
                     };
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setMessage("Do you want to create this issue?").setPositiveButton("Yes", dialogClickListener)
+                    builder.setMessage("Do you want to save changes?").setPositiveButton("Yes", dialogClickListener)
                             .setNegativeButton("No", dialogClickListener).show();
                 }
             }
@@ -640,9 +633,10 @@ public class ProfileFragment extends Fragment {
         ibtn_choose_avatar_profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                Intent photoPickerIntent = new Intent();
                 photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, 1);
+                photoPickerIntent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(photoPickerIntent, IMG_REQUEST);
             }
         });
 
@@ -657,112 +651,93 @@ public class ProfileFragment extends Fragment {
         btn_logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int id_user = mSharedPreferences.getInt("userId_txt", -1);
-                if (id_user > 0){
-                    ApiService service = ApiUtils.connectRetrofit();
-                    service.isUpdateUserInformationSuccess(id_user, false).enqueue(new Callback<String>() {
-                        @Override
-                        public void onResponse(Call<String> call, Response<String> response) {
-//                            Toast.makeText(getContext(), "" + response.body(), Toast.LENGTH_SHORT).show();
-                            editor = mSharedPreferences.edit();
-                            editor.putBoolean("userChecked", false);
-                            editor.commit();
-                            startActivity(new Intent(getActivity(), LoginActivity.class));
-                            getActivity().finish();
+                HashMap<String, Object> hashMap = new HashMap<>();
+                hashMap.put("user_Status", "offline");
+                reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            auth.signOut();
+                            AppCompatActivity activity = (AppCompatActivity) getContext();
+                            Intent intent = new Intent(activity, LoginActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        }else {
+                            Toast.makeText(getContext(), "Failed" + task.getResult(), Toast.LENGTH_SHORT).show();
                         }
-
-                        @Override
-                        public void onFailure(Call<String> call, Throwable t) {
-                            Toast.makeText(getContext(), "" + call + "\n" + t, Toast.LENGTH_SHORT).show();
-                            Log.e("TAG", "onFailure: " + call + "\n" + t );
-                        }
-                    });
-                }else{
-                    Toast.makeText(getContext(), "Failed", Toast.LENGTH_SHORT).show();
-                }
+                    }
+                });
             }
         });
 
         return view;
     }
 
+    private String getFileExtension(Uri uri){
+        ContentResolver contentResolver = getContext().getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
+    }
+
+    // Todo: Upload Image and insert information to Database
+    private void uploadImage(){
+        final ProgressDialog progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Uploading");
+        progressDialog.show();
+
+        if (imageUri != null){
+            final StorageReference fileReference = storageReference.child(System.currentTimeMillis()+"."+getFileExtension(imageUri));
+            uploadTask = fileReference.putFile(imageUri);
+            uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()){
+                        throw task.getException();
+                    }
+                    return fileReference.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()){
+                        Uri downloadUri = task.getResult();
+                        String mUri = downloadUri.toString();
+
+                        HashMap<String, Object> hashMap = new HashMap<>();
+                        hashMap.put("user_Avatar", mUri);
+                        reference.updateChildren(hashMap);
+
+                        progressDialog.dismiss();
+                    }else {
+                        Toast.makeText(getContext(), "Failed" + task.getException(), Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getContext(), "Failed" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                }
+            });
+        }else {
+            Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            Uri chosenImageUri = data.getData();
-            avatar_path = getRealPathFromURI(chosenImageUri);
-            Bitmap mBitmap = null;
-            try {
-                mBitmap = MediaStore.Images.Media.getBitmap(this.getContext().getContentResolver(), chosenImageUri);
-                avatar_profile.setImageBitmap(mBitmap);
-//                Toast.makeText(getContext(), "" + avatar_path, Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                e.printStackTrace();
+        if (resultCode == RESULT_OK && requestCode == IMG_REQUEST && data != null && data.getData() != null) {
+            imageUri = data.getData();
+            if (uploadTask != null && uploadTask.isInProgress()){
+                Toast.makeText(getContext(), "Upload into database", Toast.LENGTH_SHORT).show();
+            }else {
+                uploadImage();
             }
         }
     }
 
     public static boolean isValidEmail(CharSequence target) {
         return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
-    }
-
-    private static boolean validatePhoneNumber(String phoneNumber) {
-        // validate phone numbers of format "1234567890"
-        if (phoneNumber.matches("\\d{10}"))
-            return true;
-            // validating phone number with -, . or spaces
-        else if (phoneNumber.matches("\\d{3}[-\\.\\s]\\d{3}[-\\.\\s]\\d{4}"))
-            return true;
-            // validating phone number with extension length from 3 to 5
-        else if (phoneNumber.matches("\\d{3}-\\d{3}-\\d{4}\\s(x|(ext))\\d{3,5}"))
-            return true;
-            // validating phone number where area code is in braces ()
-        else if (phoneNumber.matches("\\(\\d{3}\\)-\\d{3}-\\d{4}"))
-            return true;
-            // Validation for India numbers
-        else if (phoneNumber.matches("\\d{4}[-\\.\\s]\\d{3}[-\\.\\s]\\d{3}"))
-            return true;
-        else if (phoneNumber.matches("\\(\\d{5}\\)-\\d{3}-\\d{3}"))
-            return true;
-
-        else if (phoneNumber.matches("\\(\\d{4}\\)-\\d{3}-\\d{3}"))
-            return true;
-            // return false if nothing matches the input
-        else
-            return false;
-    }
-
-    public void updateUserInformation(int user_id, String gender, String phone, String dob, String address,String avatar){
-        ApiService updateUserInfo = ApiUtils.connectRetrofit();
-        updateUserInfo.isUpdateUserInformationSuccess(user_id, gender, phone, dob, address, avatar).enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-//                Toast.makeText(getContext(), "" + response.body(), Toast.LENGTH_SHORT).show();
-                editor.putString("gender_PI_txt", gender);
-                editor.putString("phone_PI_txt", phone);
-                editor.putString("dob_PI_txt", dob);
-                editor.putString("address_PI_txt", address);
-                editor.putString("avatar_PI_txt", avatar);
-                editor.commit();
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                Toast.makeText(getContext(), "" + call + "\n" + t, Toast.LENGTH_LONG).show();
-                Log.e("TAG", "onFailure: " + call + "\n" + t);
-            }
-        });
-    }
-
-    public String getRealPathFromURI(Uri uri) {
-        String path = null;
-        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-        Cursor cursor = getContext().getContentResolver().query(uri, filePathColumn, null, null, null);
-        if (cursor.moveToFirst()) {
-            int columnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-            path = cursor.getString(columnIndex);
-        }
-        cursor.close();
-        return path;
     }
 }

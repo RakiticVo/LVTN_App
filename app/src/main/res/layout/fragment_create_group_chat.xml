@@ -83,7 +83,7 @@
                     android:layout_marginTop="8dp"
                     android:gravity="center"
                     app:hintEnabled="false"
-                    app:errorEnabled="true">
+                    app:errorEnabled="false">
 
                     <EditText
                         android:id="@+id/edt_create_group_chat_name"
@@ -104,6 +104,7 @@
                 android:id="@+id/btn_create_group_chat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:layout_marginStart="32dp"
                 android:text="Create"
                 android:background="@drawable/custom_btn"
@@ -115,6 +116,7 @@
                 android:id="@+id/btn_cancel_create_group_chat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="32dp"
                 android:background="@drawable/custom_btn"
                 android:text="Cancel"

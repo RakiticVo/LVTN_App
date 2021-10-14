@@ -1,90 +1,90 @@
 package com.example.lvtn_app.Model;
 
 public class Message {
-    private int id_Chat;
-    private int id_Group;
-    private String sender;
-    private String img_sender;
-    private String message;
-    private String send_time;
-    private String send_date;
-    private String status;
+    private String message_ID;
+    private String message_group_ID;
+    private String message_sender;
+    private String message_img_sender;
+    private String message_text;
+    private String message_send_time;
+    private String message_send_date;
+    private String message_send_status;
+
+    public Message(String message_ID, String message_group_ID, String message_sender, String message_img_sender, String message_text, String message_send_time, String message_send_date, String message_send_status) {
+        this.message_ID = message_ID;
+        this.message_group_ID = message_group_ID;
+        this.message_sender = message_sender;
+        this.message_img_sender = message_img_sender;
+        this.message_text = message_text;
+        this.message_send_time = message_send_time;
+        this.message_send_date = message_send_date;
+        this.message_send_status = message_send_status;
+    }
 
     public Message() {
     }
 
-    public Message(int id_Chat, int id_Group, String sender, String img_sender, String message, String send_time, String send_date, String status) {
-        this.id_Chat = id_Chat;
-        this.id_Group = id_Group;
-        this.sender = sender;
-        this.img_sender = img_sender;
-        this.message = message;
-        this.send_time = send_time;
-        this.send_date = send_date;
-        this.status = status;
+    public String getMessage_ID() {
+        return message_ID;
     }
 
-    public int getId_Chat() {
-        return id_Chat;
+    public void setMessage_ID(String message_ID) {
+        this.message_ID = message_ID;
     }
 
-    public void setId_Chat(int id_Chat) {
-        this.id_Chat = id_Chat;
+    public String getMessage_group_ID() {
+        return message_group_ID;
     }
 
-    public int getId_Group() {
-        return id_Group;
+    public void setMessage_group_ID(String message_group_ID) {
+        this.message_group_ID = message_group_ID;
     }
 
-    public void setId_Group(int id_Group) {
-        this.id_Group = id_Group;
+    public String getMessage_sender() {
+        return message_sender;
     }
 
-    public String getSender() {
-        return sender;
+    public void setMessage_sender(String message_sender) {
+        this.message_sender = message_sender;
     }
 
-    public void setSender(String sender) {
-        this.sender = sender;
+    public String getMessage_img_sender() {
+        return message_img_sender;
     }
 
-    public String getImg_sender() {
-        return img_sender;
+    public void setMessage_img_sender(String message_img_sender) {
+        this.message_img_sender = message_img_sender;
     }
 
-    public void setImg_sender(String img_sender) {
-        this.img_sender = img_sender;
+    public String getMessage_text() {
+        return message_text;
     }
 
-    public String getMessage() {
-        return message;
+    public void setMessage_text(String message_text) {
+        this.message_text = message_text;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public String getMessage_send_time() {
+        return message_send_time;
     }
 
-    public String getSend_time() {
-        return send_time;
+    public void setMessage_send_time(String message_send_time) {
+        this.message_send_time = message_send_time;
     }
 
-    public void setSend_time(String send_time) {
-        this.send_time = send_time;
+    public String getMessage_send_date() {
+        return message_send_date;
     }
 
-    public String getSend_date() {
-        return send_date;
+    public void setMessage_send_date(String message_send_date) {
+        this.message_send_date = message_send_date;
     }
 
-    public void setSend_date(String send_date) {
-        this.send_date = send_date;
+    public String getMessage_send_status() {
+        return message_send_status;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
+    public void setMessage_send_status(String message_send_status) {
+        this.message_send_status = message_send_status;
     }
 }

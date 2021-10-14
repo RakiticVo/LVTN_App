@@ -149,14 +149,14 @@ public class MemberDetailProjectFragment extends DialogFragment {
         btn_confirm_update_profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (member_id>0 && position_member_detail_text_input_layout.getEditText().getText().toString().length()>0){
-                    position_member_detail_text_input_layout.setErrorEnabled(false);
-                    MemberProjectFragment.getInstance().updatePosition(member_id-1, position_member_detail_text_input_layout.getEditText().getText().toString());
-                    dismiss();
-                }else{
-                    position_member_detail_text_input_layout.setError("Please enter Position");
-                    position_member_detail_text_input_layout.setErrorEnabled(true);
-                }
+//                if (member_id>0 && position_member_detail_text_input_layout.getEditText().getText().toString().length()>0){
+//                    position_member_detail_text_input_layout.setErrorEnabled(false);
+//                    MemberProjectFragment.getInstance().updatePosition(member_id-1, position_member_detail_text_input_layout.getEditText().getText().toString());
+//                    dismiss();
+//                }else{
+//                    position_member_detail_text_input_layout.setError("Please enter Position");
+//                    position_member_detail_text_input_layout.setErrorEnabled(true);
+//                }
             }
         });
 

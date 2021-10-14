@@ -17,14 +17,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.lvtn_app.Controller.Retrofit.ApiService;
-import com.example.lvtn_app.Controller.Retrofit.ApiUtils;
-import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
-import com.example.lvtn_app.View.Activity.LoginActivity;
 import com.example.lvtn_app.View.Activity.MainActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -35,13 +30,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,7 +42,8 @@ public class SignUpTabFragment extends Fragment {
     TextInputLayout user_name_signup_text_input_layout, email_signup_text_input_layout, pass_signup_text_input_layout, checkpass_signup_text_input_layout;
     Button signup;
 
-    FirebaseAuth auth;
+    FirebaseAuth  auth;
+    FirebaseUser firebaseUser;
     DatabaseReference reference;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
@@ -63,7 +53,6 @@ public class SignUpTabFragment extends Fragment {
     String userEmail = "";
     String userPass = "";
     String checkpass = "";
-    int id_user = -1;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -169,7 +158,7 @@ public class SignUpTabFragment extends Fragment {
                         email_signup_text_input_layout.setError("Incorrect Email format");
                         email_signup_text_input_layout.setErrorEnabled(true);
                     }else{
-                        user_name_signup_text_input_layout.setErrorEnabled(false);
+                        email_signup_text_input_layout.setErrorEnabled(false);
                     }
                 }else {
                     email_signup_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
@@ -282,7 +271,7 @@ public class SignUpTabFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 userName = user_name_signup_text_input_layout.getEditText().getText().toString().trim();
-                userEmail = email_signup_text_input_layout.getEditText().getText().toString().trim();
+                userEmail = email_signup_text_input_layout.getEditText().getText().toString().toLowerCase().trim();
                 userPass = pass_signup_text_input_layout.getEditText().getText().toString().trim();
                 checkpass = checkpass_signup_text_input_layout.getEditText().getText().toString().trim();
 
@@ -292,9 +281,14 @@ public class SignUpTabFragment extends Fragment {
                 }else user_name_signup_text_input_layout.setErrorEnabled(false);
 
                 if (userEmail.length() == 0){
-                    email_signup_text_input_layout.setError("Please enter user email!!!");
+                    email_signup_text_input_layout.setError("Please enter Email name");
                     email_signup_text_input_layout.setErrorEnabled(true);
-                }else email_signup_text_input_layout.setErrorEnabled(false);
+                }else if (!isValidEmail(userEmail)){
+                    email_signup_text_input_layout.setError("Incorrect Email format");
+                    email_signup_text_input_layout.setErrorEnabled(true);
+                }else{
+                    email_signup_text_input_layout.setErrorEnabled(false);
+                }
 
                 if (userPass.length() == 0){
                     pass_signup_text_input_layout.setError("Please enter user password!!!");
@@ -325,55 +319,7 @@ public class SignUpTabFragment extends Fragment {
                     checkpass_signup_text_input_layout.isErrorEnabled()){
                     Toast.makeText(getContext(), "Please check error!!!", Toast.LENGTH_SHORT).show();
                 }else {
-                    ApiService insertNewUser = ApiUtils.connectRetrofit();
-                    insertNewUser.isCreateNewUserSuccess(userName, userEmail, userPass).enqueue(new Callback<String>() {
-                        @Override
-                        public void onResponse(Call<String> call, Response<String> response) {
-                            String result = response.body();
-                            if (result.equals("SUCCESS")){
-                                ApiService getUser = ApiUtils.connectRetrofit();
-                                getUser.getUser().enqueue(new Callback<ArrayList<User>>() {
-                                    @Override
-                                    public void onResponse(Call<ArrayList<User>> call, Response<ArrayList<User>> response) {
-                                        ArrayList<User> temp = response.body();
-                                        if (temp != null){
-                                            id_user = temp.get(temp.size()-1).getId_user();
-                                        }
-                                        Toast.makeText(getContext(), "Create success", Toast.LENGTH_SHORT).show();
-                                        ApiService insertNewUserInfomation = ApiUtils.connectRetrofit();
-                                        insertNewUserInfomation.isInsertNewUserInformationSuccess(id_user).enqueue(new Callback<String>() {
-                                            @Override
-                                            public void onResponse(Call<String> call, Response<String> response) {
-                                                String result2 = response.body();
-                                                if (!result2.equals("FAILED")){
-//                                                        Toast.makeText(getContext(), "" + response.body(), Toast.LENGTH_SHORT).show();
-                                                    registerUser(userName, userEmail, userPass);
-                                                }else {
-                                                    Toast.makeText(getContext(), "Failed \n" + call + "\n" + result2, Toast.LENGTH_SHORT).show();
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onFailure(Call<String> call, Throwable t) {
-                                                Toast.makeText(getContext(), "Failed \n" + call + "\n" + t, Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                    }
-
-                                    @Override
-                                    public void onFailure(Call<ArrayList<User>> call, Throwable t) {
-
-                                    }
-                                });
-                            }else Toast.makeText(getContext(), "" + result, Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onFailure(Call<String> call, Throwable t) {
-                            Toast.makeText(getContext(), "" + call +"\n"+ t , Toast.LENGTH_SHORT).show();
-                            Log.e("TAG", "onFailure: " + t );
-                        }
-                    });
+                    registerUser(userName, userEmail, userPass);
                 }
             }
         });
@@ -389,31 +335,37 @@ public class SignUpTabFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()){
-                    FirebaseUser firebaseUser = auth.getCurrentUser();
+                    firebaseUser = auth.getCurrentUser();
                     String user_ID = firebaseUser.getUid();
                     reference = FirebaseDatabase.getInstance().getReference("Users").child(user_ID);
 
                     HashMap<String, String> hashMap = new HashMap<>();
-                    hashMap.put("User_ID", user_ID);
-                    hashMap.put("User_Name", userName);
-                    hashMap.put("User_Email", userEmail);
-                    hashMap.put("User_Pass", userPass);
-                    hashMap.put("User_Status", "online");
+                    hashMap.put("user_ID", user_ID);
+                    hashMap.put("user_Name", userName);
+                    hashMap.put("user_Email", userEmail);
+                    hashMap.put("user_Pass", userPass);
+                    hashMap.put("user_Status", "Online");
+                    hashMap.put("user_Gender", "Male");
+                    hashMap.put("user_Phone", " ");
+                    hashMap.put("user_DOB", " ");
+                    hashMap.put("user_Address", " ");
+                    hashMap.put("user_Avatar", " ");
 
                     reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()){
-                                editor.putInt("userId_txt", id_user);
-                                editor.putString("userName_txt", userName);
-                                editor.putString("userEmail_txt", userEmail);
-                                editor.putString("userPassword_txt", userPass);
-                                editor.putBoolean("userStatus_txt", true);
-                                editor.putBoolean("userChecked", true);
+                                editor.putString("user_ID", user_ID);
+//                                editor.putString("userName_txt", userName);
+//                                editor.putString("userEmail_txt", userEmail);
+//                                editor.putString("userPassword_txt", userPass);
+//                                editor.putBoolean("userStatus_txt", true);
+//                                editor.putBoolean("userChecked", true);
+//                                editor.putString("userToken", user_ID);
                                 editor.commit();
                                 Intent intent = new Intent(getActivity(), MainActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                                 startActivity(intent);
-                                getActivity().finish();
                             }
                         }
                     });

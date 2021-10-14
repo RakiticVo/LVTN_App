@@ -18,12 +18,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.example.lvtn_app.Controller.Retrofit.ApiService;
-import com.example.lvtn_app.Controller.Retrofit.ApiUtils;
 import com.example.lvtn_app.R;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -59,7 +55,7 @@ public class CreateNewPassFragment extends DialogFragment {
         btn_confirm_create_new_password = view.findViewById(R.id.btn_confirm_create_new_password);
         btn_cancel_create_new_password = view.findViewById(R.id.btn_cancel_create_new_password);
 
-        mSharedPreferences = Objects.requireNonNull(getContext()).getSharedPreferences("User", Context.MODE_PRIVATE);
+        mSharedPreferences = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
         editor = mSharedPreferences.edit();
 
         Toast.makeText(getContext(), "" + mSharedPreferences.getString("userPassword_txt", "123"), Toast.LENGTH_SHORT).show();
@@ -172,7 +168,7 @@ public class CreateNewPassFragment extends DialogFragment {
                                     userPass = new_password_text_input_layout.getEditText().getText().toString();
                                     Toast.makeText(getContext(), "" + id_user + "\n" + userPass, Toast.LENGTH_SHORT).show();
                                     if (id_user != -1){
-                                        updateUserPass(id_user, userPass);
+//                                        updateUserPass(id_user, userPass);
                                     }
                                     break;
 
@@ -193,27 +189,27 @@ public class CreateNewPassFragment extends DialogFragment {
         return view;
     }
 
-    public void updateUserPass(int id_user, String userPass){
-        ApiService updateUserPass = ApiUtils.connectRetrofit();
-        updateUserPass.isUpdateUserPassSuccess(id_user, userPass).enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                if (response.body().equals("SUCCESS")){
-                    Toast.makeText(getContext(), "Update success" , Toast.LENGTH_SHORT).show();
-                    editor.putString("userPassword_txt", userPass);
-                    editor.commit();
-                    Objects.requireNonNull(getDialog()).dismiss();
-                }else {
-                    Toast.makeText(getContext(), "Update failed" , Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                Toast.makeText(getContext(), "" + call + "\n" + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+//    public void updateUserPass(int id_user, String userPass){
+//        ApiService updateUserPass = ApiUtils.connectRetrofit();
+//        updateUserPass.isUpdateUserPassSuccess(id_user, userPass).enqueue(new Callback<String>() {
+//            @Override
+//            public void onResponse(Call<String> call, Response<String> response) {
+//                if (response.body().equals("SUCCESS")){
+//                    Toast.makeText(getContext(), "Update success" , Toast.LENGTH_SHORT).show();
+//                    editor.putString("userPassword_txt", userPass);
+//                    editor.commit();
+//                    Objects.requireNonNull(getDialog()).dismiss();
+//                }else {
+//                    Toast.makeText(getContext(), "Update failed" , Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<String> call, Throwable t) {
+//                Toast.makeText(getContext(), "" + call + "\n" + t.getMessage(), Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
 
     public void CheckPassword(TextInputLayout textInputLayout, String password){
         if(textInputLayout.getEditText().getText().toString().length() <6){

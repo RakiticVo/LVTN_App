@@ -6,37 +6,34 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.example.lvtn_app.Adapter.GroupChatAdapter;
 import com.example.lvtn_app.Adapter.ProjectsAdapter;
-import com.example.lvtn_app.Controller.Retrofit.ApiService;
-import com.example.lvtn_app.Controller.Retrofit.ApiUtils;
-import com.example.lvtn_app.Model.GroupChat;
 import com.example.lvtn_app.Model.Project;
+import com.example.lvtn_app.Model.Project_Users;
 import com.example.lvtn_app.R;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Objects;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,8 +50,11 @@ public class ProjectsFragment extends Fragment {
     ArrayList<Project> projects, projects_search;
 
     SharedPreferences sharedPreferences_user;
-    int id_user;
-    String user;
+
+    FirebaseAuth auth;
+    FirebaseUser firebaseUser;
+    DatabaseReference reference, reference2;
+    AppCompatActivity activity;
 
     static ProjectsFragment instance;
 
@@ -115,25 +115,53 @@ public class ProjectsFragment extends Fragment {
 
         instance = this;
 
-        sharedPreferences_user = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
-
-        user = sharedPreferences_user.getString("userName_txt", "");
-        id_user = sharedPreferences_user.getInt("userId_txt", -1);
-
-        // Set data
         projects = new ArrayList<>();
         projects_search = new ArrayList<>();
-        projects.add(new Project(1, "Scrum 1","", "20/12/2021", "Scrum", "25/09/2021", user, Color.CYAN));
-        projects.add(new Project(2, "Test 1","", "20/12/2021", "Normal", "25/09/2021", user, Color.RED));
-//        projects.add(new Project(3, "Test 2","", "20/12/2021", "Normal", "25/09/2021", user, Color.BLACK));
-//        projects.add(new Project(4, "Kanban 1","", "20/12/2021", "Kanban", "25/09/2021", user, Color.WHITE));
-//        projects.add(new Project(5, "Business 1","", "20/12/2021", "Bussiness", "25/09/2021", user, Color.GREEN));
-//        projects.add(new Project(6, "Personal 1", "", "20/12/2021", "Personal", "25/09/2021", user, Color.YELLOW));
+        projects.add(new Project("1", "Scrum 1","", "20/12/2021", "Scrum", "25/09/2021", "Chí Thiện", Color.CYAN + ""));
+        projects.add(new Project("2", "Test 1","", "20/12/2021", "Normal", "25/09/2021", "Chí Thiện", Color.RED + ""));
         recyclerViewProjects.setLayoutManager(new LinearLayoutManager(getContext()));
         projectsAdapter = new ProjectsAdapter(getContext(), projects);
         recyclerViewProjects.setAdapter(projectsAdapter);
 
-        getProjectListByUser();
+        sharedPreferences_user = requireContext().getSharedPreferences("Projects", Context.MODE_PRIVATE);
+
+        activity = (AppCompatActivity) getContext();
+        auth = FirebaseAuth.getInstance();
+        firebaseUser = auth.getCurrentUser();
+        reference = FirebaseDatabase.getInstance().getReference("User_List_By_Project");
+        ArrayList<String> projectid = new ArrayList<>();
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ArrayList<String> key = new ArrayList<>();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    reference2 = FirebaseDatabase.getInstance().getReference("User_List_By_Project").child(dataSnapshot.getKey());
+                    reference2.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for (DataSnapshot dataSnapshot1 : snapshot.getChildren()){
+                                Project_Users users = dataSnapshot1.getValue(Project_Users.class);
+                                if (users.getUser_ID().equals(firebaseUser.getUid())){
+                                    projectid.add(users.getProject_ID());
+                                }
+                            }
+                            getProjectByUser(projectid);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
         //Todo: get User is Leader of project to check permission of function
 //        editor_leader.putString("name_leader", "Chí Thiện");
@@ -160,7 +188,7 @@ public class ProjectsFragment extends Fragment {
                     projects_search.clear();
                     for (Project project : projects){
 //                        Toast.makeText(getContext(), "" + groupChat.getName().toLowerCase(), Toast.LENGTH_SHORT).show();
-                        if (project.getProjectName().toLowerCase(Locale.ROOT).contains(s)){
+                        if (project.getProject_Name().toLowerCase(Locale.ROOT).contains(s)){
                             projects_search.add(project);
                         }
                     }
@@ -190,96 +218,25 @@ public class ProjectsFragment extends Fragment {
         return view;
     }
 
-    public void createProject(String name, String decription, String estimate_finish_date, String type, String date_create, String creator, int background){
-        ProjectsFragment.this.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-//                int temp = (projects.size()) + 1;
-//                projects.add(new Project(temp, name, decription, estimate_finish_date, type, date_create, creator, background));
-//                projectsAdapter.notifyDataSetChanged();
-//                search_project_text_input_layout.getEditText().setText("");
-//                search_project_text_input_layout.getEditText().clearFocus();
-//
-                ApiService createNewProject = ApiUtils.connectRetrofit();
-                createNewProject.isCreateNewProjectSuccess(name, decription, estimate_finish_date, type, date_create, creator, background).enqueue(new Callback<String>() {
-                    @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
-                        Log.e("TAG", "onResponse: " + call.toString());
-                        ApiService getLastProjectID = ApiUtils.connectRetrofit();
-                        getLastProjectID.getProject().enqueue(new Callback<ArrayList<Project>>() {
-                            @Override
-                            public void onResponse(Call<ArrayList<Project>> call, Response<ArrayList<Project>> response) {
-                                int last = response.body().get(response.body().size()-1).getId_project();
-                                ApiService insertNewUserForProject = ApiUtils.connectRetrofit();
-                                insertNewUserForProject.isCreateNewUserForProjectSuccess(last, id_user, "Leader").enqueue(new Callback<String>() {
-                                    @Override
-                                    public void onResponse(Call<String> call, Response<String> response) {
-//                                        Toast.makeText(getContext(), "" + response.body(), Toast.LENGTH_SHORT).show();
-                                        Toast.makeText(getContext(), "Create project success", Toast.LENGTH_SHORT).show();
-                                        getProjectListByUser();
-                                    }
-
-                                    @Override
-                                    public void onFailure(Call<String> call, Throwable t) {
-//                                        Toast.makeText(getContext(), "" + call + "\n" + t, Toast.LENGTH_SHORT).show();
-                                        Log.e("TAG", "onFailure: \n" + call + "\n" + t );
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onFailure(Call<ArrayList<Project>> call, Throwable t) {
-
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onFailure(Call<String> call, Throwable t) {
-
-                    }
-                });
-            }
-        });
-    }
-
-    public void getProjectListByUser(){
+    public void getProjectByUser(ArrayList<String> projectid){
         projects.clear();
-        ApiService getProjectList = ApiUtils.connectRetrofit();
-        if (id_user > 0) {
-//            Toast.makeText(getContext(), "" + sharedPreferences_user.getString("userName_txt", ""), Toast.LENGTH_SHORT).show();
-            getProjectList.getProjectListByUser(id_user).enqueue(new Callback<ArrayList<Project>>() {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Projects");
+        for (String s : projectid){
+            databaseReference.child(s).addValueEventListener(new ValueEventListener() {
                 @Override
-                public void onResponse(Call<ArrayList<Project>> call, Response<ArrayList<Project>> response) {
-//                ArrayList<Project> temp = response.body();
-//                Toast.makeText(getContext(), "Success" + temp.size(), Toast.LENGTH_SHORT).show();
-                    for (Project project : response.body()) {
-                        projects.add(new Project(project.getId_project(), project.getProjectName(), project.getProjectDescription(),
-                                project.getProjectFinishDate(), project.getProjectType(), project.getProjectDateCreate(),
-                                project.getProjectLeader(), project.getProjectBackground()));
-//                        Toast.makeText(getContext(), "*" + project.getProjectName() + "*", Toast.LENGTH_SHORT).show();
-//                    Toast.makeText(getContext(), "" + project.getId_project() + "\n"
-//                            + project.getProjectName() + "\n"
-//                            + project.getProjectDescription() + "\n"
-//                            + project.getProjectFinishDate() + "\n"
-//                            + project.getProjectType() + "\n"
-//                            + project.getProjectDateCreate() + "\n"
-//                            + project.getProjectLeader() + "\n"
-//                            + project.getProjectBackground() + "\n", Toast.LENGTH_SHORT).show();
-                    }
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Project project = snapshot.getValue(Project.class);
+                    projects.add(project);
                     projectsAdapter.notifyDataSetChanged();
-                    recyclerViewProjects.scrollToPosition(0);
-                    recyclerViewProjects.clearFocus();
                 }
 
                 @Override
-                public void onFailure(Call<ArrayList<Project>> call, Throwable t) {
-                    projects.clear();
-                    projectsAdapter.notifyDataSetChanged();
-//                    Toast.makeText(getContext(), "Saiiiiiiiiiiiiiii" + call + "\n" + t, Toast.LENGTH_SHORT).show();
-                    Log.e("TAG", "onFailure: " + call + "\n" + t);
+                public void onCancelled(@NonNull DatabaseError error) {
+
                 }
             });
+            projectsAdapter.notifyDataSetChanged();
         }
+        projectsAdapter.notifyDataSetChanged();
     }
 }

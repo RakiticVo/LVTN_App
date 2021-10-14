@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
@@ -18,8 +19,15 @@ import android.widget.Toast;
 
 import com.example.lvtn_app.Adapter.LoginAdapter;
 import com.example.lvtn_app.Adapter.ProjectDetailAdapter;
+import com.example.lvtn_app.Model.Project;
 import com.example.lvtn_app.R;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Objects;
 
@@ -29,13 +37,25 @@ import java.util.Objects;
  * create an instance of this fragment.
  */
 public class ProjectDetailFragment extends Fragment {
-    // Khai báo
+    //Khai báo
     TabLayout tabLayout;
     ViewPager viewPager;
     TextView tv_project_name_details;
     ImageButton ibtn_back_project_detail, ibtn_info_project;
     float v=0;
+
     SharedPreferences sharedPreferences;
+
+    DatabaseReference reference;
+    //Project infomation
+    String project_ID;
+    String project_Name;
+    String project_Description;
+    String project_FinishDate;
+    String project_Type;
+    String project_DateCreate;
+    String project_Leader;
+    String project_Background;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -89,8 +109,33 @@ public class ProjectDetailFragment extends Fragment {
         ibtn_info_project = view.findViewById(R.id.ibtn_info_project);
 
         //Set data
-        sharedPreferences = Objects.requireNonNull(getContext()).getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
-        tv_project_name_details.setText(sharedPreferences.getString("projectName_txt", "Project Name"));
+        sharedPreferences = requireContext().getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
+        project_ID = sharedPreferences.getString("project_ID", "token");
+//        Toast.makeText(getContext(), "" + project_ID, Toast.LENGTH_SHORT).show();
+        if (!project_ID.equals("token")){
+            reference = FirebaseDatabase.getInstance().getReference("Projects").child(project_ID);
+            reference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Project project = snapshot.getValue(Project.class);
+//                    Toast.makeText(getContext(), "" + (project == null), Toast.LENGTH_SHORT).show();
+                    project_Name = project.getProject_Name();
+                    project_Description = project.getProject_Description();
+                    project_FinishDate = project.getProject_FinishDate();
+                    project_Type = project.getProject_Type();
+                    project_DateCreate = project.getProject_DateCreate();
+                    project_Leader = project.getProject_Leader();
+                    project_Background = project.getProject_Background();
+
+                    tv_project_name_details.setText(project_Name);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
 
         //Set up
         tabLayout.setupWithViewPager(viewPager);

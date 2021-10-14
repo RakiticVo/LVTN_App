@@ -6,14 +6,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.lvtn_app.Model.Group_Chat_Users;
+import com.example.lvtn_app.Model.Project_Users;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 import com.google.firebase.database.DataSnapshot;
@@ -26,14 +29,21 @@ import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder> {
+public class MemberProjectDeleteAdapter extends RecyclerView.Adapter<MemberProjectDeleteAdapter.ViewHolder> {
     //Khai báo
     private Context context;
     private LayoutInflater mInflater;
-    private ArrayList<User> members;
-    private ItemClickListener mClickListener;
+    private ArrayList<User> members, members_checked;
 
-    public MemberAdapter(Context context, ArrayList<User> members) {
+    public ArrayList<User> getMembers_checked() {
+        return members_checked;
+    }
+
+    public void setMembers_checked(ArrayList<User> members_checked) {
+        this.members_checked = members_checked;
+    }
+
+    public MemberProjectDeleteAdapter(Context context, ArrayList<User> members) {
         this.context = context;
         this.members = members;
         this.mInflater = LayoutInflater.from(context);
@@ -41,35 +51,40 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MemberProjectDeleteAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.item_member, parent, false);
-        return new ViewHolder(view);
+        return new MemberProjectDeleteAdapter.ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MemberProjectDeleteAdapter.ViewHolder holder, int position) {
+        members_checked = new ArrayList<>();
         if (members.get(position).getUser_Status().toLowerCase().equals("online")){
             Glide.with(context).load(R.drawable.circle_blue).into(holder.imgStatusMember);
         } else {
             Glide.with(context).load(R.drawable.circle_grey).into(holder.imgStatusMember);
         }
         String avatar = members.get(position).getUser_Avatar();
-        if (avatar == null || avatar.length() == 0){
-            holder.imgAvatarMember.setImageResource(R.drawable.profile_1);
-        }else{
-            Glide.with(context).load(avatar).centerCrop().into(holder.imgAvatarMember);
+        if (avatar.length() > 0){
+            Glide.with(context).load(avatar)
+                    .onlyRetrieveFromCache(true)
+                    .override(50)
+                    .centerCrop()
+                    .into(holder.imgAvatarMember);
+        }else {
+            Glide.with(context).load(members.get(position).getUser_Avatar()).centerCrop().into(holder.imgAvatarMember);
         }
         holder.tvNameMember.setText(members.get(position).getUser_Name());
         String group_ID = holder.sharedPreferences.getString("group_ID","token");
-        String userid = members.get(position).getUser_ID();
+        int temp = position;
         if (!group_ID.equals("token")){
             holder.reference.child(group_ID).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-                        Group_Chat_Users users = dataSnapshot.getValue(Group_Chat_Users.class);
+                        Project_Users users = dataSnapshot.getValue(Project_Users.class);
 //                        Toast.makeText(context, "" + users.getGroup_ID(), Toast.LENGTH_SHORT).show();
-                        if (userid.equals(users.getUser_ID())){
+                        if (members.get(temp).getUser_ID().equals(users.getUser_ID())){
                             holder.tvPositionMember.setText(users.getPosition());
                         }
                     }
@@ -81,6 +96,25 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder
                 }
             });
         }
+
+        holder.cb_delete_member.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    Toast.makeText(context, "Checkbox " + (holder.getAdapterPosition() + 1) + " is checked", Toast.LENGTH_SHORT).show();
+                    members_checked.add(members.get(holder.getAdapterPosition()));
+                }else {
+                    Toast.makeText(context, "Checkbox " + (holder.getAdapterPosition() + 1) + " is unchecked", Toast.LENGTH_SHORT).show();
+                    String member_name = members.get(holder.getAdapterPosition()).getUser_Name();
+                    for (int i = 0; i < members_checked.size(); i++) {
+                        if (members_checked.get(i).getUser_Name().equals(member_name)){
+                            members_checked.remove(i);
+                            break;
+                        }
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -91,10 +125,11 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         CircleImageView imgStatusMember, imgAvatarMember;
         TextView tvNameMember, tvPositionMember;
-        CheckBox cb_delete_member;
+        public CheckBox cb_delete_member;
         LinearLayout linearLayout_member_choose;
+
         SharedPreferences sharedPreferences;
-        DatabaseReference reference, reference2;
+        DatabaseReference reference;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -105,32 +140,17 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder
             cb_delete_member = itemView.findViewById(R.id.cb_delete_member);
             linearLayout_member_choose = itemView.findViewById(R.id.linearLayout_member_choose);
 
-            cb_delete_member.setVisibility(View.GONE);
+            cb_delete_member.setVisibility(View.VISIBLE);
+            cb_delete_member.setChecked(false);
+            cb_delete_member.setOnClickListener(this);
 
-            linearLayout_member_choose.setOnClickListener(this);
-
-            sharedPreferences = context.getSharedPreferences("Chat", Context.MODE_PRIVATE);
-            reference = FirebaseDatabase.getInstance().getReference("User_List_By_Group_Chat");
+            sharedPreferences = context.getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
+            reference = FirebaseDatabase.getInstance().getReference("User_List_By_Project");
         }
 
         @Override
         public void onClick(View v) {
-            if (mClickListener != null)
-                mClickListener.onItemClick(v, getAdapterPosition());
+            cb_delete_member.setChecked(cb_delete_member.isChecked());
         }
-    }
-    // Lấy data từ vị trí đc click
-    public User getItem(int id) {
-        return members.get(id);
-    }
-
-    // Cho phép bắt các sự kiện nhấp chuột
-    public void setClickListener(ItemClickListener itemClickListener) {
-        this.mClickListener = itemClickListener;
-    }
-
-    // Phương thức này để phản hồi các sự kiện nhấp chuột
-    public interface ItemClickListener {
-        void onItemClick(View view, int position);
     }
 }

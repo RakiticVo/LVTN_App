@@ -9,20 +9,19 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -34,22 +33,30 @@ import com.example.lvtn_app.Adapter.IssueTypeAdapter;
 import com.example.lvtn_app.Adapter.PriorityAdapter;
 import com.example.lvtn_app.Adapter.ProcessTypeAdapter;
 import com.example.lvtn_app.Controller.Method.DateFormat;
+import com.example.lvtn_app.Model.Issue;
 import com.example.lvtn_app.Model.IssueType;
-import com.example.lvtn_app.Model.Member;
 import com.example.lvtn_app.Model.ProcessType;
+import com.example.lvtn_app.Model.Project;
+import com.example.lvtn_app.Model.Project_Users;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 import com.example.lvtn_app.Model.Priority;
-import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.HashMap;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -69,7 +76,7 @@ public class IssueDetailFragment extends DialogFragment {
     ArrayList<IssueType> issueType_list;
     ArrayList<ProcessType> processType_list;
     ArrayList<Priority> priority_list;
-    ArrayList<Member> member_list;
+    ArrayList<User> member_list;
 
     //Adapter for Spinner
     IssueTypeAdapter issueTypeAdapter;
@@ -83,20 +90,26 @@ public class IssueDetailFragment extends DialogFragment {
     Date date1 = new Date();
 
     //SharedPreferences
-    SharedPreferences sharedPreferences;
+    SharedPreferences sharedPreferences_user, sharedPreferences_project, sharedPreferences_issue;
+    String user_ID, project_ID;
+    AppCompatActivity activity;
 
+    FirebaseAuth auth;
+    FirebaseUser firebaseUser;
+    DatabaseReference reference, databaseReference1, databaseReference2, databaseReference3;
     //New issue information
-    String issuename = "";
-    String process_type = "";
-    String decription = "";
-    String issue_type = "";
-    String startdate = "";
-    String priority = "";
-    String assignee = "";
-    String estimatetime = "";
-    String creator = "";
-    String finishdate = "";
-    int project_id = -1;
+    String issue_ID;
+    String issue_Name = "";
+    String issue_ProcessType = "";
+    String issue_Description = "";
+    String issue_Type = "";
+    String issue_StartDate = "";
+    String issue_Priority = "";
+    String issue_Assignee = "";
+    String issue_EstimateTime = "";
+    String issue_Creator = "";
+    String issue_project_ID = "";
+    String issue_FinishDate = "";
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -183,9 +196,8 @@ public class IssueDetailFragment extends DialogFragment {
         priority_list.add(new Priority(R.drawable.low, "Low"));
 
         member_list = new ArrayList<>();
-        member_list.add(new Member(1, "Chí Thiện", ""));
-        member_list.add(new Member(1, "Thiện Võ", "https://progameguides.com/wp-content/uploads/2021/07/Genshin-Impact-Character-Raiden-Shogun-1.jpg"));
-        member_list.add(new Member(1, "Rakitic Võ", ""));
+        member_list.add(new User("1", "Chí Thiện", "chithien@gmail.com",
+                "1", "0942920838","","Leader", "", "", ""));
 
         issueTypeAdapter = new IssueTypeAdapter(getContext(), issueType_list);
         spinner_issue_type_detail.setAdapter(issueTypeAdapter);
@@ -198,6 +210,77 @@ public class IssueDetailFragment extends DialogFragment {
 
         assigneeAdapter = new AssigneeAdapter(getContext(), member_list);
         spinner_assignee_issue_detail.setAdapter(assigneeAdapter);
+
+        activity = (AppCompatActivity) getContext();
+        sharedPreferences_user = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
+        sharedPreferences_project = requireContext().getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
+        user_ID = sharedPreferences_user.getString("user_ID", "abc");
+        project_ID = sharedPreferences_project.getString("project_ID", "abc");
+//        member_list.clear();
+        databaseReference1 = FirebaseDatabase.getInstance().getReference("User_List_By_Project").child(project_ID);
+        databaseReference1.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ArrayList<String> list = new ArrayList();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    Project_Users user = dataSnapshot.getValue(Project_Users.class);
+                    list.add(user.getUser_ID());
+                }
+                if (list.size() > 0){
+                    member_list.clear();
+                    databaseReference2 = FirebaseDatabase.getInstance().getReference("Users");
+                    for (String s : list){
+//                        Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+                        databaseReference2.child(s).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                User user = snapshot.getValue(User.class);
+                                member_list.add(user);
+                                assigneeAdapter.notifyDataSetChanged();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+                    }
+                }
+                assigneeAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        assigneeAdapter.notifyDataSetChanged();
+
+        auth = FirebaseAuth.getInstance();
+        firebaseUser = auth.getCurrentUser();
+        databaseReference3 = FirebaseDatabase.getInstance().getReference("Projects").child(project_ID);
+        databaseReference3.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Project project = snapshot.getValue(Project.class);
+                if (!project.getProject_Leader().equals(firebaseUser.getUid())){
+                    if (!processType_list.get(spinner_process_issue_detail.getSelectedItemPosition()).equals("ToDo")){
+                        start_date_issue_detail_text_input_layout.setEnabled(false);
+                    }
+                    spinner_assignee_issue_detail.setEnabled(false);
+                    spinner_issue_type_detail.setEnabled(false);
+                    spinner_priority_issue_detail.setEnabled(false);
+                    spinner_process_issue_detail.setEnabled(false);
+                }else {
+                    Toast.makeText(activity, "Leader is here", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
         start_date_issue_detail_text_input_layout.getEditText().setText(dateFormat.sdf.format(Calendar.getInstance().getTime()));
 
@@ -212,7 +295,146 @@ public class IssueDetailFragment extends DialogFragment {
             }
         };
 
-        sharedPreferences = Objects.requireNonNull(getActivity()).getSharedPreferences("User", Context.MODE_PRIVATE);
+        sharedPreferences_issue = requireContext().getSharedPreferences("Issue", Context.MODE_PRIVATE);
+        issue_ID = sharedPreferences_issue.getString("issue_ID", "abc");
+        if (!issue_ID.equals("abc")){
+            reference = FirebaseDatabase.getInstance().getReference("Issues").child(issue_ID);
+            reference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Issue issue = snapshot.getValue(Issue.class);
+                    issue_ID = issue.getIssue_ID();
+                    issue_Name = issue.getIssue_Name();
+                    issue_ProcessType = issue.getIssue_ProcessType();
+                    issue_Description = issue.getIssue_Description();
+                    issue_Type = issue.getIssue_Type();
+                    issue_StartDate = issue.getIssue_StartDate();
+                    issue_Priority = issue.getIssue_Priority();
+                    issue_Assignee = issue.getIssue_Assignee();
+                    issue_EstimateTime = issue.getIssue_EstimateTime();
+                    issue_Creator = issue.getIssue_Creator();
+                    issue_project_ID = issue.getIssue_project_ID();
+                    issue_FinishDate = issue.getIssue_FinishDate();
+
+                    tv_name_issue_detail.setText(issue_Name);
+                    description_issue_detail_text_input_layout.getEditText().setText(issue_Description);
+                    start_date_issue_detail_text_input_layout.getEditText().setText(issue_StartDate);
+                    estimate_time_issue_detail_text_input_layout.getEditText().setText(issue_EstimateTime);
+                    tv_issue_finish_date.setText(issue_FinishDate);
+
+                    switch (issue_ProcessType){
+                        case "Todo":
+                            spinner_process_issue_detail.setSelection(0);
+                            processTypeAdapter.notifyDataSetChanged();
+                            break;
+                        case "Inprogress":
+                            spinner_process_issue_detail.setSelection(1);
+                            processTypeAdapter.notifyDataSetChanged();
+                            break;
+                        case "Done":
+                            spinner_process_issue_detail.setSelection(2);
+                            processTypeAdapter.notifyDataSetChanged();
+                            break;
+                    }
+
+                    switch (issue_Type){
+                        case "Task":
+                            img_issue_type_detail.setImageResource(R.drawable.task);
+                            spinner_issue_type_detail.setSelection(0);
+                            issueTypeAdapter.notifyDataSetChanged();
+                            break;
+                        case "Bug":
+                            img_issue_type_detail.setImageResource(R.drawable.bug);
+                            spinner_issue_type_detail.setSelection(1);
+                            issueTypeAdapter.notifyDataSetChanged();
+                            break;
+                        case "Story":
+                            img_issue_type_detail.setImageResource(R.drawable.user_story);
+                            spinner_issue_type_detail.setSelection(2);
+                            issueTypeAdapter.notifyDataSetChanged();
+                            break;
+                    }
+
+                    switch (issue_Priority){
+                        case "High":
+                            spinner_priority_issue_detail.setSelection(0);
+                            priorityAdapter.notifyDataSetChanged();
+                            break;
+                        case "Medium":
+                            spinner_priority_issue_detail.setSelection(1);
+                            priorityAdapter.notifyDataSetChanged();
+                            break;
+                        case "Low":
+                            spinner_priority_issue_detail.setSelection(2);
+                            priorityAdapter.notifyDataSetChanged();
+                            break;
+                    }
+
+                    databaseReference1 = FirebaseDatabase.getInstance().getReference("User_List_By_Project").child(project_ID);
+                    databaseReference1.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            ArrayList<String> list = new ArrayList();
+                            for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                                Project_Users user = dataSnapshot.getValue(Project_Users.class);
+                                list.add(user.getUser_ID());
+                            }
+                            if (list.size() > 0){
+                                member_list.clear();
+                                databaseReference2 = FirebaseDatabase.getInstance().getReference("Users");
+                                for (int i = 0; i < list.size(); i++) {
+                                    int finalI = i;
+                                    databaseReference2.child(list.get(i)).addValueEventListener(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            User user = snapshot.getValue(User.class);
+                                            member_list.add(user);
+                                            if(issue_Assignee.equals(user.getUser_Name())){
+                                                spinner_assignee_issue_detail.setSelection(finalI);
+                                                assigneeAdapter.notifyDataSetChanged();
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+
+                                        }
+                                    });
+                                    assigneeAdapter.notifyDataSetChanged();
+                                }
+                            }
+                            assigneeAdapter.notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                    assigneeAdapter.notifyDataSetChanged();
+//                    switch (issue_Assignee){
+//                        case "Chí Thiện":
+//                            spinner_assignee_issue_detail.setSelection(0);
+//                            assigneeAdapter.notifyDataSetChanged();
+//                            break;
+//                        case "Thiện Võ":
+//                            spinner_assignee_issue_detail.setSelection(1);
+//                            assigneeAdapter.notifyDataSetChanged();
+//                            break;
+//                        case "Rakitic Võ":
+//                            spinner_assignee_issue_detail.setSelection(2);
+//                            assigneeAdapter.notifyDataSetChanged();
+//                            break;
+//                    }
+//                    Toast.makeText(getContext(), "" + assigneeAdapter.getItem(spinner_assignee_issue_detail.getSelectedItemPosition()), Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
 
         //Bắt sự kiện
         //Todo: Xử lý sự kiện rời khỏi Fragment
@@ -231,89 +453,6 @@ public class IssueDetailFragment extends DialogFragment {
             }
         });
 
-        //Todo: Xử lý sự kiện cập nhật một Issue
-        // - Kiểm tra rỗng cho các text ----- (Incomplete)
-        // - Lấy các text cần dùng ----- (Done)
-        // - Gọi Api Service để cập nhật thông tin Issue trên database ----- (Incomplete)
-        // - Gọi một Instance để cập nhật một Issue ----- (Incomplete)
-        btn_update_issue_detail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Todo: Check permission
-
-
-                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
-                            case DialogInterface.BUTTON_POSITIVE:
-                                //Yes button clicked
-                                // Todo: remember check date must be >= today
-                                creator = sharedPreferences.getString("userName_txt", "User Name");
-                                issuename = tv_name_issue_detail.getText().toString();
-                                decription = description_issue_detail_text_input_layout.getEditText().getText().toString();
-                                startdate = start_date_issue_detail_text_input_layout.getEditText().getText().toString();
-                                estimatetime = estimate_time_issue_detail_text_input_layout.getEditText().getText().toString();
-                                finishdate = tv_issue_finish_date.getText().toString();
-
-                                Toast.makeText(getContext(), "" + creator + "\n"
-                                        + issuename + "\n"
-                                        + process_type + "\n"
-                                        + decription + "\n"
-                                        + issue_type + "\n"
-                                        + startdate + "\n"
-                                        + priority + "\n"
-                                        + assignee + "\n"
-                                        + estimatetime + "\n"
-                                        + finishdate, Toast.LENGTH_SHORT).show();
-                                Toast.makeText(getContext(), "Update success!!!", Toast.LENGTH_SHORT).show();
-                                dismiss();
-                                break;
-
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                //No button clicked
-                                Toast.makeText(getContext(), "Update error!!!", Toast.LENGTH_SHORT).show();
-                                break;
-                        }
-                    }
-                };
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setMessage("Do you want to save change?").setPositiveButton("Yes", dialogClickListener)
-                        .setNegativeButton("No", dialogClickListener).show();
-            }
-        });
-
-        //Todo: Xử lý sự kiện hoàn thành một Issue
-        // - Gọi Api Service để xác nhận hoàn thành một Issue trên database ----- (Incomplete)
-        // - Gọi một Instance để xác nhận hoàn thành một Issue ----- (Incomplete)
-        ibtn_confirm_done_issue.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Update list with process is done and return dashboard
-                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
-                            case DialogInterface.BUTTON_POSITIVE:
-                                //Yes button clicked
-                                Toast.makeText(getContext(), "This task is Done!!!", Toast.LENGTH_SHORT).show();
-                                dismiss();
-                                break;
-
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                //No button clicked
-                                break;
-                        }
-                    }
-                };
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setMessage("Would you like to confirm this issue is complete?").setPositiveButton("Confirm", dialogClickListener)
-                        .setNegativeButton("Cancel", dialogClickListener).show();
-            }
-        });
-
         //Todo: Xử lý sự kiện chọn ngày từ Calendar View
         calendar_start_date_issue_detail.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -329,29 +468,36 @@ public class IssueDetailFragment extends DialogFragment {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
-                    checkRightEstimateTime(estimate_time_issue_detail_text_input_layout.getEditText().getText().toString());
+                    if (estimate_time_issue_detail_text_input_layout.getEditText().getText().length() == 0){
+                        estimate_time_issue_detail_text_input_layout.setError("Wrong time!!!");
+                        estimate_time_issue_detail_text_input_layout.setErrorEnabled(true);
+                    } else {
+                        estimate_time_issue_detail_text_input_layout.setErrorEnabled(false);
+                        checkRightEstimateTime(estimate_time_issue_detail_text_input_layout.getEditText().getText().toString());
+                    }
+                }else {
+                    estimate_time_issue_detail_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+                            if (s.length() == 0){
+                                estimate_time_issue_detail_text_input_layout.setError("Wrong time!!!");
+                                estimate_time_issue_detail_text_input_layout.setErrorEnabled(true);
+                            } else {
+                                estimate_time_issue_detail_text_input_layout.setErrorEnabled(false);
+                            }
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable s) {
+
+                        }
+                    });
                 }
-            }
-        });
-        estimate_time_issue_detail_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() == 0){
-                    estimate_time_issue_detail_text_input_layout.setError("Wrong time!!!");
-                    estimate_time_issue_detail_text_input_layout.setErrorEnabled(true);
-                } else {
-                    estimate_time_issue_detail_text_input_layout.setErrorEnabled(false);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                checkRightEstimateTime(s.toString());
             }
         });
 
@@ -360,9 +506,14 @@ public class IssueDetailFragment extends DialogFragment {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
-                    startdate = start_date_issue_detail_text_input_layout.getEditText().getText().toString();
-//                    Toast.makeText(getContext(), "" + start_date, Toast.LENGTH_SHORT).show();
-                    checkRightStartDate(startdate);
+                    issue_StartDate = start_date_issue_detail_text_input_layout.getEditText().getText().toString();
+                    if (issue_StartDate.length() == 0){
+                        start_date_issue_detail_text_input_layout.setError("Please choose day!!!");
+                        start_date_issue_detail_text_input_layout.setErrorEnabled(true);
+                    }else {
+                        start_date_issue_detail_text_input_layout.setErrorEnabled(false);
+                        checkRightStartDate(issue_StartDate);
+                    }
                 }else {
                     start_date_issue_detail_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
                         @Override
@@ -382,20 +533,19 @@ public class IssueDetailFragment extends DialogFragment {
 
                         @Override
                         public void afterTextChanged(Editable s) {
-                            checkRightStartDate(s.toString());
                         }
                     });
                 }
             }
         });
 
-        //Todo: Xử lý sự kiện lấy Issue Detail Issue Type và hiện hình ảnh theo Issue Type
+        //Todo: Xử lý sự kiện lấy Issue Detail Issue Type và hiển thị hình ảnh theo Issue Type
         spinner_issue_type_detail.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 //                Toast.makeText(getContext(), "" + issueType_list.get(position).getName(), Toast.LENGTH_SHORT).show();
                 img_issue_type_detail.setImageResource(issueType_list.get(position).getImage());
-                issue_type = issueType_list.get(position).getName();
+                issue_Type = issueType_list.get(position).getName();
             }
 
             @Override
@@ -409,7 +559,7 @@ public class IssueDetailFragment extends DialogFragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 //                Toast.makeText(getContext(), "" + processType_list.get(position).getName(), Toast.LENGTH_SHORT).show();
-                process_type = processType_list.get(position).getName();
+                issue_ProcessType = processType_list.get(position).getName();
             }
 
             @Override
@@ -423,7 +573,7 @@ public class IssueDetailFragment extends DialogFragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 //                Toast.makeText(getContext(), "" + priority_list.get(position).getName(), Toast.LENGTH_SHORT).show();
-                priority = priority_list.get(position).getName();
+                issue_Priority = priority_list.get(position).getName();
             }
 
             @Override
@@ -437,12 +587,144 @@ public class IssueDetailFragment extends DialogFragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 //                Toast.makeText(getContext(), "" + user_list.get(position).getName(), Toast.LENGTH_SHORT).show();
-                assignee = member_list.get(position).getName();
+                issue_Assignee = member_list.get(position).getUser_Name();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
+            }
+        });
+
+        //Todo: Xử lý sự kiện cập nhật một Issue
+        // - Kiểm tra rỗng cho các text ----- (Incomplete)
+        // - Lấy các text cần dùng ----- (Done)
+        // - Gọi Api Service để cập nhật thông tin Issue trên database ----- (Incomplete)
+        // - Gọi một Instance để cập nhật một Issue ----- (Incomplete)
+        btn_update_issue_detail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Todo: Check permission
+                if (start_date_issue_detail_text_input_layout.getEditText().getText().length() == 0) {
+                    start_date_issue_detail_text_input_layout.setError("Please choose day!!!");
+                    start_date_issue_detail_text_input_layout.setErrorEnabled(true);
+                } else {
+                    start_date_issue_detail_text_input_layout.setErrorEnabled(false);
+                    checkRightStartDate(issue_StartDate);
+                }
+
+                if (estimate_time_issue_detail_text_input_layout.getEditText().getText().length() == 0) {
+                    estimate_time_issue_detail_text_input_layout.setError("Wrong time!!!");
+                    estimate_time_issue_detail_text_input_layout.setErrorEnabled(true);
+                } else {
+                    estimate_time_issue_detail_text_input_layout.setErrorEnabled(false);
+                    checkRightEstimateTime(estimate_time_issue_detail_text_input_layout.getEditText().getText().toString());
+                }
+
+                if (start_date_issue_detail_text_input_layout.isErrorEnabled() || estimate_time_issue_detail_text_input_layout.isErrorEnabled()) {
+                    Toast.makeText(getContext(), "Please check the error!!!", Toast.LENGTH_SHORT).show();
+                } else {
+                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which){
+                                case DialogInterface.BUTTON_POSITIVE:
+                                    //Yes button clicked
+                                    // Todo: remember check date must be >= today
+                                    issue_Description = description_issue_detail_text_input_layout.getEditText().getText().toString();
+                                    if (issue_Description.length() == 0){
+                                        issue_Description = " ";
+                                    }
+                                    issue_StartDate = start_date_issue_detail_text_input_layout.getEditText().getText().toString();
+                                    issue_EstimateTime = estimate_time_issue_detail_text_input_layout.getEditText().getText().toString();
+
+                                    HashMap<String, Object> hashMap = new HashMap<>();
+                                    hashMap.put("issue_ProcessType", issue_ProcessType);
+                                    hashMap.put("issue_Description", issue_Description);
+                                    hashMap.put("issue_Type", issue_Type);
+                                    hashMap.put("issue_StartDate", issue_StartDate);
+                                    hashMap.put("issue_Priority", issue_Priority);
+                                    hashMap.put("issue_Assignee", issue_Assignee);
+                                    hashMap.put("issue_EstimateTime", issue_EstimateTime);
+
+                                    reference = FirebaseDatabase.getInstance().getReference("Issues").child(issue_ID);
+                                    AppCompatActivity activity = (AppCompatActivity) getContext();
+                                    reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                                Toast.makeText(activity, "Update success", Toast.LENGTH_SHORT).show();
+                                            }else {
+                                                Toast.makeText(activity, "Update failed", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+                                    dismiss();
+                                    break;
+
+                                case DialogInterface.BUTTON_NEGATIVE:
+                                    //No button clicked
+                                    Toast.makeText(getContext(), "Update error!!!", Toast.LENGTH_SHORT).show();
+                                    break;
+                            }
+                        }
+                    };
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setMessage("Do you want to save change?").setPositiveButton("Yes", dialogClickListener)
+                            .setNegativeButton("No", dialogClickListener).show();
+                }
+            }
+        });
+
+        //Todo: Xử lý sự kiện hoàn thành một Issue
+        // - Gọi Api Service để xác nhận hoàn thành một Issue trên database ----- (Incomplete)
+        // - Gọi một Instance để xác nhận hoàn thành một Issue ----- (Incomplete)
+        ibtn_confirm_done_issue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Update list with process is done and return dashboard
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case DialogInterface.BUTTON_POSITIVE:
+                                //Yes button clicked
+                                for (int i = 0; i < processType_list.size(); i++) {
+                                    if (processType_list.get(i).getName().equals("Done")){
+                                        spinner_process_issue_detail.setSelection(i);
+                                        issue_ProcessType = processType_list.get(i).getName().toString();
+                                        processTypeAdapter.notifyDataSetChanged();
+                                        HashMap<String, Object> hashMap = new HashMap<>();
+                                        hashMap.put("issue_ProcessType", issue_ProcessType);
+
+                                        reference = FirebaseDatabase.getInstance().getReference("Issues").child(issue_ID);
+                                        AppCompatActivity activity = (AppCompatActivity) getContext();
+                                        reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()){
+                                                    Toast.makeText(activity, "This task is "+issue_ProcessType+"!!!" , Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        });
+                                        break;
+                                    }
+                                }
+                                dismiss();
+                                break;
+
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //No button clicked
+                                Toast.makeText(getContext(), "Cancel" , Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+                    }
+                };
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setMessage("Would you like to confirm this issue is complete?").setPositiveButton("Confirm", dialogClickListener)
+                        .setNegativeButton("Cancel", dialogClickListener).show();
             }
         });
 
@@ -468,7 +750,7 @@ public class IssueDetailFragment extends DialogFragment {
 
     public void checkRightEstimateTime(String date){
         String last = date.substring(date.length() - 1);
-        if (date.length() >= 0 && date.length() < 2 || (!last.equals("d") && !last.equals("m") && !last.equals("w"))) {
+        if (date.length() < 2 || (!last.equals("d") && !last.equals("m") && !last.equals("w"))) {
             estimate_time_issue_detail_text_input_layout.setError("Wrong format!!! Ex: 1d, 2w, 3m");
             estimate_time_issue_detail_text_input_layout.setErrorEnabled(true);
         } else {

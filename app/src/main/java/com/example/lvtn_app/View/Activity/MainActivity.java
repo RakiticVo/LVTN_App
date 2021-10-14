@@ -15,8 +15,6 @@ import com.example.lvtn_app.View.Fragment.NotificationFragment;
 import com.example.lvtn_app.View.Fragment.ProfileFragment;
 import com.example.lvtn_app.View.Fragment.ProjectsFragment;
 
-import java.util.Objects;
-
 public class MainActivity extends AppCompatActivity {
     // Khai báo
     ImageButton ibtn_projects,ibtn_mytasks, ibtn_chat, ibtn_notification, ibtn_profile;
@@ -31,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         declareView();
         ibtn_projects.setImageResource(R.drawable.projects_2);
 
-        sharedPreferences = Objects.requireNonNull(this).getSharedPreferences("User", Context.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("User", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
         ibtn_projects.setImageResource(R.drawable.projects_2);
@@ -39,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         ibtn_chat.setImageResource(R.drawable.chat_1);
         ibtn_notification.setImageResource(R.drawable.notification_1);
         ibtn_profile.setImageResource(R.drawable.profile_1);
-        getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, new ProjectsFragment()).commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.frame_main, new ProjectsFragment()).commit();
 
         ibtn_projects.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,29 +108,4 @@ public class MainActivity extends AppCompatActivity {
         ibtn_profile = findViewById(R.id.ibtn_profile);
     }
 
-//    @Override
-//    protected void onStop() {
-//        int id_user = sharedPreferences.getInt("userId_txt", -1);
-//        if (id_user > 0){
-//            ApiService service = ApiUtils.connectRetrofit();
-//            service.isUpdateUserInformationSuccess(id_user, false).enqueue(new Callback<String>() {
-//                @Override
-//                public void onResponse(Call<String> call, Response<String> response) {
-//                    Toast.makeText(MainActivity.this, "" + response.body(), Toast.LENGTH_SHORT).show();
-//                    editor = sharedPreferences.edit();
-//                    editor.putBoolean("userChecked", false);
-//                    editor.commit();
-//                }
-//
-//                @Override
-//                public void onFailure(Call<String> call, Throwable t) {
-//                    Toast.makeText(MainActivity.this, "" + call + "\n" + t, Toast.LENGTH_SHORT).show();
-//                    Log.e("TAG", "onFailure: " + call + "\n" + t );
-//                }
-//            });
-//        }else{
-//            Toast.makeText(MainActivity.this, "Failed", Toast.LENGTH_SHORT).show();
-//        }
-//        super.onStop();
-//    }
 }

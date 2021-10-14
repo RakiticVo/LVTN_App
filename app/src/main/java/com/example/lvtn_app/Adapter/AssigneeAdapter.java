@@ -8,7 +8,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.example.lvtn_app.Model.Member;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 
@@ -20,9 +19,9 @@ public class AssigneeAdapter extends BaseAdapter {
     //Khai báo
     private Context context;
     private LayoutInflater mInflater;
-    private ArrayList<Member> members;
+    private ArrayList<User> members;
 
-    public AssigneeAdapter(Context context, ArrayList<Member> members) {
+    public AssigneeAdapter(Context context, ArrayList<User> members) {
         this.context = context;
         this.mInflater = LayoutInflater.from(context);
         this.members = members;
@@ -35,7 +34,7 @@ public class AssigneeAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        return null;
+        return members.get(position).getUser_Name();
     }
 
     @Override
@@ -51,12 +50,13 @@ public class AssigneeAdapter extends BaseAdapter {
         CircleImageView img_assignee_create = convertView.findViewById(R.id.img_assignee_create);
         TextView tv_name_assignee_create = convertView.findViewById(R.id.tv_name_assignee_create);
 
-        if (!members.get(position).getAvatar().equals("")){
-            Glide.with(convertView).load(members.get(position).getAvatar()).centerCrop().into(img_assignee_create);
+        String avatar = members.get(position).getUser_Avatar();
+        if (!avatar.equals(" ")){
+            Glide.with(convertView).load(avatar).centerCrop().into(img_assignee_create);
         }else {
             img_assignee_create.setImageResource(R.drawable.profile_1);
         }
-        tv_name_assignee_create.setText(members.get(position).getName());
+        tv_name_assignee_create.setText(members.get(position).getUser_Name());
 
         return convertView;
     }
