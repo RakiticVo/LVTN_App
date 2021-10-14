@@ -4,6 +4,7 @@ import static android.app.Activity.RESULT_OK;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
@@ -40,7 +42,14 @@ import com.example.lvtn_app.Controller.Method.DateFormat;
 import com.example.lvtn_app.Model.IssueType;
 import com.example.lvtn_app.Model.ProjectType;
 import com.example.lvtn_app.R;
+import com.example.lvtn_app.View.Activity.MainActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
 import java.text.FieldPosition;
@@ -50,6 +59,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Random;
@@ -65,18 +75,21 @@ public class CreateProjectFragment extends DialogFragment {
     ArrayList<ProjectType> projectType_list;
     ProjectTypeAdapter projectTypeAdapter;
 
-    SharedPreferences sharedPreferences;
+    FirebaseAuth auth;
+    FirebaseUser firebaseUser;
+    DatabaseReference reference1, reference2;
 
     DateFormat dateFormat = new DateFormat();
     Calendar myCalendar = Calendar.getInstance();
 
     //Project Information
-    String username = "";
-    String projectname = "";
-    String estimedate = "";
-    String detail = "";
-    String datecreate = "";
-    String projecttype = "";
+    String project_ID;
+    String project_Name;
+    String project_Description;
+    String project_FinishDate;
+    String project_Type;
+    String project_DateCreate;
+    String project_Leader;
 
     private static final String TAG = "CreateProjectFragment";
 
@@ -108,6 +121,7 @@ public class CreateProjectFragment extends DialogFragment {
         projectType_list.add(new ProjectType(R.drawable.project_personal, "Personal"));
         projectType_list.add(new ProjectType(R.drawable.project_bussiness, "Bussiness"));
 
+
         DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -121,8 +135,6 @@ public class CreateProjectFragment extends DialogFragment {
 
         projectTypeAdapter = new ProjectTypeAdapter(getContext(), projectType_list);
         spinner_create_project_type.setAdapter(projectTypeAdapter);
-
-        sharedPreferences = Objects.requireNonNull(getActivity()).getSharedPreferences("User", Context.MODE_PRIVATE);
 
         //Bắt sự kiện
         //Todo: Xử lý sự kiện rời khỏi fragment
@@ -147,7 +159,7 @@ public class CreateProjectFragment extends DialogFragment {
         spinner_create_project_type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                projecttype = projectType_list.get(position).getName();
+                project_Type = projectType_list.get(position).getName();
             }
 
             @Override
@@ -230,6 +242,8 @@ public class CreateProjectFragment extends DialogFragment {
         btn_create_project.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                auth = FirebaseAuth.getInstance();
+                firebaseUser = auth.getCurrentUser();
                 if (create_project_name_text_input_layout.getEditText().getText().length()==0){
                     create_project_name_text_input_layout.setError("Please enter project's name!!!");
                     create_project_name_text_input_layout.setErrorEnabled(true);
@@ -245,11 +259,19 @@ public class CreateProjectFragment extends DialogFragment {
                     Toast.makeText(getContext(), "Please check error", Toast.LENGTH_SHORT).show();
                 }else{
                     create_project_estimate_finish_date_text_input_layout.setErrorEnabled(false);
-                    username = sharedPreferences.getString("userName_txt", "User Name");
-                    projectname = create_project_name_text_input_layout.getEditText().getText().toString();
-                    estimedate = create_project_estimate_finish_date_text_input_layout.getEditText().getText().toString();
-                    datecreate = dateFormat.formatDate(Calendar.getInstance().getTime());
-                    detail = create_project_detail_text_input_layout.getEditText().getText().toString();
+                    project_Leader = firebaseUser.getUid();
+                    project_Name = create_project_name_text_input_layout.getEditText().getText().toString();
+                    project_FinishDate = create_project_estimate_finish_date_text_input_layout.getEditText().getText().toString();
+                    project_DateCreate = dateFormat.formatDate(Calendar.getInstance().getTime());
+                    project_Description = create_project_detail_text_input_layout.getEditText().getText().toString();
+                    if (project_Description.length() == 0){
+                        project_Description = " ";
+                    }
+
+                    final ProgressDialog progressDialog = new ProgressDialog(getContext());
+                    progressDialog.setMessage("Creating");
+                    progressDialog.show();
+
                     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -261,19 +283,55 @@ public class CreateProjectFragment extends DialogFragment {
 //                                                + estimedate + "\n"
 //                                                + username + "\n"
 //                                                + datecreate, Toast.LENGTH_SHORT).show();
-                                    ProjectsFragment.getInstance().createProject(projectname, detail, estimedate, projecttype, datecreate, username, getrandomColor());
+                                    reference1 = FirebaseDatabase.getInstance().getReference("Projects");
+                                    project_ID = reference1.push().getKey();
+                                    HashMap<String, Object> hashMap = new HashMap<>();
+                                    hashMap.put("project_ID", project_ID);
+                                    hashMap.put("project_Name", project_Name);
+                                    hashMap.put("project_Description", project_Description);
+                                    hashMap.put("project_FinishDate", project_FinishDate);
+                                    hashMap.put("project_Type", project_Type);
+                                    hashMap.put("project_DateCreate", project_DateCreate);
+                                    hashMap.put("project_Leader", project_Leader);
+                                    hashMap.put("project_Background", getrandomColor()+"");
+                                    AppCompatActivity activity = (AppCompatActivity) getContext();
+                                    reference1.child(project_ID).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                                reference2 = FirebaseDatabase.getInstance().getReference("User_List_By_Project").child(project_ID);
+                                                String key = reference2.push().getKey().toString();
+                                                HashMap<String, Object> hashMap1 = new HashMap<>();
+                                                hashMap1.put("user_ID", project_Leader);
+                                                hashMap1.put("project_ID", project_ID);
+                                                hashMap1.put("position", "Leader");
+                                                hashMap1.put("key", key);
+                                                reference2.child(key).setValue(hashMap1).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()){
+                                                            Toast.makeText(activity, "Create success", Toast.LENGTH_SHORT).show();
+                                                        }else {
+                                                            Toast.makeText(activity, "Create failed", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                    progressDialog.dismiss();
                                     dismiss();
                                     break;
 
                                 case DialogInterface.BUTTON_NEGATIVE:
                                     //No button clicked
-                                    Toast.makeText(getContext(), "Create error!!!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "Cancel create", Toast.LENGTH_SHORT).show();
                                     break;
                             }
                         }
                     };
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setMessage("Do you want to create project: " + projectname + "?").setPositiveButton("Yes", dialogClickListener)
+                    builder.setMessage("Do you want to create project: " + project_Name + "?").setPositiveButton("Yes", dialogClickListener)
                             .setNegativeButton("No", dialogClickListener).show();
                 }
             }

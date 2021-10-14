@@ -164,7 +164,7 @@
                 android:layout_weight="5"
                 android:gravity="center"
                 android:visibility="gone"
-                app:hintEnabled="true">
+                app:hintEnabled="false">
 
                 <EditText
                     android:id="@+id/edt_position_member_detail_chat"

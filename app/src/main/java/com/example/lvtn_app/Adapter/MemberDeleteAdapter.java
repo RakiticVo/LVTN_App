@@ -1,13 +1,12 @@
 package com.example.lvtn_app.Adapter;
 
 import android.content.Context;
-import android.net.Uri;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,10 +15,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
-import com.example.lvtn_app.Model.Member;
+import com.example.lvtn_app.Model.Group_Chat_Users;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -55,12 +58,12 @@ public class MemberDeleteAdapter extends RecyclerView.Adapter<MemberDeleteAdapte
     @Override
     public void onBindViewHolder(@NonNull MemberDeleteAdapter.ViewHolder holder, int position) {
         members_checked = new ArrayList<>();
-        if (members.get(position).getStatus() == 1){
+        if (members.get(position).getUser_Status().toLowerCase().equals("online")){
             Glide.with(context).load(R.drawable.circle_blue).into(holder.imgStatusMember);
         } else {
             Glide.with(context).load(R.drawable.circle_grey).into(holder.imgStatusMember);
         }
-        String avatar = members.get(position).getAvatar_PI();
+        String avatar = members.get(position).getUser_Avatar();
         if (avatar.length() > 0){
             Glide.with(context).load(avatar)
                     .onlyRetrieveFromCache(true)
@@ -68,10 +71,30 @@ public class MemberDeleteAdapter extends RecyclerView.Adapter<MemberDeleteAdapte
                     .centerCrop()
                     .into(holder.imgAvatarMember);
         }else {
-            Glide.with(context).load(members.get(position).getAvatar_PI()).centerCrop().into(holder.imgAvatarMember);
+            Glide.with(context).load(members.get(position).getUser_Avatar()).centerCrop().into(holder.imgAvatarMember);
         }
-        holder.tvNameMember.setText(members.get(position).getUserName());
-        holder.tvPositionMember.setText(members.get(position).getPosition());
+        holder.tvNameMember.setText(members.get(position).getUser_Name());
+        String group_ID = holder.sharedPreferences.getString("group_ID","token");
+        int temp = position;
+        if (!group_ID.equals("token")){
+            holder.reference.child(group_ID).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                        Group_Chat_Users users = dataSnapshot.getValue(Group_Chat_Users.class);
+//                        Toast.makeText(context, "" + users.getGroup_ID(), Toast.LENGTH_SHORT).show();
+                        if (members.get(temp).getUser_ID().equals(users.getUser_ID())){
+                            holder.tvPositionMember.setText(users.getPosition());
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
 
         holder.cb_delete_member.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -81,9 +104,9 @@ public class MemberDeleteAdapter extends RecyclerView.Adapter<MemberDeleteAdapte
                     members_checked.add(members.get(holder.getAdapterPosition()));
                 }else {
                     Toast.makeText(context, "Checkbox " + (holder.getAdapterPosition() + 1) + " is unchecked", Toast.LENGTH_SHORT).show();
-                    String member_name = members.get(holder.getAdapterPosition()).getUserName();
+                    String member_name = members.get(holder.getAdapterPosition()).getUser_Name();
                     for (int i = 0; i < members_checked.size(); i++) {
-                        if (members_checked.get(i).getUserName().equals(member_name)){
+                        if (members_checked.get(i).getUser_Name().equals(member_name)){
                             members_checked.remove(i);
                             break;
                         }
@@ -104,6 +127,9 @@ public class MemberDeleteAdapter extends RecyclerView.Adapter<MemberDeleteAdapte
         public CheckBox cb_delete_member;
         LinearLayout linearLayout_member_choose;
 
+        SharedPreferences sharedPreferences;
+        DatabaseReference reference;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imgAvatarMember = itemView.findViewById(R.id.imgAvatarMember);
@@ -117,6 +143,8 @@ public class MemberDeleteAdapter extends RecyclerView.Adapter<MemberDeleteAdapte
             cb_delete_member.setChecked(false);
             cb_delete_member.setOnClickListener(this);
 
+            sharedPreferences = context.getSharedPreferences("Chat", Context.MODE_PRIVATE);
+            reference = FirebaseDatabase.getInstance().getReference("User_List_By_Group_Chat");
         }
 
         @Override

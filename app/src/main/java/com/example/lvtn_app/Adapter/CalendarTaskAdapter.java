@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lvtn_app.Model.Issue;
+import com.example.lvtn_app.Model.Task;
 import com.example.lvtn_app.R;
 
 import java.text.ParseException;
@@ -24,10 +25,10 @@ public class CalendarTaskAdapter extends RecyclerView.Adapter<CalendarTaskAdapte
     //Khai báo
     private Context context;
     private LayoutInflater mInflater;
-    private ArrayList<Issue> calendar_tasks_list;
+    private ArrayList<Task> calendar_tasks_list;
     private TaskAdapter taskAdapter;
 
-    public CalendarTaskAdapter(Context context, ArrayList<Issue> calendar_tasks_list) {
+    public CalendarTaskAdapter(Context context, ArrayList<Task> calendar_tasks_list) {
         this.context = context;
         this.calendar_tasks_list = calendar_tasks_list;
         this.mInflater = LayoutInflater.from(context);
@@ -44,9 +45,9 @@ public class CalendarTaskAdapter extends RecyclerView.Adapter<CalendarTaskAdapte
     public void onBindViewHolder(@NonNull CalendarTaskAdapter.ViewHolder holder, int position) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         Date date = Calendar.getInstance().getTime();
-        if (calendar_tasks_list.get(position).getIssueStartDate() != null){
+        if (calendar_tasks_list.get(position).getTask_StartDate() != null){
             try {
-                date = sdf.parse(calendar_tasks_list.get(position).getIssueStartDate());
+                date = sdf.parse(calendar_tasks_list.get(position).getTask_StartDate());
                 String dow = new SimpleDateFormat("EE", Locale.US).format(date);
                 String day = new SimpleDateFormat("dd", Locale.US).format(date);
                 holder.tv_day_number.setText(day);

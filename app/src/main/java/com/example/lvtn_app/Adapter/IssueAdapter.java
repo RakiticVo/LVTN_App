@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -43,10 +44,10 @@ public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.ViewHolder>{
 
     @Override
     public void onBindViewHolder(@NonNull IssueAdapter.ViewHolder holder, int position) {
-        holder.tv_name_issue.setText(issue_list.get(position).getIssueName());
-        holder.tv_name_assignee.setText(issue_list.get(position).getIssueAssignee());
-        holder.tv_start_date_issue.setText(issue_list.get(position).getIssueStartDate());
-        switch (issue_list.get(position).getIssueType()){
+        holder.tv_name_issue.setText(issue_list.get(position).getIssue_Name());
+        holder.tv_name_assignee.setText(issue_list.get(position).getIssue_Assignee());
+        holder.tv_start_date_issue.setText(issue_list.get(position).getIssue_StartDate());
+        switch (issue_list.get(position).getIssue_Type()){
             case "Task":
                 holder.img_issue_type.setImageResource(R.drawable.task);
                 break;
@@ -57,7 +58,7 @@ public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.ViewHolder>{
                 holder.img_issue_type.setImageResource(R.drawable.user_story);
                 break;
         }
-        switch (issue_list.get(position).getIssuePriority()){
+        switch (issue_list.get(position).getIssue_Priority()){
             case "High":
                 holder.img_priority_issue.setImageResource(R.drawable.high);
                 break;
@@ -93,14 +94,9 @@ public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.ViewHolder>{
             item_issue.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    sharedPreferences = Objects.requireNonNull(context).getSharedPreferences("Task", Context.MODE_PRIVATE);
+                    sharedPreferences = Objects.requireNonNull(context).getSharedPreferences("Issue", Context.MODE_PRIVATE);
                     editor = sharedPreferences.edit();
-                    editor.putInt("task_id", issue_list.get(getAdapterPosition()).getId_Issue());
-                    editor.putString("task_name", issue_list.get(getAdapterPosition()).getIssueName());
-                    editor.putString("task_name_assignee", issue_list.get(getAdapterPosition()).getIssueAssignee());
-                    editor.putString("task_start_date", issue_list.get(getAdapterPosition()).getIssueStartDate());
-                    editor.putString("task_type", issue_list.get(getAdapterPosition()).getIssueType());
-                    editor.putString("task_priority", issue_list.get(getAdapterPosition()).getIssuePriority());
+                    editor.putString("issue_ID", issue_list.get(getAdapterPosition()).getIssue_ID());
                     editor.commit();
                     IssueDetailFragment dialog = new IssueDetailFragment();
                     dialog.show(((AppCompatActivity) context).getSupportFragmentManager(), "IssueDetailFragment");

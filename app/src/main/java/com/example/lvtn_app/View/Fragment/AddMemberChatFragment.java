@@ -1,9 +1,15 @@
 package com.example.lvtn_app.View.Fragment;
 
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
@@ -17,8 +23,27 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.lvtn_app.Model.GroupChat;
+import com.example.lvtn_app.Model.Group_Chat_Users;
+import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
+import com.example.lvtn_app.View.Activity.ChatActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,8 +53,19 @@ import com.google.android.material.textfield.TextInputLayout;
  */
 public class AddMemberChatFragment extends DialogFragment {
     //Khai báo
-    TextInputLayout create_email_add_member_text_input_layout;
+    TextInputLayout create_email_add_member_text_input_layout, create_position_add_member_chat_text_input_layout;
     Button btn_invite_member, btn_cancel_invite_member;
+
+    SharedPreferences sharedPreferences, sharedPreferences_chat;
+    FirebaseAuth auth;
+    FirebaseUser firebaseUser;
+    DatabaseReference reference1, reference2, reference3;
+    String id_user, id_group;
+    ProgressDialog progressDialog;
+    AppCompatActivity activity;
+
+    ArrayList<String> user_ID_list = new ArrayList<>();
+    ArrayList<String> id = new ArrayList<>();
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -82,8 +118,20 @@ public class AddMemberChatFragment extends DialogFragment {
         }
 
         create_email_add_member_text_input_layout = view.findViewById(R.id.create_email_add_member_chat_text_input_layout);
+        create_position_add_member_chat_text_input_layout = view.findViewById(R.id.create_position_add_member_chat_text_input_layout);
         btn_invite_member = view.findViewById(R.id.btn_invite_member_chat);
         btn_cancel_invite_member = view.findViewById(R.id.btn_cancel_invite_member_chat);
+
+        sharedPreferences_chat = requireContext().getSharedPreferences("Chat", Context.MODE_PRIVATE);
+        sharedPreferences = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
+        id_group = sharedPreferences_chat.getString("group_ID", "token");
+        id_user = sharedPreferences.getString("user_ID", "token");
+        auth = FirebaseAuth.getInstance();
+        firebaseUser = auth.getCurrentUser();
+
+        activity = (AppCompatActivity) getContext();
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Adding member");
 
         //Bắt sự kiện
         //Todo: Xử lý sự kiện rời khỏi fragment
@@ -94,7 +142,7 @@ public class AddMemberChatFragment extends DialogFragment {
             }
         });
 
-        //Todo: Xử lý sự kiện nhập và kiểm tra rỗng cho Email Member
+        //Todo: Xử lý sự kiện nhập và kiểm tra rỗng cho Member Email
         create_email_add_member_text_input_layout.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -126,6 +174,41 @@ public class AddMemberChatFragment extends DialogFragment {
             }
         });
 
+        //Todo: Xử lý sự kiện nhập và kiểm tra rỗng cho Member Position
+        create_position_add_member_chat_text_input_layout.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus){
+                   if (create_position_add_member_chat_text_input_layout.getEditText().getText().length() == 0){
+                       create_position_add_member_chat_text_input_layout.setError("Please enter position!!!!");
+                       create_position_add_member_chat_text_input_layout.setErrorEnabled(true);
+                   }else create_position_add_member_chat_text_input_layout.setErrorEnabled(false);
+                }else{
+                    create_email_add_member_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+                            if (s.length() == 0){
+                                create_position_add_member_chat_text_input_layout.setError("Please enter position!!!");
+                                create_position_add_member_chat_text_input_layout.setErrorEnabled(true);
+                            }else {
+                                create_position_add_member_chat_text_input_layout.setErrorEnabled(false);
+                            }
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable s) {
+
+                        }
+                    });
+                }
+            }
+        });
+
         //ToDo: Xử lý sự kiện xác nhận mới tham gia dự án:
         // - Kiểm tra định dạng và khác rỗng cho email -------- (Done)
         // - Kiểm tra User có trong danh sách User list của Project theo email hay không? -------- (Incomplete)
@@ -135,28 +218,50 @@ public class AddMemberChatFragment extends DialogFragment {
         btn_invite_member.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkRightEmail(create_email_add_member_text_input_layout.getEditText().getText().toString());
-                if (create_email_add_member_text_input_layout.isErrorEnabled()){
-                    Toast.makeText(getContext(), "Please check error", Toast.LENGTH_SHORT).show();
+                //Todo: Check permission
+                String email = create_email_add_member_text_input_layout.getEditText().getText().toString().toLowerCase().trim();
+                String positon = create_position_add_member_chat_text_input_layout.getEditText().getText().toString().trim();
+                checkRightEmail(email);
+                if (positon.length() == 0){
+                    create_position_add_member_chat_text_input_layout.setError("Please enter position!!!!");
+                    create_position_add_member_chat_text_input_layout.setErrorEnabled(true);
+                }else create_position_add_member_chat_text_input_layout.setErrorEnabled(false);
+
+                //Todo: Handling
+                progressDialog.show();
+                if (create_email_add_member_text_input_layout.isErrorEnabled()
+                        || create_position_add_member_chat_text_input_layout.isErrorEnabled()){
+                    Toast.makeText(getContext(), "Please check error!!!", Toast.LENGTH_SHORT).show();
                 }else {
                     create_email_add_member_text_input_layout.setErrorEnabled(false);
-//                        Toast.makeText(getContext(), "Invite email: " + edt_email_add_member.getText(), Toast.LENGTH_SHORT).show();
-                    // Todo: Search member via Email
-                    // Todo: If member is is null show message else create Member and send message invite
-                    String username = "Rakitic";
-                    String position = "Developer";
-                    String avatar = "https://upanh123.com/wp-content/uploads/2020/09/f676521b471839e8428f79b94441d641.jpg";
-                    String phone = "0942920838";
-                    String email = create_email_add_member_text_input_layout.getEditText().getText().toString();
-                    int status = 1;
+                    user_ID_list.clear();
+                    reference1 = FirebaseDatabase.getInstance().getReference("Users");
+                    reference1.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            user_ID_list.clear();
+                            for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                                User user = dataSnapshot.getValue(User.class);
+//                                    Toast.makeText(activity, "" + user.getUser_Email().equals(email), Toast.LENGTH_SHORT).show();
+                                if (user.getUser_Email().equals(email)){
+                                    user_ID_list.add(user.getUser_ID());
+                                }
+                            }
+                            if (user_ID_list.size() == 0){
+                                progressDialog.dismiss();
+                                create_email_add_member_text_input_layout.setError("Wrong email!!!");
+                                create_email_add_member_text_input_layout.setErrorEnabled(true);
+                            }else if (user_ID_list.size() == 1){
+//                                    Toast.makeText(activity, "" + user_ID_list.size(), Toast.LENGTH_SHORT).show();
+                                CheckUserInGroupChat(user_ID_list.get(0), positon);
+                            }
+                        }
 
-//                        Toast.makeText(getContext(), "" + edt_email_add_member.getText() + "\n"
-//                                + username + "\n"
-//                                + position + "\n"
-//                                + status + "\n"
-//                                + avatar + "\n", Toast.LENGTH_SHORT).show();
-                    MemberChatFragment.getInstance().AddMember(username, email, avatar, phone, position, status);
-                    dismiss();
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
                 }
             }
         });
@@ -177,5 +282,68 @@ public class AddMemberChatFragment extends DialogFragment {
         }else {
             create_email_add_member_text_input_layout.setErrorEnabled(false);
         }
+    }
+
+    public void CheckUserInGroupChat(String user_ID, String position){
+        id.clear();
+        reference2 = FirebaseDatabase.getInstance().getReference("User_List_By_Group_Chat").child(id_group);
+        reference2.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                id.clear();
+                for (DataSnapshot dataSnapshot1 : snapshot.getChildren()){
+                    Group_Chat_Users users = dataSnapshot1.getValue(Group_Chat_Users.class);
+                    id.add(users.getUser_ID());
+                }
+                if (id.size()>=2){
+                    boolean check = false;
+                    for (int i = 1; i < id.size(); i++) {
+                        if (user_ID.equals(id.get(i))){
+                            check = true;
+                        }
+                    }
+                    if (check){
+                        progressDialog.dismiss();
+                        create_email_add_member_text_input_layout.setError("User already in the group!!!");
+                        create_email_add_member_text_input_layout.setErrorEnabled(true);
+                    }else {
+                        PushData(user_ID, position);
+                        Toast.makeText(activity, "" + user_ID, Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                if (id.size() == 1){
+                    if (!user_ID.equals(id.get(0))){
+                        PushData(user_ID, position);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void PushData(String id, String position) {
+        reference3 = FirebaseDatabase.getInstance().getReference("User_List_By_Group_Chat").child(id_group);
+        Toast.makeText(activity, "" + id, Toast.LENGTH_SHORT).show();
+        String key = reference3.push().getKey().toString();
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("user_ID", id);
+        hashMap.put("group_ID", id_group);
+        hashMap.put("position", position);
+        hashMap.put("key", key);
+        reference3.child(key).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(activity, "Adding member success", Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                    dismiss();
+                }
+            }
+        });
     }
 }

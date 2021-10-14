@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,15 +19,22 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.lvtn_app.Adapter.MemberAdapter;
 import com.example.lvtn_app.Adapter.MemberDeleteAdapter;
-import com.example.lvtn_app.Controller.Retrofit.ApiService;
-import com.example.lvtn_app.Controller.Retrofit.ApiUtils;
+import com.example.lvtn_app.Adapter.MemberProjectAdapter;
+import com.example.lvtn_app.Model.Project;
+import com.example.lvtn_app.Model.Project_Users;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -43,11 +52,15 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
     TextView tv_show_member_delete, tv1, tvNoresult_member;
     TextInputLayout search_member_text_input_layout;
     ArrayList<User> member_list, delete_member_list, member_search_list;
-    MemberAdapter memberAdapter;
+    MemberProjectAdapter memberAdapter;
     MemberDeleteAdapter memberDeleteAdapter;
 
     SharedPreferences sharedPreferences_project, sharedPreferences_user;
-    int id_project;
+    FirebaseAuth auth;
+    FirebaseUser firebaseUser;
+    DatabaseReference reference1, reference2, reference3;
+    String id_user, id_project;
+    ArrayList<String> list;
 
     static MemberProjectFragment instance;
 
@@ -72,34 +85,29 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
 
         instance = this;
 
-        sharedPreferences_project = Objects.requireNonNull(getContext()).getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
-        sharedPreferences_user = Objects.requireNonNull(getContext()).getSharedPreferences("User", Context.MODE_PRIVATE);
-        String user = sharedPreferences_user.getString("userName_txt", "User");
-        String leader = sharedPreferences_project.getString("projectLeader_txt", "Leader");
-        if (user.equals(leader)){
-            ibtn_add_member.setVisibility(View.VISIBLE);
-            ibtn_remove_member.setVisibility(View.VISIBLE);
-        }else{
-            ibtn_add_member.setVisibility(View.GONE);
-            ibtn_remove_member.setVisibility(View.GONE);
-        }
-
-        id_project = sharedPreferences_project.getInt("id_project", -1);
-
         member_list = new ArrayList<>();
         delete_member_list = new ArrayList<>();
         member_search_list = new ArrayList<>();
-        member_list.add(new User(1, "Chí Thiện", "chithien@gmail.com",
-                1, "0942920838","","Leader"));
+        member_list.add(new User("1", "Chí Thiện", "chithien@gmail.com",
+                "1", "0942920838","","Leader", "", "", ""));
 
-        //Set up
         recyclerViewMembers.setLayoutManager(new LinearLayoutManager(getContext()));
-        memberAdapter = new MemberAdapter(getContext(), member_list);
+        memberAdapter = new MemberProjectAdapter(getContext(), member_list);
         memberDeleteAdapter = new MemberDeleteAdapter(getContext(), member_list);
         memberAdapter.setClickListener(this::onItemClick);
         recyclerViewMembers.setAdapter(memberAdapter);
 
-        getUserListByProject();
+        sharedPreferences_project = requireContext().getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
+        sharedPreferences_user = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
+        id_project = sharedPreferences_project.getString("project_ID", "token");
+        id_user = sharedPreferences_user.getString("user_ID", "token");
+
+        auth = FirebaseAuth.getInstance();
+        firebaseUser = auth.getCurrentUser();
+        list = new ArrayList<>();
+        member_list.clear();
+        delete_member_list.clear();
+        showMember();
 
         //Bắt sự kiện
         ibtn_add_member.setOnClickListener(new View.OnClickListener() {
@@ -144,14 +152,14 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
                         member_search_list.clear();
                         for (User member : member_list) {
 //                        Toast.makeText(getContext(), "" + groupChat.getName().toLowerCase(), Toast.LENGTH_SHORT).show();
-                            if (member.getUserName().toLowerCase(Locale.ROOT).contains(s)) {
+                            if (member.getUser_Name().toLowerCase(Locale.ROOT).contains(s)) {
                                 member_search_list.add(member);
                             }
                         }
                         if (member_search_list.size() > 0) {
                             recyclerViewMembers.setVisibility(View.VISIBLE);
                             tvNoresult_member.setVisibility(View.GONE);
-                            memberAdapter = new MemberAdapter(getContext(), member_search_list);
+                            memberAdapter = new MemberProjectAdapter(getContext(), member_search_list);
                             recyclerViewMembers.setAdapter(memberAdapter);
                         } else {
                             recyclerViewMembers.setVisibility(View.GONE);
@@ -160,7 +168,7 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
                     }else {
                         recyclerViewMembers.setVisibility(View.VISIBLE);
                         tvNoresult_member.setVisibility(View.GONE);
-                        memberAdapter = new MemberAdapter(getContext(), member_list);
+                        memberAdapter = new MemberProjectAdapter(getContext(), member_list);
                         recyclerViewMembers.setAdapter(memberAdapter);
                     }
                 }
@@ -170,7 +178,7 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
                         member_search_list.clear();
                         for (User member : member_list){
 //                        Toast.makeText(getContext(), "" + groupChat.getName().toLowerCase(), Toast.LENGTH_SHORT).show();
-                            if (member.getUserName().toLowerCase(Locale.ROOT).contains(s)){
+                            if (member.getUser_Name().toLowerCase(Locale.ROOT).contains(s)){
                                 member_search_list.add(member);
                             }
                         }
@@ -203,9 +211,9 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
             public void onClick(View v) {
                 delete_member_list = memberDeleteAdapter.getMembers_checked();
                 for (User m : delete_member_list){
-                    tv_show_member_delete.setText(tv_show_member_delete.getText() + m.getUserName() + "-" + m.getPosition() + "\n");
+                    tv_show_member_delete.setText(tv_show_member_delete.getText() + m.getUser_Name());
                     for (User n : member_list){
-                        if (n.getId_user() == m.getId_user()){
+                        if (n.getUser_ID().equals(m.getUser_ID())){
                             member_list.remove(n);
                             break;
                         }
@@ -233,77 +241,87 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
     public void onItemClick(View view, int position) {
         MemberDetailProjectFragment memberDetailProjectFragment = new MemberDetailProjectFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt("member_id_txt", member_list.get(position).getId_user());
-        bundle.putString("member_avatar_txt", member_list.get(position).getAvatar_PI());
-        bundle.putString("member_name_txt", member_list.get(position).getUserName());
-        bundle.putString("member_email_txt", member_list.get(position).getUserEmail());
-        bundle.putString("member_phone_txt", member_list.get(position).getPhone_PI());
-        bundle.putString("member_position_txt", member_list.get(position).getPosition());
+        bundle.putString("member_id_txt", member_list.get(position).getUser_ID());
         memberDetailProjectFragment.setArguments(bundle);
         memberDetailProjectFragment.show(getFragmentManager(), "MemberDetailFragment");
     }
 
-    public void AddMember(String name, String email, String avatar, String phone, String position, int status){
-        MemberProjectFragment.this.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                int id = (member_list.size()) + 1;
-                member_list.add(new User(id, name, email, status, phone, avatar, position));
-                memberAdapter.notifyDataSetChanged();
-                memberDeleteAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
-    public void updatePosition(int id, String position){
-        member_list.get(id).setPosition(position);
-        memberAdapter.notifyDataSetChanged();
-        memberDeleteAdapter.notifyDataSetChanged();
-    }
-
-    public void getUserListByProject(){
-        member_list.clear();
-        ApiService getUserList = ApiUtils.connectRetrofit();
-//        Toast.makeText(getContext(), "" + id_project, Toast.LENGTH_SHORT).show();
-        if (id_project > 0) {
-//            Toast.makeText(getContext(), "" + sharedPreferences_user.getString("userName_txt", ""), Toast.LENGTH_SHORT).show();
-            getUserList.getUserListByProject(id_project).enqueue(new Callback<ArrayList<User>>() {
+    public void showMember(){
+        AppCompatActivity activity = (AppCompatActivity) getContext();
+        ArrayList<String> listUser_ID = new ArrayList<>();
+        if (id_user.equals(firebaseUser.getUid())){
+            reference1 = FirebaseDatabase.getInstance().getReference("Projects").child(id_project);
+            reference1.addValueEventListener(new ValueEventListener() {
                 @Override
-                public void onResponse(Call<ArrayList<User>> call, Response<ArrayList<User>> response) {
-//                Toast.makeText(getContext(), "Success" + response.body().size(), Toast.LENGTH_SHORT).show();
-                    for (User user : response.body()) {
-                        if (user.getPosition().toLowerCase().equals("leader")){
-                            member_list.add(new User(user.getId_user(), user.getUserName(), user.getUserEmail(),
-                                    user.getStatus(), user.getPhone_PI(), user.getAvatar_PI(), user.getPosition()));
-                            break;
-                        }
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Project project = snapshot.getValue(Project.class);
+                    if (project.getProject_Leader().equals(id_user)){
+                        ibtn_add_member.setVisibility(View.VISIBLE);
+                        ibtn_remove_member.setVisibility(View.VISIBLE);
+                    }else {
+                        ibtn_add_member.setVisibility(View.GONE);
+                        ibtn_remove_member.setVisibility(View.GONE);
                     }
-                    for (User user : response.body()) {
-                        if (!user.getPosition().toLowerCase().equals("leader")) {
-                            member_list.add(new User(user.getId_user(), user.getUserName(), user.getUserName(),
-                                    user.getStatus(), user.getPhone_PI(), user.getAvatar_PI(), user.getPosition()));
-                        }
-                    }
-//                    for (User user : member_list){
-//                        Toast.makeText(getContext(), "" + user.getId_user() + "\n"
-//                                + user.getUserName() + "\n"
-//                                + user.getUserEmail() + "\n"
-//                                + user.getStatus() + "\n"
-//                                + user.getPhone_PI() + "\n"
-//                                + user.getAvatar_PI() + "\n"
-//                                + user.getPosition() + "\n", Toast.LENGTH_LONG).show();
-//                    }
-                    memberAdapter.notifyDataSetChanged();
-                    memberDeleteAdapter.notifyDataSetChanged();
-                    recyclerViewMembers.scrollToPosition(0);
-                    recyclerViewMembers.clearFocus();
                 }
 
                 @Override
-                public void onFailure(Call<ArrayList<User>> call, Throwable t) {
+                public void onCancelled(@NonNull DatabaseError error) {
 
                 }
             });
+
+            reference2 = FirebaseDatabase.getInstance().getReference("User_List_By_Project").child(id_project);
+            reference2.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    listUser_ID.clear();
+//                    Toast.makeText(activity, "" + listUser_ID.size(), Toast.LENGTH_SHORT).show();
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                        Project_Users user = dataSnapshot.getValue(Project_Users.class);
+                        listUser_ID.add(user.getUser_ID());
+//                        Toast.makeText(activity, "" + listUser_ID.size(), Toast.LENGTH_SHORT).show();
+                    }
+                    getUserListByProject(listUser_ID);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+    }
+
+
+    public void getUserListByProject(ArrayList<String> list){
+        AppCompatActivity activity = (AppCompatActivity) getContext();
+//        Toast.makeText(activity, "" + list.size(), Toast.LENGTH_SHORT).show();
+        reference3 = FirebaseDatabase.getInstance().getReference("Users");
+        member_list.clear();
+        delete_member_list.clear();
+        for (String s : list){
+//            Toast.makeText(activity, "" + s, Toast.LENGTH_SHORT).show();
+            reference3.child(s).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    User user = snapshot.getValue(User.class);
+//                    Toast.makeText(activity, "" + groupChat.getGroup_ID(), Toast.LENGTH_SHORT).show();
+                    member_list.add(user);
+                    delete_member_list.add(user);
+                    memberDeleteAdapter.notifyDataSetChanged();
+                    memberAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    member_list.clear();
+                    delete_member_list.clear();
+                    memberDeleteAdapter.notifyDataSetChanged();
+                    memberAdapter.notifyDataSetChanged();
+                }
+            });
+            memberDeleteAdapter.notifyDataSetChanged();
+            memberAdapter.notifyDataSetChanged();
         }
     }
 }

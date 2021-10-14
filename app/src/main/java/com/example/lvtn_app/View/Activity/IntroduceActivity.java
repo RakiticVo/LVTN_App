@@ -48,7 +48,9 @@ public class IntroduceActivity extends AppCompatActivity {
 //                img_logo.setVisibility(View.GONE);
 //                txt_app_name.setVisibility(View.GONE);
                 frame_login.setVisibility(View.VISIBLE);
-                startActivity(new Intent(IntroduceActivity.this, LoginActivity.class));
+                Intent intent = new Intent(IntroduceActivity.this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
                 finish();
             }
         },1800);

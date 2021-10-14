@@ -54,7 +54,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:scaleType="fitCenter"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:src="@drawable/add_image"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -132,7 +132,6 @@
                     android:layout_gravity="top"
                     android:singleLine="true"
                     android:padding="5dp"
-                    android:text="abc@gmail.com"
                     android:textColor="@color/grey"
                     android:textSize="16sp"
                     android:visibility="visible" />
@@ -189,7 +188,6 @@
                     android:layout_marginLeft="27dp"
                     android:singleLine="true"
                     android:padding="5dp"
-                    android:text="Male"
                     android:visibility="visible"
                     android:textColor="@color/grey"
                     android:textSize="16sp" />
@@ -250,7 +248,6 @@
                     android:singleLine="true"
                     android:padding="5dp"
                     android:textColor="@color/grey"
-                    android:text="0942738183"
                     android:textSize="16sp"
                     android:visibility="visible"/>
 
@@ -261,7 +258,7 @@
                     android:gravity="center"
                     android:visibility="gone"
                     android:layout_marginLeft="33dp"
-                    app:hintEnabled="true"
+                    app:hintEnabled="false"
                     app:errorEnabled="false">
 
                     <EditText
@@ -293,12 +290,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
-                    android:layout_marginTop="4dp"
                     android:gravity="center_vertical"
                     android:text="Day of birth:"
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -309,7 +306,6 @@
                     android:singleLine="true"
                     android:padding="5dp"
                     android:gravity="center_vertical"
-                    android:text="Mar 27,1999"
                     android:textColor="@color/grey"
                     android:textSize="16sp"
                     android:visibility="visible"
@@ -387,7 +383,6 @@
                     android:gravity="top"
                     android:textColor="@color/grey"
                     android:visibility="visible"
-                    android:text="aasjhsahdsa, sadsah, sahhhfas, sahghjsahfas, sjahfhash jashfjkashjfas, ashfghsajkfsajk.sajkfhjsakhjfkas"
                     android:textSize="16sp" />
 
                 <com.google.android.material.textfield.TextInputLayout

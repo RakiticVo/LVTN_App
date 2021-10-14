@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.lvtn_app.Model.Group_Chat_Users;
+import com.example.lvtn_app.Model.Project_Users;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 import com.google.firebase.database.DataSnapshot;
@@ -26,14 +27,14 @@ import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder> {
+public class MemberProjectAdapter extends RecyclerView.Adapter<MemberProjectAdapter.ViewHolder> {
     //Khai báo
     private Context context;
     private LayoutInflater mInflater;
     private ArrayList<User> members;
-    private ItemClickListener mClickListener;
+    private MemberAdapter.ItemClickListener mClickListener;
 
-    public MemberAdapter(Context context, ArrayList<User> members) {
+    public MemberProjectAdapter(Context context, ArrayList<User> members) {
         this.context = context;
         this.members = members;
         this.mInflater = LayoutInflater.from(context);
@@ -41,13 +42,13 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MemberProjectAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.item_member, parent, false);
-        return new ViewHolder(view);
+        return new MemberProjectAdapter.ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MemberProjectAdapter.ViewHolder holder, int position) {
         if (members.get(position).getUser_Status().toLowerCase().equals("online")){
             Glide.with(context).load(R.drawable.circle_blue).into(holder.imgStatusMember);
         } else {
@@ -60,14 +61,14 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder
             Glide.with(context).load(avatar).centerCrop().into(holder.imgAvatarMember);
         }
         holder.tvNameMember.setText(members.get(position).getUser_Name());
-        String group_ID = holder.sharedPreferences.getString("group_ID","token");
+        String project_ID = holder.sharedPreferences.getString("project_ID","token");
         String userid = members.get(position).getUser_ID();
-        if (!group_ID.equals("token")){
-            holder.reference.child(group_ID).addValueEventListener(new ValueEventListener() {
+        if (!project_ID.equals("token")){
+            holder.reference.child(project_ID).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-                        Group_Chat_Users users = dataSnapshot.getValue(Group_Chat_Users.class);
+                        Project_Users users = dataSnapshot.getValue(Project_Users.class);
 //                        Toast.makeText(context, "" + users.getGroup_ID(), Toast.LENGTH_SHORT).show();
                         if (userid.equals(users.getUser_ID())){
                             holder.tvPositionMember.setText(users.getPosition());
@@ -109,8 +110,8 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder
 
             linearLayout_member_choose.setOnClickListener(this);
 
-            sharedPreferences = context.getSharedPreferences("Chat", Context.MODE_PRIVATE);
-            reference = FirebaseDatabase.getInstance().getReference("User_List_By_Group_Chat");
+            sharedPreferences = context.getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
+            reference = FirebaseDatabase.getInstance().getReference("User_List_By_Project");
         }
 
         @Override
@@ -125,7 +126,7 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder
     }
 
     // Cho phép bắt các sự kiện nhấp chuột
-    public void setClickListener(ItemClickListener itemClickListener) {
+    public void setClickListener(MemberAdapter.ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
 

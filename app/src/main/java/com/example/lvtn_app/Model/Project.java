@@ -5,118 +5,91 @@ import android.net.Uri;
 import java.util.Date;
 
 public class Project {
-    private int id_project ;
-    private String projectName;
-    private String projectDescription;
-    private String projectFinishDate;
-    private String projectType;
-    private String projectDateCreate;
-    private String projectLeader;
-    private int projectBackground;
-    private int id_project_user_list;
-    private int id_project_group_chat;
+    private String project_ID;
+    private String project_Name;
+    private String project_Description;
+    private String project_FinishDate;
+    private String project_Type;
+    private String project_DateCreate;
+    private String project_Leader;
+    private String project_Background;
 
-    public Project(int id_project, String projectName, String projectDescription, String projectFinishDate, String projectType, String projectDateCreate, String projectLeader, int projectBackground, int id_project_user_list, int id_project_group_chat) {
-        this.id_project = id_project;
-        this.projectName = projectName;
-        this.projectDescription = projectDescription;
-        this.projectFinishDate = projectFinishDate;
-        this.projectType = projectType;
-        this.projectDateCreate = projectDateCreate;
-        this.projectLeader = projectLeader;
-        this.projectBackground = projectBackground;
-        this.id_project_user_list = id_project_user_list;
-        this.id_project_group_chat = id_project_group_chat;
+
+    public Project(String project_ID, String project_Name, String project_Description, String project_FinishDate, String project_Type, String project_DateCreate, String project_Leader, String project_Background) {
+        this.project_ID = project_ID;
+        this.project_Name = project_Name;
+        this.project_Description = project_Description;
+        this.project_FinishDate = project_FinishDate;
+        this.project_Type = project_Type;
+        this.project_DateCreate = project_DateCreate;
+        this.project_Leader = project_Leader;
+        this.project_Background = project_Background;
     }
 
-    public Project(int id_project, String projectName, String projectDescription, String projectFinishDate, String projectType, String projectDateCreate, String projectLeader, int projectBackground) {
-        this.id_project = id_project;
-        this.projectName = projectName;
-        this.projectDescription = projectDescription;
-        this.projectFinishDate = projectFinishDate;
-        this.projectType = projectType;
-        this.projectDateCreate = projectDateCreate;
-        this.projectLeader = projectLeader;
-        this.projectBackground = projectBackground;
+    public Project() {
     }
 
-    public int getId_project() {
-        return id_project;
+    public String getProject_ID() {
+        return project_ID;
     }
 
-    public void setId_project(int id_project) {
-        this.id_project = id_project;
+    public void setProject_ID(String project_ID) {
+        this.project_ID = project_ID;
     }
 
-    public String getProjectName() {
-        return projectName.trim();
+    public String getProject_Name() {
+        return project_Name;
     }
 
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
+    public void setProject_Name(String project_Name) {
+        this.project_Name = project_Name;
     }
 
-    public String getProjectDescription() {
-        return projectDescription.trim();
+    public String getProject_Description() {
+        return project_Description;
     }
 
-    public void setProjectDescription(String projectDescription) {
-        this.projectDescription = projectDescription;
+    public void setProject_Description(String project_Description) {
+        this.project_Description = project_Description;
     }
 
-    public String getProjectFinishDate() {
-        return projectFinishDate.trim();
+    public String getProject_FinishDate() {
+        return project_FinishDate;
     }
 
-    public void setProjectFinishDate(String projectFinishDate) {
-        this.projectFinishDate = projectFinishDate;
+    public void setProject_FinishDate(String project_FinishDate) {
+        this.project_FinishDate = project_FinishDate;
     }
 
-    public String getProjectType() {
-        return projectType.trim();
+    public String getProject_Type() {
+        return project_Type;
     }
 
-    public void setProjectType(String projectType) {
-        this.projectType = projectType;
+    public void setProject_Type(String project_Type) {
+        this.project_Type = project_Type;
     }
 
-    public String getProjectDateCreate() {
-        return projectDateCreate.trim();
+    public String getProject_DateCreate() {
+        return project_DateCreate;
     }
 
-    public void setProjectDateCreate(String projectDateCreate) {
-        this.projectDateCreate = projectDateCreate;
+    public void setProject_DateCreate(String project_DateCreate) {
+        this.project_DateCreate = project_DateCreate;
     }
 
-    public String getProjectLeader() {
-        return projectLeader.trim();
+    public String getProject_Leader() {
+        return project_Leader;
     }
 
-    public void setProjectLeader(String projectLeader) {
-        this.projectLeader = projectLeader;
+    public void setProject_Leader(String project_Leader) {
+        this.project_Leader = project_Leader;
     }
 
-    public int getProjectBackground() {
-        return projectBackground;
+    public String getProject_Background() {
+        return project_Background;
     }
 
-    public void setProjectBackground(int projectBackground) {
-        this.projectBackground = projectBackground;
-    }
-
-    public int getId_project_user_list() {
-        return id_project_user_list;
-    }
-
-    public void setId_project_user_list(int id_project_user_list) {
-        this.id_project_user_list = id_project_user_list;
-    }
-
-    public int getId_project_group_chat() {
-        return id_project_group_chat;
-    }
-
-    public void setId_project_group_chat(int id_project_group_chat) {
-        this.id_project_group_chat = id_project_group_chat;
+    public void setProject_Background(String project_Background) {
+        this.project_Background = project_Background;
     }
 }

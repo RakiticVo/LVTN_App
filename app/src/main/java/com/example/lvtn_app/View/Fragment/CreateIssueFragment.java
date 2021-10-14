@@ -9,18 +9,18 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -31,21 +31,27 @@ import com.example.lvtn_app.Adapter.PriorityAdapter;
 import com.example.lvtn_app.Adapter.ProcessTypeAdapter;
 import com.example.lvtn_app.Controller.Method.DateFormat;
 import com.example.lvtn_app.Model.IssueType;
-import com.example.lvtn_app.Model.Member;
 import com.example.lvtn_app.Model.ProcessType;
-import com.example.lvtn_app.Model.Project;
+import com.example.lvtn_app.Model.Project_Users;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 import com.example.lvtn_app.Model.Priority;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.HashMap;
 
 public class CreateIssueFragment extends DialogFragment {
     //Khai báo
@@ -58,7 +64,7 @@ public class CreateIssueFragment extends DialogFragment {
     ArrayList<IssueType> issueType_list;
     ArrayList<ProcessType> processType_list;
     ArrayList<Priority> priority_list;
-    ArrayList<Member> member_list;
+    ArrayList<User> member_list;
 
     //Adapter for Spinner
     IssueTypeAdapter issueTypeAdapter;
@@ -71,19 +77,26 @@ public class CreateIssueFragment extends DialogFragment {
     Calendar myCalendar = Calendar.getInstance();
 
     SharedPreferences sharedPreferences_user, sharedPreferences_project;
+    String user_ID = "";
+    String project_ID = "";
+
+    FirebaseAuth auth;
+    FirebaseUser firebaseUser;
+    DatabaseReference reference, databaseReference1, databaseReference2, databaseReference3, databaseReference4;
 
     //New issue information
-    String issuename = "";
-    String process_type = "";
-    String decription = "";
-    String issue_type = "";
-    String startdate = "";
-    String priority = "";
-    String assignee = "";
-    String estimatetime = "";
-    String creator = "";
-    int project_id = -1;
-    String finishdate = "";
+    String issue_ID;
+    String issue_Name = "";
+    String issue_ProcessType = "";
+    String issue_Description = "";
+    String issue_Type = "";
+    String issue_StartDate = "";
+    String issue_Priority = "";
+    String issue_Assignee = "";
+    String issue_EstimateTime = "";
+    String issue_Creator = "";
+    String issue_project_ID = "";
+    String issue_FinishDate = "";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -129,9 +142,8 @@ public class CreateIssueFragment extends DialogFragment {
         priority_list.add(new Priority(R.drawable.low, "Low"));
 
         member_list = new ArrayList<>();
-        member_list.add(new Member(1, "Chí Thiện", ""));
-        member_list.add(new Member(1, "Thiện Võ", "https://progameguides.com/wp-content/uploads/2021/07/Genshin-Impact-Character-Raiden-Shogun-1.jpg"));
-        member_list.add(new Member(1, "Rakitic Võ", "" ));
+        member_list.add(new User("1", "Chí Thiện", "chithien@gmail.com",
+                "1", "0942920838"," ","Leader", " ", " ", " "));
 
         issueTypeAdapter = new IssueTypeAdapter(getContext(), issueType_list);
         spinner_issue_type_create.setAdapter(issueTypeAdapter);
@@ -144,6 +156,50 @@ public class CreateIssueFragment extends DialogFragment {
 
         assigneeAdapter = new AssigneeAdapter(getContext(), member_list);
         spinner_detail_assignee_issue_create.setAdapter(assigneeAdapter);
+
+        sharedPreferences_user = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
+        sharedPreferences_project = requireContext().getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
+        user_ID = sharedPreferences_user.getString("user_ID", "abc");
+        project_ID = sharedPreferences_project.getString("project_ID", "abc");
+//        member_list.clear();
+        databaseReference3 = FirebaseDatabase.getInstance().getReference("User_List_By_Project").child(project_ID);
+        databaseReference3.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ArrayList<String> list = new ArrayList();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    Project_Users user = dataSnapshot.getValue(Project_Users.class);
+                    list.add(user.getUser_ID());
+                }
+                if (list.size() > 0){
+                    member_list.clear();
+                    databaseReference4 = FirebaseDatabase.getInstance().getReference("Users");
+                    for (String s : list){
+//                        Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+                        databaseReference4.child(s).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                User user = snapshot.getValue(User.class);
+                                member_list.add(user);
+                                assigneeAdapter.notifyDataSetChanged();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+                    }
+                }
+                assigneeAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        assigneeAdapter.notifyDataSetChanged();
 
         start_date_create_text_input_layout.getEditText().setText(dateFormat.formatDate((Calendar.getInstance().getTime())));
 
@@ -169,8 +225,6 @@ public class CreateIssueFragment extends DialogFragment {
             }
         };
 
-        sharedPreferences_user = Objects.requireNonNull(getActivity()).getSharedPreferences("User", Context.MODE_PRIVATE);
-        sharedPreferences_project = Objects.requireNonNull(getActivity()).getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
 
         //Bắt sự kiện
         //Todo: Xử lý sự kiện rời khỏi fragment
@@ -342,7 +396,7 @@ public class CreateIssueFragment extends DialogFragment {
         spinner_issue_type_create.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                issue_type = issueType_list.get(position).getName();
+                issue_Type = issueType_list.get(position).getName();
             }
 
             @Override
@@ -355,7 +409,7 @@ public class CreateIssueFragment extends DialogFragment {
         spinner_detail_process_create.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                process_type = processType_list.get(position).getName();
+                issue_ProcessType = processType_list.get(position).getName();
             }
 
             @Override
@@ -368,7 +422,7 @@ public class CreateIssueFragment extends DialogFragment {
         spinner_detail_priority_issue_create.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                priority = priority_list.get(position).getName();
+                issue_Priority = priority_list.get(position).getName();
             }
 
             @Override
@@ -381,7 +435,7 @@ public class CreateIssueFragment extends DialogFragment {
         spinner_detail_assignee_issue_create.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                assignee = member_list.get(position).getName();
+                issue_Assignee = member_list.get(position).getUser_Name();
             }
 
             @Override
@@ -427,19 +481,17 @@ public class CreateIssueFragment extends DialogFragment {
                             switch (which){
                                 case DialogInterface.BUTTON_POSITIVE:
                                     //Yes button clicked
-                                    creator = sharedPreferences_user.getString("userName_txt", "User Name");
-                                    project_id = sharedPreferences_project.getInt("id_project", -1);
-                                    issuename = issue_name_create_text_input_layout.getEditText().getText().toString();
-                                    startdate = start_date_create_text_input_layout.getEditText().getText().toString();
-                                    estimatetime = estimate_time_create_text_input_layout.getEditText().getText().toString();
+                                    issue_Name = issue_name_create_text_input_layout.getEditText().getText().toString();
+                                    issue_StartDate = start_date_create_text_input_layout.getEditText().getText().toString();
+                                    issue_EstimateTime = estimate_time_create_text_input_layout.getEditText().getText().toString();
 
                                     if (description_issue_create_text_input_layout.getEditText().getText().length() == 0){
-                                        decription = "";
-                                    }else decription = description_issue_create_text_input_layout.getEditText().getText().toString();
+                                        issue_Description = " ";
+                                    }else issue_Description = description_issue_create_text_input_layout.getEditText().getText().toString();
 
                                     if (finish_date_issue_create_text_input_layout.getEditText().getText().length() == 0){
-                                        finishdate = "";
-                                    }else  finishdate = finish_date_issue_create_text_input_layout.getEditText().getText().toString();
+                                        issue_FinishDate = " ";
+                                    }else  issue_FinishDate = finish_date_issue_create_text_input_layout.getEditText().getText().toString();
 //                                    Toast.makeText(getContext(), "" + creator + "\n"
 //                                            + issuename + "\n"
 //                                            + process_type + "\n"
@@ -451,19 +503,54 @@ public class CreateIssueFragment extends DialogFragment {
 //                                            + estimatetime + "\n"
 //                                            + project_id + "\n"
 //                                            + finishdate + "\n", Toast.LENGTH_LONG).show();
-                                    Log.e("TAG1", "onClick: " + creator + "\n"
-                                            + issuename + "\n"
-                                            + process_type + "\n"
-                                            + decription + "\n"
-                                            + issue_type + "\n"
-                                            + startdate + "\n"
-                                            + priority + "\n"
-                                            + assignee + "\n"
-                                            + estimatetime + "\n"
-                                            + project_id + "\n"
-                                            + finishdate + "\n");
-
-                                    DashBoardFragment.getInstance().createIssue(issuename, process_type, decription, issue_type, startdate, priority, assignee, estimatetime, creator, project_id, finishdate);
+                                    auth = FirebaseAuth.getInstance();
+                                    firebaseUser = auth.getCurrentUser();
+                                    if (!user_ID.equals("abc") && user_ID.equals(firebaseUser.getUid())){
+                                        if (!project_ID.equals("abc")){
+                                            issue_Creator = user_ID;
+                                            issue_project_ID = project_ID;
+                                            reference = FirebaseDatabase.getInstance().getReference("Issues");
+                                            issue_ID = reference.push().getKey();
+                                            HashMap<String, Object> hashMap = new HashMap<>();
+                                            hashMap.put("issue_ID", issue_ID);
+                                            hashMap.put("issue_Name", issue_Name);
+                                            hashMap.put("issue_ProcessType", issue_ProcessType);
+                                            hashMap.put("issue_Description", issue_Description);
+                                            hashMap.put("issue_Type", issue_Type);
+                                            hashMap.put("issue_StartDate", issue_StartDate);
+                                            hashMap.put("issue_Priority", issue_Priority);
+                                            hashMap.put("issue_Assignee", issue_Assignee);
+                                            hashMap.put("issue_EstimateTime", issue_EstimateTime);
+                                            hashMap.put("issue_Creator", issue_Creator);
+                                            hashMap.put("issue_project_ID", issue_project_ID);
+                                            hashMap.put("issue_FinishDate", issue_FinishDate);
+                                            AppCompatActivity activity = (AppCompatActivity) getContext();
+                                            reference.child(issue_ID).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()){
+                                                        databaseReference1 = FirebaseDatabase.getInstance().getReference("Issue_List_By_Project");
+                                                        databaseReference2 = FirebaseDatabase.getInstance().getReference("Issue_List_By_User");
+                                                        HashMap<String, Object> hashMap1 = new HashMap<>();
+                                                        hashMap1.put("issue_ID", issue_ID);
+                                                        hashMap1.put("project_ID", project_ID);
+                                                        HashMap<String, Object> hashMap2 = new HashMap<>();
+                                                        hashMap1.put("issue_ID", issue_ID);
+                                                        hashMap1.put("user_ID", user_ID);
+                                                        databaseReference1.child(project_ID).setValue(hashMap1);
+                                                        databaseReference2.child(user_ID).setValue(hashMap2);
+                                                        Toast.makeText(activity, "Create success", Toast.LENGTH_SHORT).show();
+                                                    }else {
+                                                        Toast.makeText(activity, "Create failed", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
+                                        }else {
+                                            Toast.makeText(getContext(), "project_ID: " + project_ID, Toast.LENGTH_SHORT).show();
+                                        }
+                                    }else {
+                                        Toast.makeText(getContext(), "user_ID:" + user_ID, Toast.LENGTH_SHORT).show();
+                                    }
                                     dismiss();
                                     break;
 
@@ -494,7 +581,7 @@ public class CreateIssueFragment extends DialogFragment {
                 if (rightDate != null){
                     start_date_create_text_input_layout.setErrorEnabled(false);
 //                    Toast.makeText(getContext(), "" + process_type, Toast.LENGTH_SHORT).show();
-                    if (process_type.equals("ToDo")){
+                    if (issue_ProcessType.equals("ToDo")){
                         boolean isCheck = dateFormat.checkDate(rightDate);
                         if (isCheck){
                             start_date_create_text_input_layout.setErrorEnabled(false);

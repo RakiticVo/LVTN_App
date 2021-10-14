@@ -1,143 +1,110 @@
 package com.example.lvtn_app.Model;
 
 public class User {
-    private int id_user;
-    private String userName;
-    private String userEmail;
-    private String userPass;
-    private int status;
-    private String gender_PI;
-    private String phone_PI;
-    private String dob_PI;
-    private String address_PI;
-    private String avatar_PI;
-    private String position;
+    private String user_ID;
+    private String user_Name;
+    private String user_Email;
+    private String user_Pass;
+    private String user_Status;
+    private String user_Gender;
+    private String user_Phone;
+    private String user_DOB;
+    private String user_Address;
+    private String user_Avatar;
 
-    public User(int id_user, String userName, String userEmail, String userPass, int status, String gender_PI, String phone_PI, String dob_PI, String address_PI, String avatar_PI) {
-        this.id_user = id_user;
-        this.userName = userName;
-        this.userEmail = userEmail;
-        this.userPass = userPass;
-        this.status = status;
-        this.gender_PI = gender_PI;
-        this.phone_PI = phone_PI;
-        this.dob_PI = dob_PI;
-        this.address_PI = address_PI;
-        this.avatar_PI = avatar_PI;
+    public User(String user_ID, String user_Name, String user_Email, String user_Pass, String user_Status, String user_Gender, String user_Phone, String user_DOB, String user_Address, String user_Avatar) {
+        this.user_ID = user_ID;
+        this.user_Name = user_Name;
+        this.user_Email = user_Email;
+        this.user_Pass = user_Pass;
+        this.user_Status = user_Status;
+        this.user_Gender = user_Gender;
+        this.user_Phone = user_Phone;
+        this.user_DOB = user_DOB;
+        this.user_Address = user_Address;
+        this.user_Avatar = user_Avatar;
     }
 
-    public User(int id_user, String userName, String userEmail, int status, String phone_PI, String avatar_PI, String position) {
-        this.id_user = id_user;
-        this.userName = userName;
-        this.userEmail = userEmail;
-        this.status = status;
-        this.phone_PI = phone_PI;
-        this.avatar_PI = avatar_PI;
-        this.position = position;
+    public User() {
     }
 
-    public User(String userName, String gender_PI, String phone_PI, String dob_PI, String address_PI, String avatar_PI) {
-        this.userName = userName;
-        this.gender_PI = gender_PI;
-        this.phone_PI = phone_PI;
-        this.dob_PI = dob_PI;
-        this.address_PI = address_PI;
-        this.avatar_PI = avatar_PI;
+    public String getUser_ID() {
+        return user_ID;
     }
 
-    public User(int id_user, String userName, String userEmail, String userPass, int status) {
-        this.id_user = id_user;
-        this.userName = userName;
-        this.userEmail = userEmail;
-        this.userPass = userPass;
-        this.status = status;
+    public void setUser_ID(String user_ID) {
+        this.user_ID = user_ID;
     }
 
-    public int getId_user() {
-        return id_user;
+    public String getUser_Name() {
+        return user_Name;
     }
 
-    public void setId_user(int id_user) {
-        this.id_user = id_user;
+    public void setUser_Name(String user_Name) {
+        this.user_Name = user_Name;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUser_Email() {
+        return user_Email;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUser_Email(String user_Email) {
+        this.user_Email = user_Email;
     }
 
-    public String getUserEmail() {
-        return userEmail;
+    public String getUser_Pass() {
+        return user_Pass;
     }
 
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
+    public void setUser_Pass(String user_Pass) {
+        this.user_Pass = user_Pass;
     }
 
-    public String getUserPass() {
-        return userPass;
+    public String getUser_Status() {
+        return user_Status;
     }
 
-    public void setUserPass(String userPass) {
-        this.userPass = userPass;
+    public void setUser_Status(String user_Status) {
+        this.user_Status = user_Status;
     }
 
-    public int getStatus() {
-        return status;
+    public String getUser_Gender() {
+        return user_Gender;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
+    public void setUser_Gender(String user_Gender) {
+        this.user_Gender = user_Gender;
     }
 
-    public String getGender_PI() {
-        return gender_PI;
+    public String getUser_Phone() {
+        return user_Phone;
     }
 
-    public void setGender_PI(String gender_PI) {
-        this.gender_PI = gender_PI;
+    public void setUser_Phone(String user_Phone) {
+        this.user_Phone = user_Phone;
     }
 
-    public String getPhone_PI() {
-        return phone_PI;
+    public String getUser_DOB() {
+        return user_DOB;
     }
 
-    public void setPhone_PI(String phone_PI) {
-        this.phone_PI = phone_PI;
+    public void setUser_DOB(String user_DOB) {
+        this.user_DOB = user_DOB;
     }
 
-    public String getDob_PI() {
-        return dob_PI;
+    public String getUser_Address() {
+        return user_Address;
     }
 
-    public void setDob_PI(String dob_PI) {
-        this.dob_PI = dob_PI;
+    public void setUser_Address(String user_Address) {
+        this.user_Address = user_Address;
     }
 
-    public String getAddress_PI() {
-        return address_PI;
+    public String getUser_Avatar() {
+        return user_Avatar;
     }
 
-    public void setAddress_PI(String address_PI) {
-        this.address_PI = address_PI;
-    }
-
-    public String getAvatar_PI() {
-        return avatar_PI;
-    }
-
-    public void setAvatar_PI(String avatar_PI) {
-        this.avatar_PI = avatar_PI;
-    }
-
-    public String getPosition() {
-        return position;
-    }
-
-    public void setPosition(String position) {
-        this.position = position;
+    public void setUser_Avatar(String user_Avatar) {
+        this.user_Avatar = user_Avatar;
     }
 }

@@ -9,67 +9,70 @@ import com.example.lvtn_app.R;
 import java.util.ArrayList;
 
 public class GroupChat{
-    private int id_Group;
-    private String groupName;
-    private String groupImage;
-    private String groupCreator;
-    private String groupLastMess;
-    private String groupLastSender;
+    private String group_ID;
+    private String group_Name;
+    private String group_Image;
+    private String group_Creator;
+    private String group_LastMess;
+    private String group_LastSender;
 
-    public GroupChat(int id_Group, String groupName, String groupImage, String groupCreator, String groupLastMess, String groupLastSender) {
-        this.id_Group = id_Group;
-        this.groupName = groupName;
-        this.groupImage = groupImage;
-        this.groupCreator = groupCreator;
-        this.groupLastMess = groupLastMess;
-        this.groupLastSender = groupLastSender;
+    public GroupChat(String group_ID, String group_Name, String group_Image, String group_Creator, String group_LastMess, String group_LastSender) {
+        this.group_ID = group_ID;
+        this.group_Name = group_Name;
+        this.group_Image = group_Image;
+        this.group_Creator = group_Creator;
+        this.group_LastMess = group_LastMess;
+        this.group_LastSender = group_LastSender;
     }
 
-    public int getId_Group() {
-        return id_Group;
+    public GroupChat() {
     }
 
-    public void setId_Group(int id_Group) {
-        this.id_Group = id_Group;
+    public String getGroup_ID() {
+        return group_ID;
     }
 
-    public String getGroupName() {
-        return groupName;
+    public void setGroup_ID(String group_ID) {
+        this.group_ID = group_ID;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public String getGroup_Name() {
+        return group_Name;
     }
 
-    public String getGroupImage() {
-        return groupImage;
+    public void setGroup_Name(String group_Name) {
+        this.group_Name = group_Name;
     }
 
-    public void setGroupImage(String groupImage) {
-        this.groupImage = groupImage;
+    public String getGroup_Image() {
+        return group_Image;
     }
 
-    public String getGroupCreator() {
-        return groupCreator;
+    public void setGroup_Image(String group_Image) {
+        this.group_Image = group_Image;
     }
 
-    public void setGroupCreator(String groupCreator) {
-        this.groupCreator = groupCreator;
+    public String getGroup_Creator() {
+        return group_Creator;
     }
 
-    public String getGroupLastMess() {
-        return groupLastMess;
+    public void setGroup_Creator(String group_Creator) {
+        this.group_Creator = group_Creator;
     }
 
-    public void setGroupLastMess(String groupLastMess) {
-        this.groupLastMess = groupLastMess;
+    public String getGroup_LastMess() {
+        return group_LastMess;
     }
 
-    public String getGroupLastSender() {
-        return groupLastSender;
+    public void setGroup_LastMess(String group_LastMess) {
+        this.group_LastMess = group_LastMess;
     }
 
-    public void setGroupLastSender(String groupLastSender) {
-        this.groupLastSender = groupLastSender;
+    public String getGroup_LastSender() {
+        return group_LastSender;
+    }
+
+    public void setGroup_LastSender(String group_LastSender) {
+        this.group_LastSender = group_LastSender;
     }
 }

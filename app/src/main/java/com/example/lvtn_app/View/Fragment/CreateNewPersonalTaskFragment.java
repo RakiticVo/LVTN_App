@@ -2,6 +2,7 @@ package com.example.lvtn_app.View.Fragment;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -10,6 +11,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.media.Image;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
@@ -25,12 +28,19 @@ import android.widget.Toast;
 
 import com.example.lvtn_app.Controller.Method.DateFormat;
 import com.example.lvtn_app.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -42,14 +52,18 @@ public class CreateNewPersonalTaskFragment extends DialogFragment {
 
     SharedPreferences sharedPreferences;
 
+    FirebaseAuth auth;
+    FirebaseUser firebaseUser;
+    DatabaseReference reference;
+    //Personal task information
+    String task_ID;
+    String task_Name;
+    String task_Description;
+    String task_StartDate;
+    String task_Creator;
+
     DateFormat dateFormat = new DateFormat();
     Calendar myCalendar = Calendar.getInstance();
-
-    //Personal task information
-    String creator = "";
-    String tasktname = "";
-    String decription = "";
-    String startdate = "";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -69,7 +83,7 @@ public class CreateNewPersonalTaskFragment extends DialogFragment {
             getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
-        sharedPreferences = Objects.requireNonNull(getActivity()).getSharedPreferences("User", Context.MODE_PRIVATE);
+        sharedPreferences = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
         Bundle bundle = getArguments();
         String selectedDate = bundle.getString("selectedDate", "");
 
@@ -214,13 +228,17 @@ public class CreateNewPersonalTaskFragment extends DialogFragment {
                 if (create_task_name_text_input_layout.isErrorEnabled() || create_task_start_date_text_input_layout.isErrorEnabled()){
                     Toast.makeText(getContext(), "Please check error!!!", Toast.LENGTH_SHORT).show();
                 }else{
-                    tasktname = create_task_name_text_input_layout.getEditText().getText().toString();
-                    startdate = create_task_start_date_text_input_layout.getEditText().getText().toString();
-                    creator = sharedPreferences.getString("userName_txt", "abc");
+                    auth = FirebaseAuth.getInstance();
+                    firebaseUser = auth.getCurrentUser();
+                    reference = FirebaseDatabase.getInstance().getReference("Tasks");
+                    task_ID = reference.push().getKey().toString();
+                    task_Name = create_task_name_text_input_layout.getEditText().getText().toString();
+                    task_StartDate = create_task_start_date_text_input_layout.getEditText().getText().toString();
+                    task_Creator = firebaseUser.getUid();
 
                     if (create_task_decription_text_input_layout.getEditText().getText().length() == 0){
-                        decription = " ";
-                    }else decription = create_task_decription_text_input_layout.getEditText().getText().toString();
+                        task_Description = " ";
+                    }else task_Description = create_task_decription_text_input_layout.getEditText().getText().toString();
 
                     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                         @Override
@@ -228,25 +246,49 @@ public class CreateNewPersonalTaskFragment extends DialogFragment {
                             switch (which){
                                 case DialogInterface.BUTTON_POSITIVE:
                                     //Yes button clicked
-                                    Toast.makeText(getContext(), "" + tasktname + "\n"
-                                            + decription + "\n"
-                                            + startdate + "\n"
-                                            + creator + "\n", Toast.LENGTH_SHORT).show();
-//                                        Toast.makeText(getContext(), "Create new project success", Toast.LENGTH_SHORT).show();
-                                    // Todo: create Instance My Task to create task
-                                    MyTasksFragment.instance.createTask(tasktname, decription, startdate, creator);
+                                    HashMap<String, Object> hashMap = new HashMap<>();
+                                    hashMap.put("task_ID", task_ID);
+                                    hashMap.put("task_Name", task_Name);
+                                    hashMap.put("task_Description", task_Description);
+                                    hashMap.put("task_StartDate", task_StartDate);
+                                    hashMap.put("task_Creator", task_Creator);
+                                    AppCompatActivity activity = (AppCompatActivity) getContext();
+                                    final ProgressDialog progressDialog = new ProgressDialog(getContext());
+                                    progressDialog.setMessage("Waiting for login");
+                                    progressDialog.show();
+                                    reference.child(task_ID).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                                try {
+                                                    Date start_date = dateFormat.sdf.parse(task_StartDate);
+                                                    MyTasksFragment.getInstance().calendarView.setCurrentDate(start_date);
+                                                    MyTasksFragment.getInstance().setDay(start_date);
+                                                    String today = new SimpleDateFormat("EE, dd/MM/yyyy", Locale.getDefault()).format(Calendar.getInstance().getTime());
+                                                    MyTasksFragment.getInstance().tv_today.setText(today);
+                                                    MyTasksFragment.getInstance().getTaskByDate(task_StartDate);
+                                                    progressDialog.dismiss();
+                                                    Toast.makeText(activity, "Create success", Toast.LENGTH_SHORT).show();
+                                                } catch (ParseException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }else {
+                                                Toast.makeText(activity, "Create failed", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
                                     dismiss();
                                     break;
 
                                 case DialogInterface.BUTTON_NEGATIVE:
                                     //No button clicked
-                                    Toast.makeText(getContext(), "Create error!!!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "Cancel create", Toast.LENGTH_SHORT).show();
                                     break;
                             }
                         }
                     };
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setMessage("Do you want to create task: " + tasktname + "?").setPositiveButton("Yes", dialogClickListener)
+                    builder.setMessage("Do you want to create task: " + task_Name + "?").setPositiveButton("Yes", dialogClickListener)
                             .setNegativeButton("No", dialogClickListener).show();
                 }
             }
