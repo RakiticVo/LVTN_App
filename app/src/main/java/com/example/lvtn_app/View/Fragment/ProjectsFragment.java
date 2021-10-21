@@ -19,6 +19,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.example.lvtn_app.Adapter.ProjectsAdapter;
 import com.example.lvtn_app.Model.Project;
 import com.example.lvtn_app.Model.Project_Users;
@@ -48,8 +50,6 @@ public class ProjectsFragment extends Fragment {
     RecyclerView recyclerViewProjects;
     ProjectsAdapter projectsAdapter;
     ArrayList<Project> projects, projects_search;
-
-    SharedPreferences sharedPreferences_user;
 
     FirebaseAuth auth;
     FirebaseUser firebaseUser;
@@ -123,45 +123,12 @@ public class ProjectsFragment extends Fragment {
         projectsAdapter = new ProjectsAdapter(getContext(), projects);
         recyclerViewProjects.setAdapter(projectsAdapter);
 
-        sharedPreferences_user = requireContext().getSharedPreferences("Projects", Context.MODE_PRIVATE);
-
         activity = (AppCompatActivity) getContext();
         auth = FirebaseAuth.getInstance();
         firebaseUser = auth.getCurrentUser();
-        reference = FirebaseDatabase.getInstance().getReference("User_List_By_Project");
-        ArrayList<String> projectid = new ArrayList<>();
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                ArrayList<String> key = new ArrayList<>();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-                    reference2 = FirebaseDatabase.getInstance().getReference("User_List_By_Project").child(dataSnapshot.getKey());
-                    reference2.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            for (DataSnapshot dataSnapshot1 : snapshot.getChildren()){
-                                Project_Users users = dataSnapshot1.getValue(Project_Users.class);
-                                if (users.getUser_ID().equals(firebaseUser.getUid())){
-                                    projectid.add(users.getProject_ID());
-                                }
-                            }
-                            getProjectByUser(projectid);
-                        }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+        projects.clear();
+        getUserAndshowProjectList();
 
         //Todo: get User is Leader of project to check permission of function
 //        editor_leader.putString("name_leader", "Chí Thiện");
@@ -218,25 +185,58 @@ public class ProjectsFragment extends Fragment {
         return view;
     }
 
-    public void getProjectByUser(ArrayList<String> projectid){
+    public void getUserAndshowProjectList(){
+        reference = FirebaseDatabase.getInstance().getReference("User_List_By_Project");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    reference2 = FirebaseDatabase.getInstance().getReference("User_List_By_Project").child(dataSnapshot.getKey());
+                    reference2.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            String temp = "";
+                            for (DataSnapshot dataSnapshot1 : snapshot.getChildren()){
+                                Project_Users users = dataSnapshot1.getValue(Project_Users.class);
+                                if (users.getUser_ID().equals(firebaseUser.getUid())){
+                                    temp = users.getProject_ID();
+                                }
+                            }
+                            Toast.makeText(activity, "" + temp, Toast.LENGTH_SHORT).show();
+                            getProjectByUser(temp);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void getProjectByUser(String projectid){
         projects.clear();
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Projects");
-        for (String s : projectid){
-            databaseReference.child(s).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    Project project = snapshot.getValue(Project.class);
-                    projects.add(project);
-                    projectsAdapter.notifyDataSetChanged();
-                }
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Projects").child(projectid);
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Project project = snapshot.getValue(Project.class);
+                projects.add(project);
+                projectsAdapter.notifyDataSetChanged();
+            }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
-                }
-            });
-            projectsAdapter.notifyDataSetChanged();
-        }
+            }
+        });
         projectsAdapter.notifyDataSetChanged();
     }
 }

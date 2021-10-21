@@ -17,9 +17,12 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.lvtn_app.Adapter.DashboardItemAdapter;
+import com.example.lvtn_app.Controller.Method.DateFormat;
 import com.example.lvtn_app.Model.Issue;
 import com.example.lvtn_app.Model.Process;
 import com.example.lvtn_app.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -28,7 +31,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link DashBoardFragment#newInstance} factory method to
@@ -48,6 +56,7 @@ public class DashBoardFragment extends Fragment {
         return instance;
     }
 
+    DateFormat dateFormat = new DateFormat();
     SharedPreferences sharedPreferences;
     String project_ID;
 
@@ -143,11 +152,30 @@ public class DashBoardFragment extends Fragment {
 
         auth = FirebaseAuth.getInstance();
         firebaseUser = auth.getCurrentUser();
-        reference = FirebaseDatabase.getInstance().getReference("Issues");
+        getIssueList();
+
+        //Bắt sự kiện
+        // Todo: Xử lý sự kiện chuyển đến Issue Detail
+        recyclerViewDashBoard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getContext(), "Test", Toast.LENGTH_SHORT).show();
+                getFragmentManager().beginTransaction().addToBackStack("IssueDetailFragment return Dashboard Fragment").replace(R.id.frame_main, new IssueDetailFragment()).commit();
+            }
+        });
+
+        return view;
+    }
+
+    public void getIssueList(){
+        reference = FirebaseDatabase.getInstance().getReference("Issues").child(project_ID);
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 issue_list.clear();
+                toDo_list.clear();
+                inProgress_list.clear();
+                done_list.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()){
                     Issue issue = dataSnapshot.getValue(Issue.class);
                     if (issue.getIssue_project_ID().equals(project_ID)){
@@ -170,18 +198,6 @@ public class DashBoardFragment extends Fragment {
 
             }
         });
-
-        //Bắt sự kiện
-        // Todo: Xử lý sự kiện chuyển đến Issue Detail
-        recyclerViewDashBoard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getContext(), "Test", Toast.LENGTH_SHORT).show();
-                getFragmentManager().beginTransaction().addToBackStack("IssueDetailFragment return Dashboard Fragment").replace(R.id.frame_main, new IssueDetailFragment()).commit();
-            }
-        });
-
-        return view;
     }
 
     public void addIssueintoProcess(ArrayList<Issue> issue_list){
@@ -209,6 +225,39 @@ public class DashBoardFragment extends Fragment {
             dashboardItemAdapter.notifyDataSetChanged();
             recyclerViewDashBoard.scrollToPosition(0);
             recyclerViewDashBoard.clearFocus();
+            if (toDo_list.size() > 0){
+                for (int i = 0; i < toDo_list.size(); i++) {
+                    try {
+                        Date date = dateFormat.sdf.parse(toDo_list.get(i).getIssue_StartDate());
+                        String s = toDo_list.get(i).getIssue_ID();
+                        if (date.getTime() < Calendar.getInstance().getTime().getTime()){
+                            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Issues").child(project_ID).child(s);
+                            HashMap<String, Object> hashMap = new HashMap<>();
+                            hashMap.put("issue_ProcessType", "InProgress");
+                            databaseReference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()){
+                                        getIssueList();
+                                        dashboardItemAdapter.notifyDataSetChanged();
+                                        recyclerViewDashBoard.scrollToPosition(0);
+                                        recyclerViewDashBoard.clearFocus();
+                                    }
+                                }
+                            });
+                            toDo_list.remove(i);
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            dashboardItemAdapter.notifyDataSetChanged();
+            recyclerViewDashBoard.scrollToPosition(0);
+            recyclerViewDashBoard.clearFocus();
         }
+        dashboardItemAdapter.notifyDataSetChanged();
+        recyclerViewDashBoard.scrollToPosition(0);
+        recyclerViewDashBoard.clearFocus();
     }
 }

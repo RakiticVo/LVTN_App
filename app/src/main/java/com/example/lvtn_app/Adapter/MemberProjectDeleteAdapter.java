@@ -58,6 +58,9 @@ public class MemberProjectDeleteAdapter extends RecyclerView.Adapter<MemberProje
 
     @Override
     public void onBindViewHolder(@NonNull MemberProjectDeleteAdapter.ViewHolder holder, int position) {
+        if (position == 0){
+            holder.cb_delete_member.setVisibility(View.GONE);
+        }
         members_checked = new ArrayList<>();
         if (members.get(position).getUser_Status().toLowerCase().equals("online")){
             Glide.with(context).load(R.drawable.circle_blue).into(holder.imgStatusMember);
@@ -75,8 +78,8 @@ public class MemberProjectDeleteAdapter extends RecyclerView.Adapter<MemberProje
             Glide.with(context).load(members.get(position).getUser_Avatar()).centerCrop().into(holder.imgAvatarMember);
         }
         holder.tvNameMember.setText(members.get(position).getUser_Name());
-        String group_ID = holder.sharedPreferences.getString("group_ID","token");
-        int temp = position;
+        String group_ID = holder.sharedPreferences.getString("project_ID","token");
+        String s = members.get(position).getUser_ID();
         if (!group_ID.equals("token")){
             holder.reference.child(group_ID).addValueEventListener(new ValueEventListener() {
                 @Override
@@ -84,7 +87,8 @@ public class MemberProjectDeleteAdapter extends RecyclerView.Adapter<MemberProje
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()){
                         Project_Users users = dataSnapshot.getValue(Project_Users.class);
 //                        Toast.makeText(context, "" + users.getGroup_ID(), Toast.LENGTH_SHORT).show();
-                        if (members.get(temp).getUser_ID().equals(users.getUser_ID())){
+//                        Toast.makeText(context, "" + s + "\n" + users.getUser_ID(), Toast.LENGTH_SHORT).show();
+                        if (s.equals(users.getUser_ID())){
                             holder.tvPositionMember.setText(users.getPosition());
                         }
                     }
@@ -101,10 +105,10 @@ public class MemberProjectDeleteAdapter extends RecyclerView.Adapter<MemberProje
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){
-                    Toast.makeText(context, "Checkbox " + (holder.getAdapterPosition() + 1) + " is checked", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(context, "Checkbox " + (holder.getAdapterPosition() + 1) + " is checked", Toast.LENGTH_SHORT).show();
                     members_checked.add(members.get(holder.getAdapterPosition()));
                 }else {
-                    Toast.makeText(context, "Checkbox " + (holder.getAdapterPosition() + 1) + " is unchecked", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(context, "Checkbox " + (holder.getAdapterPosition() + 1) + " is unchecked", Toast.LENGTH_SHORT).show();
                     String member_name = members.get(holder.getAdapterPosition()).getUser_Name();
                     for (int i = 0; i < members_checked.size(); i++) {
                         if (members_checked.get(i).getUser_Name().equals(member_name)){

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Paffer</string>
+    <string name="app_name">Pezry</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="projects">Projects</string>
@@ -39,4 +39,6 @@
     <string name="confirm_password"><u>Confirm Password</u><font color='#FF0000'>*</font></string>
     <string name="default_notification_channel_id">abc</string>
     <string name="position"><u>Position</u><font color='#FF0000'>*</font></string>
+    <string name="project_leader"><u>Project Leader</u><font color='#FF0000'>*</font></string>
+    <string name="total_issue">Total issue:</string>
 </resources>

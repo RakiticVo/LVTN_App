@@ -11,6 +11,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
@@ -68,8 +69,9 @@ public class IssueDetailFragment extends DialogFragment {
     Spinner spinner_process_issue_detail, spinner_issue_type_detail, spinner_priority_issue_detail, spinner_assignee_issue_detail;
     ImageView img_issue_type_detail;
     TextView tv_name_issue_detail, tv_issue_finish_date;
-    ImageButton ibtn_back_issue_detail, ibtn_confirm_done_issue, calendar_start_date_issue_detail;
-    TextInputLayout description_issue_detail_text_input_layout, start_date_issue_detail_text_input_layout, estimate_time_issue_detail_text_input_layout;
+    ImageButton ibtn_back_issue_detail, ibtn_confirm_done_issue, calendar_start_date_issue_detail, calendar_estimate_date_finish_issue_detail;
+    TextInputLayout description_issue_detail_text_input_layout, start_date_issue_detail_text_input_layout,
+            estimate_date_finish_issue_detail_text_input_layout;
     Button btn_update_issue_detail, btn_cancel_issue_detail;
 
     //Array List for Spinner
@@ -96,7 +98,7 @@ public class IssueDetailFragment extends DialogFragment {
 
     FirebaseAuth auth;
     FirebaseUser firebaseUser;
-    DatabaseReference reference, databaseReference1, databaseReference2, databaseReference3;
+    DatabaseReference reference, databaseReference1, databaseReference2, databaseReference3, databaseReference4;
     //New issue information
     String issue_ID;
     String issue_Name = "";
@@ -106,7 +108,7 @@ public class IssueDetailFragment extends DialogFragment {
     String issue_StartDate = "";
     String issue_Priority = "";
     String issue_Assignee = "";
-    String issue_EstimateTime = "";
+    String issue_EstimateFinishDate = "";
     String issue_Creator = "";
     String issue_project_ID = "";
     String issue_FinishDate = "";
@@ -172,10 +174,11 @@ public class IssueDetailFragment extends DialogFragment {
         ibtn_back_issue_detail = view.findViewById(R.id.ibtn_back_issue_detail);
         ibtn_confirm_done_issue = view.findViewById(R.id.ibtn_confirm_done_issue);
         calendar_start_date_issue_detail = view.findViewById(R.id.calendar_start_date_issue_detail);
+        calendar_estimate_date_finish_issue_detail = view.findViewById(R.id.calendar_estimate_date_finish_issue_detail);
 
         description_issue_detail_text_input_layout = view.findViewById(R.id.description_issue_detail_text_input_layout);
         start_date_issue_detail_text_input_layout = view.findViewById(R.id.start_date_issue_detail_text_input_layout);
-        estimate_time_issue_detail_text_input_layout = view.findViewById(R.id.estimate_time_issue_detail_text_input_layout);
+        estimate_date_finish_issue_detail_text_input_layout = view.findViewById(R.id.estimate_date_finish_issue_detail_text_input_layout);
 
         btn_update_issue_detail = view.findViewById(R.id.btn_update_issue_detail);
         btn_cancel_issue_detail = view.findViewById(R.id.btn_cancel_issue_detail);
@@ -212,11 +215,15 @@ public class IssueDetailFragment extends DialogFragment {
         spinner_assignee_issue_detail.setAdapter(assigneeAdapter);
 
         activity = (AppCompatActivity) getContext();
+
+        sharedPreferences_issue = requireContext().getSharedPreferences("Issue", Context.MODE_PRIVATE);
         sharedPreferences_user = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
         sharedPreferences_project = requireContext().getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
+
+        issue_ID = sharedPreferences_issue.getString("issue_ID", "abc");
         user_ID = sharedPreferences_user.getString("user_ID", "abc");
         project_ID = sharedPreferences_project.getString("project_ID", "abc");
-//        member_list.clear();
+
         databaseReference1 = FirebaseDatabase.getInstance().getReference("User_List_By_Project").child(project_ID);
         databaseReference1.addValueEventListener(new ValueEventListener() {
             @Override
@@ -291,18 +298,32 @@ public class IssueDetailFragment extends DialogFragment {
                 myCalendar.set(Calendar.MONTH, month);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                 start_date_issue_detail_text_input_layout.getEditText().setText(dateFormat.sdf.format(myCalendar.getTime()));
-                checkRightStartDate(start_date_issue_detail_text_input_layout.getEditText().getText().toString());
+                checkRightDate(start_date_issue_detail_text_input_layout);
             }
         };
 
-        sharedPreferences_issue = requireContext().getSharedPreferences("Issue", Context.MODE_PRIVATE);
-        issue_ID = sharedPreferences_issue.getString("issue_ID", "abc");
         if (!issue_ID.equals("abc")){
-            reference = FirebaseDatabase.getInstance().getReference("Issues").child(issue_ID);
+            reference = FirebaseDatabase.getInstance().getReference("Issues").child(project_ID).child(issue_ID);
             reference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     Issue issue = snapshot.getValue(Issue.class);
+                    DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+                    reference1.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            User user = snapshot.getValue(User.class);
+                            if (!issue.getIssue_Assignee().equals(user.getUser_Name())){
+                                ibtn_confirm_done_issue.setVisibility(View.GONE);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+
                     issue_ID = issue.getIssue_ID();
                     issue_Name = issue.getIssue_Name();
                     issue_ProcessType = issue.getIssue_ProcessType();
@@ -311,7 +332,7 @@ public class IssueDetailFragment extends DialogFragment {
                     issue_StartDate = issue.getIssue_StartDate();
                     issue_Priority = issue.getIssue_Priority();
                     issue_Assignee = issue.getIssue_Assignee();
-                    issue_EstimateTime = issue.getIssue_EstimateTime();
+                    issue_EstimateFinishDate = issue.getIssue_EstimateFinishDate();
                     issue_Creator = issue.getIssue_Creator();
                     issue_project_ID = issue.getIssue_project_ID();
                     issue_FinishDate = issue.getIssue_FinishDate();
@@ -319,7 +340,7 @@ public class IssueDetailFragment extends DialogFragment {
                     tv_name_issue_detail.setText(issue_Name);
                     description_issue_detail_text_input_layout.getEditText().setText(issue_Description);
                     start_date_issue_detail_text_input_layout.getEditText().setText(issue_StartDate);
-                    estimate_time_issue_detail_text_input_layout.getEditText().setText(issue_EstimateTime);
+                    estimate_date_finish_issue_detail_text_input_layout.getEditText().setText(issue_EstimateFinishDate);
                     tv_issue_finish_date.setText(issue_FinishDate);
 
                     switch (issue_ProcessType){
@@ -327,7 +348,7 @@ public class IssueDetailFragment extends DialogFragment {
                             spinner_process_issue_detail.setSelection(0);
                             processTypeAdapter.notifyDataSetChanged();
                             break;
-                        case "Inprogress":
+                        case "InProgress":
                             spinner_process_issue_detail.setSelection(1);
                             processTypeAdapter.notifyDataSetChanged();
                             break;
@@ -412,21 +433,34 @@ public class IssueDetailFragment extends DialogFragment {
                         }
                     });
                     assigneeAdapter.notifyDataSetChanged();
-//                    switch (issue_Assignee){
-//                        case "Chí Thiện":
-//                            spinner_assignee_issue_detail.setSelection(0);
-//                            assigneeAdapter.notifyDataSetChanged();
-//                            break;
-//                        case "Thiện Võ":
-//                            spinner_assignee_issue_detail.setSelection(1);
-//                            assigneeAdapter.notifyDataSetChanged();
-//                            break;
-//                        case "Rakitic Võ":
-//                            spinner_assignee_issue_detail.setSelection(2);
-//                            assigneeAdapter.notifyDataSetChanged();
-//                            break;
-//                    }
-//                    Toast.makeText(getContext(), "" + assigneeAdapter.getItem(spinner_assignee_issue_detail.getSelectedItemPosition()), Toast.LENGTH_SHORT).show();
+
+                    if (issue.getIssue_ProcessType().toLowerCase().equals("inprogress")){
+                        ibtn_confirm_done_issue.setVisibility(View.VISIBLE);
+                    }else {
+                        ibtn_confirm_done_issue.setVisibility(View.GONE);
+                    }
+
+                    if (issue.getIssue_ProcessType().toLowerCase().equals("done")){
+                        spinner_process_issue_detail.setEnabled(false);
+                        spinner_issue_type_detail.setEnabled(false);
+                        spinner_priority_issue_detail.setEnabled(false);
+                        spinner_assignee_issue_detail.setEnabled(false);
+                        description_issue_detail_text_input_layout.setEnabled(false);
+                        start_date_issue_detail_text_input_layout.setEnabled(false);
+                        estimate_date_finish_issue_detail_text_input_layout.setEnabled(false);
+                        btn_update_issue_detail.setVisibility(View.GONE);
+                        btn_cancel_issue_detail.setVisibility(View.GONE);
+                    }else {
+                        spinner_process_issue_detail.setEnabled(true);
+                        spinner_issue_type_detail.setEnabled(true);
+                        spinner_priority_issue_detail.setEnabled(true);
+                        spinner_assignee_issue_detail.setEnabled(true);
+                        description_issue_detail_text_input_layout.setEnabled(true);
+                        start_date_issue_detail_text_input_layout.setEnabled(true);
+                        estimate_date_finish_issue_detail_text_input_layout.setEnabled(true);
+                        btn_update_issue_detail.setVisibility(View.VISIBLE);
+                        btn_cancel_issue_detail.setVisibility(View.VISIBLE);
+                    }
                 }
 
                 @Override
@@ -463,20 +497,20 @@ public class IssueDetailFragment extends DialogFragment {
             }
         });
 
-        //Todo: Xử lý sự kiện nhập và kiểm tra rỗng Issue Detail Estimate Time
-        estimate_time_issue_detail_text_input_layout.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        //Todo: Xử lý sự kiện nhập và kiểm tra rỗng Issue Detail Estimate Finish Date
+        estimate_date_finish_issue_detail_text_input_layout.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
-                    if (estimate_time_issue_detail_text_input_layout.getEditText().getText().length() == 0){
-                        estimate_time_issue_detail_text_input_layout.setError("Wrong time!!!");
-                        estimate_time_issue_detail_text_input_layout.setErrorEnabled(true);
-                    } else {
-                        estimate_time_issue_detail_text_input_layout.setErrorEnabled(false);
-                        checkRightEstimateTime(estimate_time_issue_detail_text_input_layout.getEditText().getText().toString());
+                    if (estimate_date_finish_issue_detail_text_input_layout.getEditText().getText().length() == 0){
+                        estimate_date_finish_issue_detail_text_input_layout.setError("Please enter estimate finish date!!!");
+                        estimate_date_finish_issue_detail_text_input_layout.setErrorEnabled(true);
+                    }else {
+                        estimate_date_finish_issue_detail_text_input_layout.setErrorEnabled(false);
+                        checkRightDate(estimate_date_finish_issue_detail_text_input_layout);
                     }
                 }else {
-                    estimate_time_issue_detail_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
+                    estimate_date_finish_issue_detail_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
                         @Override
                         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -484,11 +518,11 @@ public class IssueDetailFragment extends DialogFragment {
 
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
-                            if (s.length() == 0){
-                                estimate_time_issue_detail_text_input_layout.setError("Wrong time!!!");
-                                estimate_time_issue_detail_text_input_layout.setErrorEnabled(true);
-                            } else {
-                                estimate_time_issue_detail_text_input_layout.setErrorEnabled(false);
+                            if (estimate_date_finish_issue_detail_text_input_layout.getEditText().getText().length() == 0){
+                                estimate_date_finish_issue_detail_text_input_layout.setError("Please enter estimate finish date!!!");
+                                estimate_date_finish_issue_detail_text_input_layout.setErrorEnabled(true);
+                            }else {
+                                estimate_date_finish_issue_detail_text_input_layout.setErrorEnabled(false);
                             }
                         }
 
@@ -512,7 +546,7 @@ public class IssueDetailFragment extends DialogFragment {
                         start_date_issue_detail_text_input_layout.setErrorEnabled(true);
                     }else {
                         start_date_issue_detail_text_input_layout.setErrorEnabled(false);
-                        checkRightStartDate(issue_StartDate);
+                        checkDate(issue_StartDate);
                     }
                 }else {
                     start_date_issue_detail_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
@@ -610,18 +644,13 @@ public class IssueDetailFragment extends DialogFragment {
                     start_date_issue_detail_text_input_layout.setErrorEnabled(true);
                 } else {
                     start_date_issue_detail_text_input_layout.setErrorEnabled(false);
-                    checkRightStartDate(issue_StartDate);
+                    checkDate(issue_StartDate);
+                }
+                if (estimate_date_finish_issue_detail_text_input_layout.getEditText().getText().length() > 0){
+                    checkRightDate(estimate_date_finish_issue_detail_text_input_layout);
                 }
 
-                if (estimate_time_issue_detail_text_input_layout.getEditText().getText().length() == 0) {
-                    estimate_time_issue_detail_text_input_layout.setError("Wrong time!!!");
-                    estimate_time_issue_detail_text_input_layout.setErrorEnabled(true);
-                } else {
-                    estimate_time_issue_detail_text_input_layout.setErrorEnabled(false);
-                    checkRightEstimateTime(estimate_time_issue_detail_text_input_layout.getEditText().getText().toString());
-                }
-
-                if (start_date_issue_detail_text_input_layout.isErrorEnabled() || estimate_time_issue_detail_text_input_layout.isErrorEnabled()) {
+                if (start_date_issue_detail_text_input_layout.isErrorEnabled() || estimate_date_finish_issue_detail_text_input_layout.isErrorEnabled()) {
                     Toast.makeText(getContext(), "Please check the error!!!", Toast.LENGTH_SHORT).show();
                 } else {
                     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
@@ -636,7 +665,7 @@ public class IssueDetailFragment extends DialogFragment {
                                         issue_Description = " ";
                                     }
                                     issue_StartDate = start_date_issue_detail_text_input_layout.getEditText().getText().toString();
-                                    issue_EstimateTime = estimate_time_issue_detail_text_input_layout.getEditText().getText().toString();
+                                    issue_EstimateFinishDate = estimate_date_finish_issue_detail_text_input_layout.getEditText().getText().toString();
 
                                     HashMap<String, Object> hashMap = new HashMap<>();
                                     hashMap.put("issue_ProcessType", issue_ProcessType);
@@ -645,9 +674,9 @@ public class IssueDetailFragment extends DialogFragment {
                                     hashMap.put("issue_StartDate", issue_StartDate);
                                     hashMap.put("issue_Priority", issue_Priority);
                                     hashMap.put("issue_Assignee", issue_Assignee);
-                                    hashMap.put("issue_EstimateTime", issue_EstimateTime);
+                                    hashMap.put("issue_EstimateTime", issue_EstimateFinishDate);
 
-                                    reference = FirebaseDatabase.getInstance().getReference("Issues").child(issue_ID);
+                                    reference = FirebaseDatabase.getInstance().getReference("Issues").child(project_ID).child(issue_ID);
                                     AppCompatActivity activity = (AppCompatActivity) getContext();
                                     reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
@@ -731,7 +760,35 @@ public class IssueDetailFragment extends DialogFragment {
         return view;
     }
 
-    public void checkRightStartDate(String date){
+    public void checkDate(String date){
+        if (dateFormat.isValidDate(date)){
+            try {
+                Date rightDate = dateFormat.sdf.parse(date);
+                //        Toast.makeText(getContext(), "" + rightDate, Toast.LENGTH_SHORT).show();
+                if (rightDate != null){
+                    start_date_issue_detail_text_input_layout.setErrorEnabled(false);
+//                    Toast.makeText(getContext(), "" + process_type, Toast.LENGTH_SHORT).show();
+                    if (issue_ProcessType.equals("ToDo")){
+                        boolean isCheck = dateFormat.checkDate(rightDate);
+                        if (isCheck){
+                            start_date_issue_detail_text_input_layout.setErrorEnabled(false);
+                        }else {
+                            start_date_issue_detail_text_input_layout.setError("Wrong day!!!");
+                            start_date_issue_detail_text_input_layout.setErrorEnabled(true);
+                        }
+                    }
+                }else {
+                    start_date_issue_detail_text_input_layout.setError("Wrong format!!! Ex: dd/MM/yyyy");
+                    start_date_issue_detail_text_input_layout.setErrorEnabled(true);
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void checkRightDate(TextInputLayout textInputLayout){
+        String date = textInputLayout.getEditText().getText().toString();
         if (!dateFormat.isValidDate(date)){
             start_date_issue_detail_text_input_layout.setError("Wrong format. Ex: dd/MM/yyy");
             start_date_issue_detail_text_input_layout.setErrorEnabled(true);
@@ -745,16 +802,6 @@ public class IssueDetailFragment extends DialogFragment {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    public void checkRightEstimateTime(String date){
-        String last = date.substring(date.length() - 1);
-        if (date.length() < 2 || (!last.equals("d") && !last.equals("m") && !last.equals("w"))) {
-            estimate_time_issue_detail_text_input_layout.setError("Wrong format!!! Ex: 1d, 2w, 3m");
-            estimate_time_issue_detail_text_input_layout.setErrorEnabled(true);
-        } else {
-            estimate_time_issue_detail_text_input_layout.setErrorEnabled(false);
         }
     }
 }

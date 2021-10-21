@@ -234,13 +234,11 @@ public class CreateGroupChatFragment extends DialogFragment{
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
                                     reference2 = FirebaseDatabase.getInstance().getReference("User_List_By_Group_Chat").child(group_ID);
-                                    String key = reference2.push().getKey();
                                     HashMap<String, Object> hashMap1 = new HashMap<>();
                                     hashMap1.put("user_ID", group_Creator);
                                     hashMap1.put("group_ID", group_ID);
                                     hashMap1.put("position", "Leader");
-                                    hashMap1.put("key", key);
-                                    reference2.child(key).setValue(hashMap1).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    reference2.child(group_Creator).setValue(hashMap1).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()){

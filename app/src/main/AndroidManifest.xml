@@ -18,15 +18,23 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name=".View.Activity.SettingChatActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:exported="true" />
         <activity
             android:name=".View.Activity.ChatActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:exported="true" />
         <activity
             android:name=".View.Activity.LoginActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:exported="true" />
         <activity
             android:name=".View.Activity.IntroduceActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,6 +44,8 @@
         </activity>
         <activity
             android:name=".View.Activity.MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:exported="true" />
 
         <service
