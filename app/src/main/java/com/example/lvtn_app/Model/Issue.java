@@ -9,12 +9,12 @@ public class Issue {
     private String issue_StartDate;
     private String issue_Priority;
     private String issue_Assignee;
-    private String issue_EstimateTime;
+    private String issue_EstimateFinishDate;
     private String issue_Creator;
     private String issue_project_ID;
     private String issue_FinishDate;
 
-    public Issue(String issue_ID, String issue_Name, String issue_ProcessType, String issue_Description, String issue_Type, String issue_StartDate, String issue_Priority, String issue_Assignee, String issue_EstimateTime, String issue_Creator, String issue_project_ID, String issue_FinishDate) {
+    public Issue(String issue_ID, String issue_Name, String issue_ProcessType, String issue_Description, String issue_Type, String issue_StartDate, String issue_Priority, String issue_Assignee, String issue_EstimateFinishDate, String issue_Creator, String issue_project_ID, String issue_FinishDate) {
         this.issue_ID = issue_ID;
         this.issue_Name = issue_Name;
         this.issue_ProcessType = issue_ProcessType;
@@ -23,7 +23,7 @@ public class Issue {
         this.issue_StartDate = issue_StartDate;
         this.issue_Priority = issue_Priority;
         this.issue_Assignee = issue_Assignee;
-        this.issue_EstimateTime = issue_EstimateTime;
+        this.issue_EstimateFinishDate = issue_EstimateFinishDate;
         this.issue_Creator = issue_Creator;
         this.issue_project_ID = issue_project_ID;
         this.issue_FinishDate = issue_FinishDate;
@@ -96,12 +96,12 @@ public class Issue {
         this.issue_Assignee = issue_Assignee;
     }
 
-    public String getIssue_EstimateTime() {
-        return issue_EstimateTime;
+    public String getIssue_EstimateFinishDate() {
+        return issue_EstimateFinishDate;
     }
 
-    public void setIssue_EstimateTime(String issue_EstimateTime) {
-        this.issue_EstimateTime = issue_EstimateTime;
+    public void setIssue_EstimateFinishDate(String issue_EstimateFinishDate) {
+        this.issue_EstimateFinishDate = issue_EstimateFinishDate;
     }
 
     public String getIssue_Creator() {

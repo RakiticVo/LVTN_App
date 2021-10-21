@@ -286,6 +286,7 @@ public class AddMemberChatFragment extends DialogFragment {
 
     public void CheckUserInGroupChat(String user_ID, String position){
         id.clear();
+        final boolean[] check = {false};
         reference2 = FirebaseDatabase.getInstance().getReference("User_List_By_Group_Chat").child(id_group);
         reference2.addValueEventListener(new ValueEventListener() {
             @Override
@@ -293,28 +294,10 @@ public class AddMemberChatFragment extends DialogFragment {
                 id.clear();
                 for (DataSnapshot dataSnapshot1 : snapshot.getChildren()){
                     Group_Chat_Users users = dataSnapshot1.getValue(Group_Chat_Users.class);
-                    id.add(users.getUser_ID());
-                }
-                if (id.size()>=2){
-                    boolean check = false;
-                    for (int i = 1; i < id.size(); i++) {
-                        if (user_ID.equals(id.get(i))){
-                            check = true;
-                        }
-                    }
-                    if (check){
-                        progressDialog.dismiss();
-                        create_email_add_member_text_input_layout.setError("User already in the group!!!");
-                        create_email_add_member_text_input_layout.setErrorEnabled(true);
+                    if (user_ID.equals(users.getUser_ID())){
+                        check[0] = true;
                     }else {
-                        PushData(user_ID, position);
-                        Toast.makeText(activity, "" + user_ID, Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                if (id.size() == 1){
-                    if (!user_ID.equals(id.get(0))){
-                        PushData(user_ID, position);
+                        check[0] = false;
                     }
                 }
             }
@@ -324,24 +307,32 @@ public class AddMemberChatFragment extends DialogFragment {
 
             }
         });
+        if (check[0]){
+            progressDialog.dismiss();
+            create_email_add_member_text_input_layout.setError("User already in the group!!!");
+            create_email_add_member_text_input_layout.setErrorEnabled(true);
+        }else {
+            PushData(user_ID, position);
+        }
     }
 
     public void PushData(String id, String position) {
         reference3 = FirebaseDatabase.getInstance().getReference("User_List_By_Group_Chat").child(id_group);
         Toast.makeText(activity, "" + id, Toast.LENGTH_SHORT).show();
-        String key = reference3.push().getKey().toString();
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("user_ID", id);
         hashMap.put("group_ID", id_group);
         hashMap.put("position", position);
-        hashMap.put("key", key);
-        reference3.child(key).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+        reference3.child(id).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     Toast.makeText(activity, "Adding member success", Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                     dismiss();
+                    MemberChatFragment.instance.member_list.clear();
+                    MemberChatFragment.instance.delete_member_list.clear();
+                    MemberChatFragment.instance.showMember();
                 }
             }
         });

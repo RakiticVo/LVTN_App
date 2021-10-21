@@ -23,7 +23,7 @@
         android:layout_marginTop="20dp"
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
-        android:text="PAFFER"
+        android:text="PEZRY"
         android:textColor="@color/black"
         android:textSize="40sp"
         android:textStyle="bold" />

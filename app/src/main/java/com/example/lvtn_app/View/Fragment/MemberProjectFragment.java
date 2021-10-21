@@ -19,14 +19,20 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.lvtn_app.Adapter.MemberAdapter;
 import com.example.lvtn_app.Adapter.MemberDeleteAdapter;
 import com.example.lvtn_app.Adapter.MemberProjectAdapter;
+import com.example.lvtn_app.Adapter.MemberProjectDeleteAdapter;
+import com.example.lvtn_app.Model.GroupChat;
+import com.example.lvtn_app.Model.Group_Chat_Users;
 import com.example.lvtn_app.Model.Project;
 import com.example.lvtn_app.Model.Project_Users;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -49,12 +55,13 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
     ImageButton ibtn_add_member, ibtn_remove_member;
     RecyclerView recyclerViewMembers;
     Button btn_confirm_delete_members;
-    TextView tv_show_member_delete, tv1, tvNoresult_member;
+    TextView tvNoresult_member;
     TextInputLayout search_member_text_input_layout;
     ArrayList<User> member_list, delete_member_list, member_search_list;
     MemberProjectAdapter memberAdapter;
-    MemberDeleteAdapter memberDeleteAdapter;
+    MemberProjectDeleteAdapter memberDeleteAdapter;
 
+    AppCompatActivity activity;
     SharedPreferences sharedPreferences_project, sharedPreferences_user;
     FirebaseAuth auth;
     FirebaseUser firebaseUser;
@@ -78,8 +85,6 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
         ibtn_remove_member = view.findViewById(R.id.ibtn_remove_member);
         btn_confirm_delete_members = view.findViewById(R.id.btn_confirm_delete_members);
         recyclerViewMembers = view.findViewById(R.id.recyclerViewMembers);
-        tv_show_member_delete = view.findViewById(R.id.tv_show_member_delete);
-        tv1 = view.findViewById(R.id.tv1);
         search_member_text_input_layout = view.findViewById(R.id.search_member_text_input_layout);
         tvNoresult_member = view.findViewById(R.id.tvNoresult_member);
 
@@ -93,10 +98,11 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
 
         recyclerViewMembers.setLayoutManager(new LinearLayoutManager(getContext()));
         memberAdapter = new MemberProjectAdapter(getContext(), member_list);
-        memberDeleteAdapter = new MemberDeleteAdapter(getContext(), member_list);
+        memberDeleteAdapter = new MemberProjectDeleteAdapter(getContext(), member_list);
         memberAdapter.setClickListener(this::onItemClick);
         recyclerViewMembers.setAdapter(memberAdapter);
 
+        activity = (AppCompatActivity) getContext();
         sharedPreferences_project = requireContext().getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
         sharedPreferences_user = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
         id_project = sharedPreferences_project.getString("project_ID", "token");
@@ -123,19 +129,7 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
             public void onClick(View v) {
                 recyclerViewMembers.setAdapter(memberDeleteAdapter);
                 btn_confirm_delete_members.setVisibility(View.VISIBLE);
-                tv_show_member_delete.setVisibility(View.VISIBLE);
-                tv1.setVisibility(View.VISIBLE);
                 ibtn_remove_member.setEnabled(false);
-            }
-        });
-
-        search_member_text_input_layout.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus){
-                    tv1.setVisibility(View.GONE);
-                    tv_show_member_delete.setVisibility(View.GONE);
-                }
             }
         });
 
@@ -185,7 +179,7 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
                         if (member_search_list.size()>0){
                             recyclerViewMembers.setVisibility(View.VISIBLE);
                             tvNoresult_member.setVisibility(View.GONE);
-                            memberDeleteAdapter = new MemberDeleteAdapter(getContext(), member_search_list);
+                            memberDeleteAdapter = new MemberProjectDeleteAdapter(getContext(), member_search_list);
                             recyclerViewMembers.setAdapter(memberDeleteAdapter);
                         }else {
                             recyclerViewMembers.setVisibility(View.GONE);
@@ -194,7 +188,7 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
                     }else {
                         recyclerViewMembers.setVisibility(View.VISIBLE);
                         tvNoresult_member.setVisibility(View.GONE);
-                        memberDeleteAdapter = new MemberDeleteAdapter(getContext(), member_list);
+                        memberDeleteAdapter = new MemberProjectDeleteAdapter(getContext(), member_list);
                         recyclerViewMembers.setAdapter(memberDeleteAdapter);
                     }
                 }
@@ -210,27 +204,33 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
             @Override
             public void onClick(View v) {
                 delete_member_list = memberDeleteAdapter.getMembers_checked();
-                for (User m : delete_member_list){
-                    tv_show_member_delete.setText(tv_show_member_delete.getText() + m.getUser_Name());
-                    for (User n : member_list){
-                        if (n.getUser_ID().equals(m.getUser_ID())){
-                            member_list.remove(n);
-                            break;
-                        }
+                if (delete_member_list.size() > 0){
+                    for (User m : delete_member_list){
+                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("User_List_By_Project").
+                                child(id_project).child(m.getUser_ID());
+                        reference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                    Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show();
+                                    member_list.clear();
+                                    delete_member_list.clear();
+                                    showMember();
+                                    recyclerViewMembers.setAdapter(memberAdapter);
+                                    btn_confirm_delete_members.setVisibility(View.GONE);
+                                    ibtn_remove_member.setEnabled(true);
+                                }
+                            }
+                        });
                     }
+                }else {
+//                    Toast.makeText(activity, "Success delete", Toast.LENGTH_SHORT).show();
+                    memberDeleteAdapter.notifyDataSetChanged();
+                    memberAdapter.notifyDataSetChanged();
+                    recyclerViewMembers.setAdapter(memberAdapter);
+                    btn_confirm_delete_members.setVisibility(View.GONE);
+                    ibtn_remove_member.setEnabled(true);
                 }
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        tv_show_member_delete.setVisibility(View.GONE);
-                        tv1.setVisibility(View.GONE);
-                    }
-                }, 2000);
-                memberAdapter.notifyDataSetChanged();
-                recyclerViewMembers.setAdapter(memberAdapter);
-                btn_confirm_delete_members.setVisibility(View.GONE);
-                ibtn_remove_member.setEnabled(true);
             }
         });
 
@@ -247,9 +247,13 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
     }
 
     public void showMember(){
-        AppCompatActivity activity = (AppCompatActivity) getContext();
+        member_list.clear();
+        delete_member_list.clear();
         ArrayList<String> listUser_ID = new ArrayList<>();
         if (id_user.equals(firebaseUser.getUid())){
+            listUser_ID.clear();
+            member_list.clear();
+            delete_member_list.clear();
             reference1 = FirebaseDatabase.getInstance().getReference("Projects").child(id_project);
             reference1.addValueEventListener(new ValueEventListener() {
                 @Override
@@ -277,10 +281,11 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
                     listUser_ID.clear();
 //                    Toast.makeText(activity, "" + listUser_ID.size(), Toast.LENGTH_SHORT).show();
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-                        Project_Users user = dataSnapshot.getValue(Project_Users.class);
+                        Group_Chat_Users user = dataSnapshot.getValue(Group_Chat_Users.class);
                         listUser_ID.add(user.getUser_ID());
 //                        Toast.makeText(activity, "" + listUser_ID.size(), Toast.LENGTH_SHORT).show();
                     }
+//                    Toast.makeText(activity, "" + listUser_ID.size(), Toast.LENGTH_SHORT).show();
                     getUserListByProject(listUser_ID);
                 }
 
@@ -294,12 +299,12 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
 
 
     public void getUserListByProject(ArrayList<String> list){
-        AppCompatActivity activity = (AppCompatActivity) getContext();
-//        Toast.makeText(activity, "" + list.size(), Toast.LENGTH_SHORT).show();
         reference3 = FirebaseDatabase.getInstance().getReference("Users");
         member_list.clear();
         delete_member_list.clear();
         for (String s : list){
+            member_list.clear();
+            delete_member_list.clear();
 //            Toast.makeText(activity, "" + s, Toast.LENGTH_SHORT).show();
             reference3.child(s).addValueEventListener(new ValueEventListener() {
                 @Override
@@ -323,5 +328,7 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
             memberDeleteAdapter.notifyDataSetChanged();
             memberAdapter.notifyDataSetChanged();
         }
+        memberDeleteAdapter.notifyDataSetChanged();
+        memberAdapter.notifyDataSetChanged();
     }
 }

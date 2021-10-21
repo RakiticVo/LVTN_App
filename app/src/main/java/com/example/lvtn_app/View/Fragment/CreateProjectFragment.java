@@ -300,17 +300,20 @@ public class CreateProjectFragment extends DialogFragment {
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()){
                                                 reference2 = FirebaseDatabase.getInstance().getReference("User_List_By_Project").child(project_ID);
-                                                String key = reference2.push().getKey().toString();
                                                 HashMap<String, Object> hashMap1 = new HashMap<>();
                                                 hashMap1.put("user_ID", project_Leader);
                                                 hashMap1.put("project_ID", project_ID);
                                                 hashMap1.put("position", "Leader");
-                                                hashMap1.put("key", key);
-                                                reference2.child(key).setValue(hashMap1).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                reference2.child(project_Leader).setValue(hashMap1).addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override
                                                     public void onComplete(@NonNull Task<Void> task) {
                                                         if (task.isSuccessful()){
                                                             Toast.makeText(activity, "Create success", Toast.LENGTH_SHORT).show();
+                                                            DashBoardFragment.getInstance().issue_list.clear();
+                                                            DashBoardFragment.getInstance().toDo_list.clear();
+                                                            DashBoardFragment.getInstance().inProgress_list.clear();
+                                                            DashBoardFragment.getInstance().done_list.clear();
+                                                            DashBoardFragment.getInstance().getIssueList();
                                                         }else {
                                                             Toast.makeText(activity, "Create failed", Toast.LENGTH_SHORT).show();
                                                         }

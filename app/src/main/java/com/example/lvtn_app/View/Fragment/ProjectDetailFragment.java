@@ -119,15 +119,17 @@ public class ProjectDetailFragment extends Fragment {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     Project project = snapshot.getValue(Project.class);
 //                    Toast.makeText(getContext(), "" + (project == null), Toast.LENGTH_SHORT).show();
-                    project_Name = project.getProject_Name();
-                    project_Description = project.getProject_Description();
-                    project_FinishDate = project.getProject_FinishDate();
-                    project_Type = project.getProject_Type();
-                    project_DateCreate = project.getProject_DateCreate();
-                    project_Leader = project.getProject_Leader();
-                    project_Background = project.getProject_Background();
+                    if (project != null){
+                        project_Name = project.getProject_Name();
+                        project_Description = project.getProject_Description();
+                        project_FinishDate = project.getProject_FinishDate();
+                        project_Type = project.getProject_Type();
+                        project_DateCreate = project.getProject_DateCreate();
+                        project_Leader = project.getProject_Leader();
+                        project_Background = project.getProject_Background();
 
-                    tv_project_name_details.setText(project_Name);
+                        tv_project_name_details.setText(project_Name);
+                    }
                 }
 
                 @Override

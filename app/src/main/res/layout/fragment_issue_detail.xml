@@ -15,6 +15,7 @@
         android:background="@drawable/custom_dialog_fragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout_issue_detail"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="5dp">
@@ -68,7 +69,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:orientation="horizontal"
-                android:padding="10dp"
+                android:padding="5dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/ibtn_back_issue_detail">
@@ -97,9 +98,6 @@
                 android:id="@+id/linearLayout2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
                 android:padding="5dp"
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -111,6 +109,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/process"
+                    android:layout_marginLeft="8dp"
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -119,7 +118,7 @@
                     android:id="@+id/spinner_process_issue_detail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="5dp"
                     android:popupBackground="@android:color/transparent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/textView18"
@@ -131,9 +130,6 @@
                 android:id="@+id/linearLayout3"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
                 android:padding="5dp"
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -144,8 +140,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
                     android:text="@string/description"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginLeft="8dp"
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -177,9 +174,6 @@
                 android:id="@+id/linearLayout4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
                 android:padding="5dp"
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -191,6 +185,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/issue_type"
+                    android:layout_marginLeft="8dp"
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="bold"/>
@@ -199,7 +194,7 @@
                     android:id="@+id/spinner_issue_type_detail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="5dp"
                     android:popupBackground="@android:color/transparent"
                     tools:listitem="@layout/item_issue_type" />
 
@@ -209,9 +204,6 @@
                 android:id="@+id/linearLayout5"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
                 android:padding="5dp"
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -223,6 +215,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/start_date"
+                    android:layout_marginLeft="8dp"
                     android:textColor="@color/black"
                     android:textStyle="bold"
                     android:textSize="16sp"
@@ -233,7 +226,7 @@
                     android:id="@+id/linearLayout6"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="5dp"
                     android:gravity="center"
                     android:orientation="horizontal"
                     android:weightSum="6"
@@ -285,9 +278,6 @@
                 android:id="@+id/linearLayout7"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
                 android:padding="5dp"
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -299,6 +289,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/priority"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginBottom="5dp"
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -318,9 +310,6 @@
                 android:id="@+id/linearLayout8"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
                 android:padding="5dp"
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -332,6 +321,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/assignee"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginBottom="5dp"
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="bold"/>
@@ -349,12 +340,8 @@
                 android:id="@+id/linearLayout9"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
                 android:padding="5dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
+                android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout8">
@@ -363,38 +350,62 @@
                     android:id="@+id/textView6"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/estimate_execution_time"
+                    android:text="@string/estimate_finish_date"
                     android:textColor="@color/black"
                     android:textSize="16sp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginBottom="5dp"
+                    android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/linearLayout8" />
+                    app:layout_constraintTop_toBottomOf="@+id/spinner_issue_type_create" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/estimate_time_issue_detail_text_input_layout"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    app:errorEnabled="false"
-                    app:hintEnabled="false"
+                    android:layout_marginTop="5dp"
+                    android:orientation="horizontal"
+                    android:weightSum="6"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/textView6"
-                    app:layout_constraintTop_toBottomOf="@+id/linearLayout8">
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView5">
 
-                    <EditText
-                        android:id="@+id/edt_estimate_time_issue_detail"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/estimate_date_finish_issue_detail_text_input_layout"
                         android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:hintEnabled="false"
+                        app:errorEnabled="false"
+                        android:layout_weight="6">
+
+                        <EditText
+                            android:id="@+id/edt_estimate_date_finish_issue_detail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_centerVertical="true"
+                            android:background="@drawable/custom_edt"
+                            android:ems="10"
+                            android:inputType="date"
+                            android:paddingLeft="15dp"
+                            android:paddingTop="8dp"
+                            android:paddingRight="10dp"
+                            android:paddingBottom="10dp"
+                            android:text="06/09/2021"
+                            android:textSize="18sp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <ImageButton
+                        android:id="@+id/calendar_estimate_date_finish_issue_detail"
+                        android:layout_width="40dp"
                         android:layout_height="match_parent"
-                        android:layout_gravity="center"
-                        android:background="@drawable/custom_edt"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp"
-                        android:paddingLeft="15dp"
-                        android:paddingRight="10dp"
-                        android:text="1w"
-                        android:singleLine="true"
-                        android:ems="10"
-                        android:textSize="18sp" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_marginLeft="5dp"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/calendar" />
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -402,12 +413,8 @@
                 android:id="@+id/linearLayout10"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
                 android:padding="5dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
+                android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout9">
@@ -418,6 +425,9 @@
                     android:layout_height="wrap_content"
                     android:text="@string/finish_date"
                     android:textColor="@color/black"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginBottom="5dp"
+                    android:textStyle="bold"
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/linearLayout9" />
@@ -430,7 +440,6 @@
                     android:layout_gravity="center"
                     android:padding="10dp"
                     android:singleLine="true"
-                    android:layout_marginLeft="8dp"
                     android:text="11/09/2021"
                     android:textColor="@color/black"
                     android:textSize="18sp"
@@ -446,7 +455,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="48dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/custom_btn"
                 android:inputType="date"
                 android:paddingLeft="20dp"
@@ -460,7 +469,7 @@
                 android:id="@+id/btn_cancel_issue_detail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="48dp"
                 android:background="@drawable/custom_btn"
                 android:inputType="date"

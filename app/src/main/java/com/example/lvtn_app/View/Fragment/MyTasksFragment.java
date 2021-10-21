@@ -225,7 +225,7 @@ public class MyTasksFragment extends Fragment {
                     //                setTaskInCalendar(selectedDate, tasks, task_date, events);
                     for (Task issue : tasks){
                         if (issue.getTask_StartDate().equals(selectedDate)){
-                            events.add(new Event(R.color.red, date.getTime(), issue.getTask_Name()));
+                            events.add(new Event(Color.RED, date.getTime(), issue.getTask_Name()));
                             daily_tasks.add(issue);
                         }
                     }
@@ -265,7 +265,7 @@ public class MyTasksFragment extends Fragment {
     public void getTaskByDate(String today){
         final ProgressDialog progressDialog = new ProgressDialog(getContext());
         progressDialog.setMessage("Waiting!!!");
-        reference = FirebaseDatabase.getInstance().getReference("Tasks");
+        reference = FirebaseDatabase.getInstance().getReference("Tasks").child(firebaseUser.getUid());
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -283,7 +283,7 @@ public class MyTasksFragment extends Fragment {
                 for (Task task : tasks){
                     try {
                         date = dateFormat.sdf.parse(task.getTask_StartDate());
-                        events.add(new Event(R.color.red, date.getTime(), task.getTask_Name()));
+                        events.add(new Event(Color.RED, date.getTime(), task.getTask_Name()));
                         if (task.getTask_StartDate().equals(today)){
                             daily_tasks.add(task);
                         }

@@ -58,10 +58,25 @@ public class DashboardItemAdapter  extends RecyclerView.Adapter<DashboardItemAda
     public void onBindViewHolder(@NonNull DashboardItemAdapter.ViewHolder holder, int position) {
         holder.list.clear();
         holder.tv_process.setText(process_list.get(position).getName());
-        if (process_list.get(position).getName().equals("InProgress")
-            || process_list.get(position).getName().equals("Done")){
-            holder.linear_create_task.setVisibility(View.GONE);
-        }
+        holder.reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Project project = snapshot.getValue(Project.class);
+                if (project != null){
+                    if (project.getProject_Leader().equals(firebaseUser.getUid()) &&
+                            process_list.get(position).getName().equals("ToDo")){
+                        holder.linear_create_task.setVisibility(View.VISIBLE);
+                    }else {
+                        holder.linear_create_task.setVisibility(View.GONE);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
         if (holder.tv_process.getText().equals("ToDo")){
             holder.list.addAll(process_list.get(0).getList());
         }
@@ -78,7 +93,9 @@ public class DashboardItemAdapter  extends RecyclerView.Adapter<DashboardItemAda
 
     @Override
     public int getItemCount() {
-        return process_list.size();
+        if (process_list != null){
+            return process_list.size();
+        }else return 0;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -87,6 +104,7 @@ public class DashboardItemAdapter  extends RecyclerView.Adapter<DashboardItemAda
         RecyclerView recyclerView_Task_Process;
         ArrayList<Issue> list = new ArrayList<>();
         LinearLayout linear_create_task;
+        DatabaseReference reference;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -99,23 +117,7 @@ public class DashboardItemAdapter  extends RecyclerView.Adapter<DashboardItemAda
             String project_ID = sharedPreferences.getString("project_ID", "token");
             auth = FirebaseAuth.getInstance();
             firebaseUser = auth.getCurrentUser();
-            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Projects").child(project_ID);
-            reference.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    Project project = snapshot.getValue(Project.class);
-                    if (project.getProject_Leader().equals(firebaseUser.getUid())){
-                        linear_create_task.setVisibility(View.VISIBLE);
-                    }else {
-                        linear_create_task.setVisibility(View.GONE);
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
+            reference = FirebaseDatabase.getInstance().getReference("Projects").child(project_ID);
 
             linear_create_task.setOnClickListener(new View.OnClickListener() {
                 @Override

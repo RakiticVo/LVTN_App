@@ -70,6 +70,39 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
+                android:id="@+id/linearLayout5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+
+                <TextView
+                    android:id="@+id/tv_project_leader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:text="@string/project_leader"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_leader_project_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@drawable/custom_edt"
+                    android:padding="8dp"
+                    android:textColor="@color/black"
+                    android:textSize="18sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/linearLayout3"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -79,7 +112,7 @@
                 android:padding="5dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout5">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -90,7 +123,7 @@
                     android:textSize="16sp" />
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/edt_decription_text_input_layout"
+                    android:id="@+id/edt_description_project_info_text_input_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -98,12 +131,11 @@
                     app:hintEnabled="false">
 
                     <EditText
-                        android:id="@+id/edt_decription_project_info"
+                        android:id="@+id/edt_description_project_info"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/custom_edt"
                         android:padding="8dp"
-                        android:text="This is the test Project Decription"
                         android:textSize="18sp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -127,7 +159,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
-                    android:text="@string/start_date_2"
+                    android:text="@string/start_date"
                     android:textColor="@color/black"
                     android:textSize="16sp" />
 
@@ -138,54 +170,12 @@
                     android:layout_gravity="center"
                     android:background="@drawable/custom_edt"
                     android:padding="8dp"
-                    android:text="06/09/2021"
                     android:textColor="@color/black"
                     android:textSize="18sp" />
 
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/linearLayout5"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:orientation="vertical"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout4">
 
-                <TextView
-                    android:id="@+id/tv_estimate_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical"
-                    android:padding="5dp"
-                    android:text="@string/estimate_execution_time"
-                    android:textColor="@color/black"
-                    android:textSize="16sp" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/edt_estimate_time_text_input_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    app:errorEnabled="false"
-                    app:hintEnabled="false">
-
-                    <EditText
-                        android:id="@+id/edt_estimate_time_project_info"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:background="@drawable/custom_edt"
-                        android:padding="8dp"
-                        android:text="1w"
-                        android:textSize="18sp" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/linearLayout6"
@@ -194,9 +184,10 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:orientation="vertical"
+                android:padding="5dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout5">
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout4">
 
                 <TextView
                     android:id="@+id/tv_finish_date"
@@ -204,7 +195,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:padding="5dp"
-                    android:text="@string/estimate_finish_date"
+                    android:text="@string/estimate_finish_date_2"
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="parent"
@@ -232,7 +223,6 @@
                             android:layout_gravity="center"
                             android:background="@drawable/custom_edt"
                             android:padding="8dp"
-                            android:text="11/09/2021"
                             android:textColor="@color/black"
                             android:textSize="18sp" />
 
@@ -257,14 +247,28 @@
                 android:id="@+id/btn_update_project_info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/custom_btn"
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
                 android:text="Update"
                 android:textSize="20sp"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout6" />
+
+            <Button
+                android:id="@+id/btn_cancel_project_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/custom_btn"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:text="Cancel"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout6" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

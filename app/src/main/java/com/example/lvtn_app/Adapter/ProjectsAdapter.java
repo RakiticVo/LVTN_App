@@ -51,33 +51,36 @@ public class ProjectsAdapter extends RecyclerView.Adapter<ProjectsAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ProjectsAdapter.ViewHolder holder, int position) {
-//        Glide.with(context).load(project_list.get(position).getProject_image()).centerCrop().into(holder.img_project);
-        holder.CardView_background.setCardBackgroundColor(Integer.parseInt(project_list.get(position).getProject_Background()));
-        switch (project_list.get(position).getProject_Type().toString()){
+        if (project_list.get(position) != null && project_list != null){
+            holder.CardView_background.setCardBackgroundColor(Integer.parseInt(project_list.get(position).getProject_Background()));
+            switch (project_list.get(position).getProject_Type().toString()){
 
-            case "Normal":
-                holder.img_project.setImageResource(R.drawable.project_1);
-                break;
-            case "Kanban":
-                holder.img_project.setImageResource(R.drawable.project_kanban);
-                break;
-            case "Scrum":
-                holder.img_project.setImageResource(R.drawable.project_scrum);
-                break;
-            case "Personal":
-                holder.img_project.setImageResource(R.drawable.project_personal);
-                break;
-            case "Bussiness":
-                holder.img_project.setImageResource(R.drawable.project_bussiness);
-                break;
+                case "Normal":
+                    holder.img_project.setImageResource(R.drawable.project_1);
+                    break;
+                case "Kanban":
+                    holder.img_project.setImageResource(R.drawable.project_kanban);
+                    break;
+                case "Scrum":
+                    holder.img_project.setImageResource(R.drawable.project_scrum);
+                    break;
+                case "Personal":
+                    holder.img_project.setImageResource(R.drawable.project_personal);
+                    break;
+                case "Bussiness":
+                    holder.img_project.setImageResource(R.drawable.project_bussiness);
+                    break;
 
+            }
+            holder.tv_project_name.setText(project_list.get(position).getProject_Name().toString().trim());
         }
-        holder.tv_project_name.setText(project_list.get(position).getProject_Name().toString().trim());
     }
 
     @Override
     public int getItemCount() {
-        return project_list.size();
+        if (project_list != null){
+            return project_list.size();
+        }else return 0;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -101,6 +104,7 @@ public class ProjectsAdapter extends RecyclerView.Adapter<ProjectsAdapter.ViewHo
             sharedPreferences = Objects.requireNonNull(context).getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
             editor = sharedPreferences.edit();
             editor.putString("project_ID", project_list.get(getAdapterPosition()).getProject_ID());
+            editor.putString("project_finish_date", project_list.get(getAdapterPosition()).getProject_FinishDate());
             editor.commit();
             AppCompatActivity activity = (AppCompatActivity) v.getContext();
             activity.getSupportFragmentManager().beginTransaction().addToBackStack("ProjectDetail return Projects").replace(R.id.frame_main, new ProjectDetailFragment()).commit();

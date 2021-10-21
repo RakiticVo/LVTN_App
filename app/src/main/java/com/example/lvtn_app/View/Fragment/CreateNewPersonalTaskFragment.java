@@ -256,7 +256,7 @@ public class CreateNewPersonalTaskFragment extends DialogFragment {
                                     final ProgressDialog progressDialog = new ProgressDialog(getContext());
                                     progressDialog.setMessage("Waiting for login");
                                     progressDialog.show();
-                                    reference.child(task_ID).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    reference.child(task_Creator).child(task_ID).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()){
