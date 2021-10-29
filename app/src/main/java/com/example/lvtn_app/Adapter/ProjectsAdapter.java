@@ -52,9 +52,9 @@ public class ProjectsAdapter extends RecyclerView.Adapter<ProjectsAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ProjectsAdapter.ViewHolder holder, int position) {
         if (project_list.get(position) != null && project_list != null){
-            holder.CardView_background.setCardBackgroundColor(Integer.parseInt(project_list.get(position).getProject_Background()));
+            String s = project_list.get(position).getProject_Background();
+            holder.CardView_background.setCardBackgroundColor(Integer.parseInt(s));
             switch (project_list.get(position).getProject_Type().toString()){
-
                 case "Normal":
                     holder.img_project.setImageResource(R.drawable.project_1);
                     break;

@@ -42,13 +42,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     private ArrayList<Message> message_list;
     SharedPreferences sharedPreferences;
     FirebaseUser firebaseUser;
-    DatabaseReference reference;
 
     public MessageAdapter(Context context, ArrayList<Message> message_list) {
         this.context = context;
         this.message_list = message_list;
         this.mInflater = LayoutInflater.from(context);
-        sharedPreferences = Objects.requireNonNull(context).getSharedPreferences("User", Context.MODE_PRIVATE);
     }
 
     @NonNull
@@ -120,6 +118,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
     @Override
     public int getItemViewType(int position) {
+        sharedPreferences = Objects.requireNonNull(context).getSharedPreferences("User", Context.MODE_PRIVATE);
         if (message_list.get(position).getMessage_sender().equals(sharedPreferences.getString("user_Name", "abc"))){
             return RIGHT;
         }else {

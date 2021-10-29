@@ -242,8 +242,11 @@ public class CreateGroupChatFragment extends DialogFragment{
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()){
+                                                GroupChatFragment.getInstance().groupChat_list.clear();
+                                                GroupChatFragment.getInstance().showGroupChatList();
                                                 Toast.makeText(activity, "Create success", Toast.LENGTH_SHORT).show();
-                                                GroupChatFragment.getInstance().showGroupChatList(group_Creator);
+                                                progressDialog.dismiss();
+                                                dismiss();
                                             }else {
                                                 Toast.makeText(activity, "Create failed", Toast.LENGTH_SHORT).show();
                                             }

@@ -11,45 +11,54 @@
       android:layout_height="match_parent"
       android:background="@drawable/custom_background_main_2">
 
-      <TextView
-          android:id="@+id/textView13"
-          android:layout_width="wrap_content"
+      <androidx.constraintlayout.widget.ConstraintLayout
+          android:id="@+id/linearLayout11"
+          android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginStart="8dp"
-          android:layout_marginTop="8dp"
-          android:padding="5dp"
-          android:text="@string/mytasks"
-          android:textColor="@color/black"
-          android:textSize="24sp"
-          android:textStyle="bold"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toTopOf="parent" />
+          android:background="@color/lightcyan"
+          android:paddingBottom="2dp">
 
-      <ImageButton
-          android:id="@+id/ibtn_add_task"
-          android:layout_width="40dp"
-          android:layout_height="40dp"
-          android:layout_marginTop="8dp"
-          android:layout_marginEnd="16dp"
-          android:background="@android:color/transparent"
-          android:scaleType="fitCenter"
-          android:src="@drawable/add"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintTop_toTopOf="parent" />
+         <TextView
+             android:id="@+id/textView13"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_marginStart="8dp"
+             android:padding="5dp"
+             android:text="@string/mytasks"
+             android:textColor="@color/black"
+             android:textSize="24sp"
+             android:textStyle="bold"
+             app:layout_constraintBottom_toBottomOf="parent"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintTop_toTopOf="parent" />
+
+         <ImageButton
+             android:id="@+id/ibtn_add_task"
+             android:layout_width="50dp"
+             android:layout_height="50dp"
+             android:layout_marginRight="8dp"
+             android:background="@android:color/transparent"
+             android:scaleType="fitCenter"
+             android:src="@drawable/add"
+             app:layout_constraintBottom_toBottomOf="parent"
+             app:layout_constraintEnd_toEndOf="parent"
+             app:layout_constraintTop_toTopOf="parent" />
+
+      </androidx.constraintlayout.widget.ConstraintLayout>
 
       <LinearLayout
           android:id="@+id/linearLayout_calendarView"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_margin="10dp"
-          android:padding="5dp"
           android:background="@drawable/custom_calendar"
           android:gravity="center"
+          android:orientation="vertical"
+          android:padding="5dp"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintHorizontal_bias="0.0"
           app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/textView13"
-          android:orientation="vertical">
+          app:layout_constraintTop_toBottomOf="@+id/linearLayout11">
 
          <LinearLayout
              android:layout_width="match_parent"
@@ -61,8 +70,8 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_marginLeft="5dp"
-                android:src="@drawable/back"
-                android:scaleType="fitCenter"/>
+                android:scaleType="fitCenter"
+                android:src="@drawable/back" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -85,8 +94,8 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_marginRight="5dp"
-                android:src="@drawable/right_arrow"
-                android:scaleType="fitCenter"/>
+                android:scaleType="fitCenter"
+                android:src="@drawable/right_arrow" />
 
          </LinearLayout>
 

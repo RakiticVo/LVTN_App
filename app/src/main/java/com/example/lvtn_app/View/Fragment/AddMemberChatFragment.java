@@ -317,22 +317,22 @@ public class AddMemberChatFragment extends DialogFragment {
     }
 
     public void PushData(String id, String position) {
-        reference3 = FirebaseDatabase.getInstance().getReference("User_List_By_Group_Chat").child(id_group);
-        Toast.makeText(activity, "" + id, Toast.LENGTH_SHORT).show();
-        HashMap<String, Object> hashMap = new HashMap<>();
-        hashMap.put("user_ID", id);
-        hashMap.put("group_ID", id_group);
-        hashMap.put("position", position);
-        reference3.child(id).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+        HashMap<String, Object> hashMap2 = new HashMap<>();
+        hashMap2.put("type", "group_request_joining");
+        hashMap2.put("leader_ID", firebaseUser.getUid());
+        hashMap2.put("group_ID", id_group);
+        hashMap2.put("receiver_ID", id);
+        hashMap2.put("position", position);
+        hashMap2.put("status", "sent");
+        hashMap2.put("result", "undecided");
+        DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference("Notifications").child("Joining_Group_Chat");
+        reference2.child(id_group).child(id).setValue(hashMap2).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    Toast.makeText(activity, "Adding member success", Toast.LENGTH_SHORT).show();
+                if (task.isSuccessful()){
                     progressDialog.dismiss();
                     dismiss();
-                    MemberChatFragment.instance.member_list.clear();
-                    MemberChatFragment.instance.delete_member_list.clear();
-                    MemberChatFragment.instance.showMember();
+//                    Toast.makeText(activity, "Invite: " + id, Toast.LENGTH_SHORT).show();
                 }
             }
         });

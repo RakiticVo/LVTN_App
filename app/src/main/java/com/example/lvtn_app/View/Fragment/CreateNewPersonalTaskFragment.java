@@ -252,6 +252,7 @@ public class CreateNewPersonalTaskFragment extends DialogFragment {
                                     hashMap.put("task_Description", task_Description);
                                     hashMap.put("task_StartDate", task_StartDate);
                                     hashMap.put("task_Creator", task_Creator);
+                                    hashMap.put("task_Type", "Task");
                                     AppCompatActivity activity = (AppCompatActivity) getContext();
                                     final ProgressDialog progressDialog = new ProgressDialog(getContext());
                                     progressDialog.setMessage("Waiting for login");
