@@ -19,15 +19,16 @@ import com.example.lvtn_app.Adapter.MessageAdapter;
 import com.example.lvtn_app.Controller.Method.DateFormat;
 import com.example.lvtn_app.Controller.Retrofit.ApiServiceFirebase;
 import com.example.lvtn_app.Controller.Retrofit.RetrofitClient;
+import com.example.lvtn_app.Model.GroupChat;
 import com.example.lvtn_app.Model.Group_Chat_Users;
 import com.example.lvtn_app.Model.Message;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 import com.example.lvtn_app.View.Fragment.GroupChatFragment;
-import com.example.lvtn_app.View.Notification.Data;
-import com.example.lvtn_app.View.Notification.MyResponse;
-import com.example.lvtn_app.View.Notification.Sender;
-import com.example.lvtn_app.View.Notification.Token;
+import com.example.lvtn_app.View.NotificationMessage.Data;
+import com.example.lvtn_app.View.NotificationMessage.MyResponse;
+import com.example.lvtn_app.View.NotificationMessage.Sender;
+import com.example.lvtn_app.View.NotificationMessage.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,6 +40,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.security.acl.Group;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -100,10 +102,10 @@ public class ChatActivity extends AppCompatActivity {
         recyclerViewMessage = findViewById(R.id.recyclerViewMessage);
         recyclerViewMessage.setHasFixedSize(true);
 
-        sharedPreferences_chat = Objects.requireNonNull(this).getSharedPreferences("Chat", Context.MODE_PRIVATE);
-        sharedPreferences = Objects.requireNonNull(this).getSharedPreferences("User", Context.MODE_PRIVATE);
-        id_group = sharedPreferences_chat.getString("group_ID", "token");
+        sharedPreferences_chat = getSharedPreferences("Chat", Context.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("User", Context.MODE_PRIVATE);
         id_user = sharedPreferences.getString("user_ID", "token");
+        id_group = sharedPreferences_chat.getString("group_ID", "token");
 
         apiService = RetrofitClient.getClient("https://fcm.googleapis.com/").create(ApiServiceFirebase.class);
 
@@ -125,6 +127,19 @@ public class ChatActivity extends AppCompatActivity {
 
         auth =FirebaseAuth.getInstance();
         firebaseUser = auth.getCurrentUser();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("GroupChats").child(id_group);
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                GroupChat groupChat = snapshot.getValue(GroupChat.class);
+                tvGroupChatName.setText(groupChat.getGroup_Name());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
 //        messageArrayList.clear();
         readMessage(id_group);
@@ -141,6 +156,12 @@ public class ChatActivity extends AppCompatActivity {
         ibtn_back_chat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent(ChatActivity.this, MainActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("chat", "chatActivity");
+                intent.putExtras(bundle);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
                 finish();
             }
         });
@@ -225,7 +246,7 @@ public class ChatActivity extends AppCompatActivity {
                 if (task.isSuccessful()){
 //                    Toast.makeText(ChatActivity.this, "Success", Toast.LENGTH_SHORT).show();
                     readMessage(message_group_ID);
-                    GroupChatFragment.getInstance().readMessage();
+//                    GroupChatFragment.getInstance().readMessage();
                 }
             }
         });
@@ -262,7 +283,7 @@ public class ChatActivity extends AppCompatActivity {
                         list.add(users.getUser_ID());
                     }
                 }
-                sendNotification(list, sender_name, message);
+                sendNotification(list, sender_name, message, id_group_receive);
             }
 
             @Override
@@ -272,7 +293,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    private void sendNotification(ArrayList<String> receiver, String sender_name, String message){
+    private void sendNotification(ArrayList<String> receiver, String sender_name, String message, String id_group){
         DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
         for (String s : receiver){
             Query query = tokens.orderByKey().equalTo(s);
@@ -281,7 +302,7 @@ public class ChatActivity extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()){
                         Token token = dataSnapshot.getValue(Token.class);
-                        Data data = new Data(firebaseUser.getUid(), R.mipmap.ic_launcher, sender_name+": " + message,
+                        Data data = new Data(firebaseUser.getUid(), id_group, sender_name+": " + message,
                                 "New message", s);
                         Sender sender = new Sender(data, token.getToken());
                         apiService.sendNotification(sender).enqueue(new Callback<MyResponse>() {
@@ -319,8 +340,6 @@ public class ChatActivity extends AppCompatActivity {
                 for(DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
                     Message message = dataSnapshot.getValue(Message.class);
-                    // token là người gửi.
-                    //     Log.e("L","Receiver"+ message.getReceiver() + " | sender " + message.getSender() + " | " + message.getStatus()+ "token" + token );
                     if(message.getMessage_group_ID().equals(id_group))
                     {
                         if (!message.getMessage_sender().equals(id_user)){

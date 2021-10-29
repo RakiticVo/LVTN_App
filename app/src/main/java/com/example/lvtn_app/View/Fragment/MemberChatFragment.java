@@ -48,7 +48,7 @@ public class MemberChatFragment extends Fragment implements MemberAdapter.ItemCl
     Button btn_confirm_delete_members;
     TextView tvNoresult_member;
     TextInputLayout search_member_text_input_layout;
-    ArrayList<User> member_list, delete_member_list, member_search_list;
+    public ArrayList<User> member_list, delete_member_list, member_search_list;
     MemberAdapter memberAdapter;
     MemberDeleteAdapter memberDeleteAdapter;
 
@@ -271,14 +271,18 @@ public class MemberChatFragment extends Fragment implements MemberAdapter.ItemCl
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     listUser_ID.clear();
+                    String leader = "";
 //                    Toast.makeText(activity, "" + listUser_ID.size(), Toast.LENGTH_SHORT).show();
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()){
                         Group_Chat_Users user = dataSnapshot.getValue(Group_Chat_Users.class);
                         listUser_ID.add(user.getUser_ID());
+                        if (user.getPosition().toLowerCase().equals("leader")){
+                            leader = user.getUser_ID();
+                        }
 //                        Toast.makeText(activity, "" + listUser_ID.size(), Toast.LENGTH_SHORT).show();
                     }
 //                    Toast.makeText(activity, "" + listUser_ID.size(), Toast.LENGTH_SHORT).show();
-                    getUserListByGroupChat(listUser_ID);
+                    getUserListByGroupChat(listUser_ID, leader);
                 }
 
                 @Override
@@ -289,11 +293,37 @@ public class MemberChatFragment extends Fragment implements MemberAdapter.ItemCl
         }
     }
 
-    public void getUserListByGroupChat(ArrayList<String> list){
-//        Toast.makeText(activity, "" + list.size(), Toast.LENGTH_SHORT).show();
+    public void getUserListByGroupChat(ArrayList<String> list, String leader){
+//        Toast.makeText(activity, "" + leader, Toast.LENGTH_SHORT).show();
         reference3 = FirebaseDatabase.getInstance().getReference("Users");
         member_list.clear();
         delete_member_list.clear();
+        for (String s : list){
+            if (s.equals(leader)){
+                reference3.child(s).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        User user = snapshot.getValue(User.class);
+//                    Toast.makeText(activity, "" + groupChat.getGroup_ID(), Toast.LENGTH_SHORT).show();
+                        member_list.add(user);
+                        delete_member_list.add(user);
+                        memberDeleteAdapter.notifyDataSetChanged();
+                        memberAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        member_list.clear();
+                        delete_member_list.clear();
+                        memberDeleteAdapter.notifyDataSetChanged();
+                        memberAdapter.notifyDataSetChanged();
+                    }
+                });
+                list.remove(s);
+                break;
+            }
+        }
+
         for (String s : list){
             member_list.clear();
             delete_member_list.clear();
@@ -317,10 +347,6 @@ public class MemberChatFragment extends Fragment implements MemberAdapter.ItemCl
                     memberAdapter.notifyDataSetChanged();
                 }
             });
-            memberDeleteAdapter.notifyDataSetChanged();
-            memberAdapter.notifyDataSetChanged();
         }
-        memberDeleteAdapter.notifyDataSetChanged();
-        memberAdapter.notifyDataSetChanged();
     }
 }

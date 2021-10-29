@@ -41,6 +41,7 @@ import java.util.Objects;
 public class TaskDetailFragment extends DialogFragment {
     //Khai báo
     TextView tv_name_task_detail;
+    ImageView img_task_type_detail;
     ImageButton ibtn_back_task_detail, ibtn_confirm_done_task, calendar_start_task_issue_detail;
     TextInputLayout description_task_detail_text_input_layout, start_date_task_detail_text_input_layout;
     Button btn_update_task_detail, btn_cancel_task_detail;
@@ -50,12 +51,12 @@ public class TaskDetailFragment extends DialogFragment {
     Date date1 = new Date();
 
     SharedPreferences sharedPreferences;
-    String username = "";
 
     //New task information
-    String taskname = "";
-    String decription = "";
-    String start_date = "";
+    String taskType = "";
+    String taskName = "";
+    String taskDescription = "";
+    String task_start_date = "";
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -108,6 +109,7 @@ public class TaskDetailFragment extends DialogFragment {
         }
 
         tv_name_task_detail = view.findViewById(R.id.tv_name_task_detail);
+        img_task_type_detail = view.findViewById(R.id.img_task_type_detail);
         ibtn_back_task_detail = view.findViewById(R.id.ibtn_back_task_detail);
         ibtn_confirm_done_task = view.findViewById(R.id.ibtn_confirm_done_task);
         calendar_start_task_issue_detail = view.findViewById(R.id.calendar_start_task_issue_detail);
@@ -130,8 +132,27 @@ public class TaskDetailFragment extends DialogFragment {
             }
         };
 
-        sharedPreferences = Objects.requireNonNull(getActivity()).getSharedPreferences("User", Context.MODE_PRIVATE);
-        username = sharedPreferences.getString("userName_txt", "abc");
+        sharedPreferences = requireActivity().getSharedPreferences("Task", Context.MODE_PRIVATE);
+        taskType = sharedPreferences.getString("task_type", "abc");
+        taskName  = sharedPreferences.getString("task_name", "abc");
+        taskDescription  = sharedPreferences.getString("task_description", "abc");
+        task_start_date  = sharedPreferences.getString("task_start_date", "abc");
+//        Toast.makeText(getContext(), "" + taskType, Toast.LENGTH_SHORT).show();
+
+        switch (taskType.toLowerCase()){
+            case "task":
+                img_task_type_detail.setImageResource(R.drawable.task);
+                break;
+            case "bug":
+                img_task_type_detail.setImageResource(R.drawable.bug);
+                break;
+            case "story":
+                img_task_type_detail.setImageResource(R.drawable.user_story);
+                break;
+        }
+        tv_name_task_detail.setText(taskName);
+        description_task_detail_text_input_layout.getEditText().setText(taskDescription);
+        start_date_task_detail_text_input_layout.getEditText().setText(task_start_date);
 
         //Bắt sự kiện
         //Todo: Xử lý sự kiện rời khỏi Fragment
@@ -165,9 +186,9 @@ public class TaskDetailFragment extends DialogFragment {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
-                    start_date = start_date_task_detail_text_input_layout.getEditText().getText().toString();
+                    task_start_date = start_date_task_detail_text_input_layout.getEditText().getText().toString();
 //                    Toast.makeText(getContext(), "" + start_date, Toast.LENGTH_SHORT).show();
-                    checkRightStartDate(start_date);
+                    checkRightStartDate(task_start_date);
                 }else {
                     start_date_task_detail_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
                         @Override
@@ -216,14 +237,10 @@ public class TaskDetailFragment extends DialogFragment {
                                 case DialogInterface.BUTTON_POSITIVE:
                                     //Yes button clicked
                                     // Todo: remember check date must be >= today
-                                    taskname = tv_name_task_detail.getText().toString();
-                                    decription = description_task_detail_text_input_layout.getEditText().getText().toString();
-                                    start_date = start_date_task_detail_text_input_layout.getEditText().getText().toString();
+                                    taskName = tv_name_task_detail.getText().toString();
+                                    taskDescription = description_task_detail_text_input_layout.getEditText().getText().toString();
+                                    task_start_date = start_date_task_detail_text_input_layout.getEditText().getText().toString();
 
-                                    Toast.makeText(getContext(), "" + username + "\n"
-                                            + taskname + "\n"
-                                            + decription + "\n"
-                                            + start_date, Toast.LENGTH_SHORT).show();
                                     Toast.makeText(getContext(), "Update success!!!", Toast.LENGTH_SHORT).show();
                                     dismiss();
                                     break;

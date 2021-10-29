@@ -4,13 +4,11 @@ public class Project_Users {
     String user_ID;
     String project_ID;
     String position;
-    String key;
 
-    public Project_Users(String user_ID, String project_ID, String position, String key) {
+    public Project_Users(String user_ID, String project_ID, String position) {
         this.user_ID = user_ID;
         this.project_ID = project_ID;
         this.position = position;
-        this.key = key;
     }
 
     public Project_Users() {
@@ -38,13 +36,5 @@ public class Project_Users {
 
     public void setPosition(String position) {
         this.position = position;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
     }
 }

@@ -24,7 +24,7 @@ import com.example.lvtn_app.Model.GroupChat;
 import com.example.lvtn_app.Model.Group_Chat_Users;
 import com.example.lvtn_app.Model.Message;
 import com.example.lvtn_app.R;
-import com.example.lvtn_app.View.Notification.Token;
+import com.example.lvtn_app.View.NotificationMessage.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
@@ -36,16 +36,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.Objects;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -61,16 +55,14 @@ public class GroupChatFragment extends Fragment {
     GroupChatAdapter groupChatAdapter;
     ArrayList<GroupChat> groupChat_list;
     ArrayList<GroupChat> groupChat_search;
-    ArrayList<Message> messageArrayList, messages;
-    ArrayList<String> list;
+    ArrayList<Message> messageArrayList;
 
     FirebaseAuth auth;
     FirebaseUser firebaseUser;
-    DatabaseReference reference1, reference2, reference3;
     AppCompatActivity activity;
 
     SharedPreferences sharedPreferences, sharedPreferences_chat;
-    String id_user, id_group;
+    String id_group;
 
     String userName;
 
@@ -135,7 +127,6 @@ public class GroupChatFragment extends Fragment {
 
         sharedPreferences = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
         sharedPreferences_chat = requireContext().getSharedPreferences("Chat", Context.MODE_PRIVATE);
-        id_user = sharedPreferences.getString("user_ID", "token");
         userName = sharedPreferences.getString("userName_txt", "User Name");
         id_group = sharedPreferences_chat.getString("group_ID", "token");
         groupChat_list = new ArrayList<>();
@@ -149,16 +140,11 @@ public class GroupChatFragment extends Fragment {
         groupChatAdapter = new GroupChatAdapter(getContext(), groupChat_list);
         recyclerViewGroupChat.setAdapter(groupChatAdapter);
 
-        list = new ArrayList<>();
         activity = (AppCompatActivity) getContext();
         auth = FirebaseAuth.getInstance();
         firebaseUser = auth.getCurrentUser();
-        if (id_user.equals(firebaseUser.getUid())){
-            list.clear();
-            groupChat_list.clear();
-            showGroupChatList(id_user);
-        }
-        readMessage();
+        groupChat_list.clear();
+        showGroupChatList();
 
         // Bắt sự kiện
         //Todo: Xử lý sự kiện chuyển đến Fragment tạo Group Chat
@@ -221,7 +207,7 @@ public class GroupChatFragment extends Fragment {
         return view;
     }
 
-    public void readMessage()
+    public void showGroupChatList()
     {
         messageArrayList.clear();
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Chats").child(id_group);
@@ -233,21 +219,21 @@ public class GroupChatFragment extends Fragment {
                     messageArrayList.add(message);
                 }
                 if (messageArrayList.size() == 0){
-                    Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show();
-                    messageArrayList = new ArrayList<>();
+//                    Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show();
+                    getGroupChatIDList();
                 }
                 if (messageArrayList.size() > 0){
                     String sender = messageArrayList.get(messageArrayList.size() - 1).getMessage_sender();
                     String message = messageArrayList.get(messageArrayList.size() - 1).getMessage_text();
-                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("GroupChats").child(id_group);
+                    DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference("GroupChats").child(id_group);
                     HashMap<String, Object> hashMap = new HashMap<>();
                     hashMap.put("group_LastSender", sender);
                     hashMap.put("group_LastMess", message);
-                    databaseReference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    reference2.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()){
-                                showGroupChatList(id_user);
+                                getGroupChatIDList();
                             }
                         }
                     });
@@ -267,35 +253,14 @@ public class GroupChatFragment extends Fragment {
         reference.child(firebaseUser.getUid()).setValue(token1);
     }
 
-    public void showGroupChatList(String id_user){
-        list.clear();
-        reference1 = FirebaseDatabase.getInstance().getReference("GroupChats");
-        AppCompatActivity activity = (AppCompatActivity) getContext();
+    public void getGroupChatIDList(){
+        groupChat_list.clear();
+        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("GroupChats");
         reference1.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-                    GroupChat groupChat = dataSnapshot.getValue(GroupChat.class);
-                    reference2 = FirebaseDatabase.getInstance().getReference("User_List_By_Group_Chat").child(groupChat.getGroup_ID());
-                    reference2.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            list.clear();
-                            for (DataSnapshot dataSnapshot1 : snapshot.getChildren()){
-                                Group_Chat_Users user = dataSnapshot1.getValue(Group_Chat_Users.class);
-                                if (user.getUser_ID().equals(id_user)){
-                                    list.add(user.getGroup_ID());
-                                }
-                            }
-//                            Toast.makeText(getContext(), "" + list.size(), Toast.LENGTH_SHORT).show();
-                            getGroupChatListByUser(list);
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
+                    getGroupChatIDByKey(dataSnapshot.getKey());
                 }
             }
 
@@ -306,28 +271,48 @@ public class GroupChatFragment extends Fragment {
         });
     }
 
-    public void getGroupChatListByUser(ArrayList<String> list){
-        AppCompatActivity activity = (AppCompatActivity) getContext();
-        reference3 = FirebaseDatabase.getInstance().getReference("GroupChats");
-        groupChat_list.clear();
-        for (String s : list){
-//            Toast.makeText(activity, "" + s, Toast.LENGTH_SHORT).show();
-            reference3.child(s).addValueEventListener(new ValueEventListener() {
+    public void getGroupChatIDByKey(String key){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("User_List_By_Group_Chat").child(key);
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ArrayList<String> list = new ArrayList<>();
+                for (DataSnapshot dataSnapshot1 : snapshot.getChildren()){
+                    Group_Chat_Users user = dataSnapshot1.getValue(Group_Chat_Users.class);
+                    if (user.getUser_ID().equals(firebaseUser.getUid())){
+                        list.add(user.getGroup_ID());
+                    }
+                }
+                if (list.size() > 0){
+                    getGroupChatListByID(list);
+                }
+//                Toast.makeText(getContext(), "" + list.size(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void getGroupChatListByID(ArrayList<String> groupchatid){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("GroupChats");
+//        Toast.makeText(activity, "" + groupchat, Toast.LENGTH_SHORT).show();
+        for (String s : groupchatid){
+            reference.child(s).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     GroupChat groupChat = snapshot.getValue(GroupChat.class);
-//                    Toast.makeText(activity, "" + groupChat.getGroup_ID(), Toast.LENGTH_SHORT).show();
                     groupChat_list.add(groupChat);
                     groupChatAdapter.notifyDataSetChanged();
-//                    Toast.makeText(activity, "" + groupChat_list.size(), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    groupChatAdapter.notifyDataSetChanged();
+
                 }
             });
-            groupChatAdapter.notifyDataSetChanged();
         }
     }
 }

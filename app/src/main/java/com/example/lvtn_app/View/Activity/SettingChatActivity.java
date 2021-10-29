@@ -16,20 +16,28 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.lvtn_app.Model.GroupChat;
 import com.example.lvtn_app.R;
 import com.example.lvtn_app.View.Fragment.MemberChatFragment;
 import com.example.lvtn_app.View.Fragment.MemberProjectFragment;
 import com.example.lvtn_app.View.Fragment.ProjectsFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class SettingChatActivity extends AppCompatActivity {
     TextView tv_show_member_setting_chat, tv_show_warning_delete_setting_chat;
     LinearLayout linear1;
     FrameLayout frame_setting_chat;
     SharedPreferences sharedPreferences;
+
+    FirebaseUser firebaseUser;
 
     String id_group;
     ProgressDialog progressDialog;
@@ -46,6 +54,23 @@ public class SettingChatActivity extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences("Chat", Context.MODE_PRIVATE);
         id_group = sharedPreferences.getString("group_ID", "token");
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("GroupChats").child(id_group);
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                GroupChat groupChat = snapshot.getValue(GroupChat.class);
+                if (!groupChat.getGroup_Creator().equals(firebaseUser.getUid())){
+                    tv_show_warning_delete_setting_chat.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
         progressDialog = new ProgressDialog(this);
 

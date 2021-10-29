@@ -279,14 +279,18 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     listUser_ID.clear();
+                    String leader = "";
 //                    Toast.makeText(activity, "" + listUser_ID.size(), Toast.LENGTH_SHORT).show();
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()){
                         Group_Chat_Users user = dataSnapshot.getValue(Group_Chat_Users.class);
                         listUser_ID.add(user.getUser_ID());
+                        if (user.getPosition().toLowerCase().equals("leader")){
+                            leader = user.getUser_ID();
+                        }
 //                        Toast.makeText(activity, "" + listUser_ID.size(), Toast.LENGTH_SHORT).show();
                     }
 //                    Toast.makeText(activity, "" + listUser_ID.size(), Toast.LENGTH_SHORT).show();
-                    getUserListByProject(listUser_ID);
+                    getUserListByProject(listUser_ID, leader);
                 }
 
                 @Override
@@ -298,10 +302,36 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
     }
 
 
-    public void getUserListByProject(ArrayList<String> list){
+    public void getUserListByProject(ArrayList<String> list, String leader){
         reference3 = FirebaseDatabase.getInstance().getReference("Users");
         member_list.clear();
         delete_member_list.clear();
+        for (String s : list){
+            if (s.equals(leader)){
+                reference3.child(s).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        User user = snapshot.getValue(User.class);
+//                    Toast.makeText(activity, "" + groupChat.getGroup_ID(), Toast.LENGTH_SHORT).show();
+                        member_list.add(user);
+                        delete_member_list.add(user);
+                        memberDeleteAdapter.notifyDataSetChanged();
+                        memberAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        member_list.clear();
+                        delete_member_list.clear();
+                        memberDeleteAdapter.notifyDataSetChanged();
+                        memberAdapter.notifyDataSetChanged();
+                    }
+                });
+                list.remove(s);
+                break;
+            }
+        }
+
         for (String s : list){
             member_list.clear();
             delete_member_list.clear();

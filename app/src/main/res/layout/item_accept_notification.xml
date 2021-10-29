@@ -3,40 +3,54 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="150dp">
+    android:padding="8dp"
+    android:layout_margin="5dp"
+    android:background="@drawable/custom_shape_task"
+    android:layout_height="wrap_content">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/avatar"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:id="@+id/avatar_object_notification"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        app:civ_border_color="@color/black"
+        app:civ_border_width="1dp"
+        android:visibility="visible"
         android:src="@drawable/blueprint"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/notification_date"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView_background_notification"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="22dp"
-        android:layout_marginEnd="22dp"
-        android:text="Aug 20"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:visibility="invisible"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="150dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/img_notification"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center"
+            android:background="@android:color/transparent"
+            android:backgroundTint="@android:color/transparent"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/blueprint" />
+
+    </androidx.cardview.widget.CardView>
 
     <TextView
-        android:id="@+id/notification_name"
+        android:id="@+id/notification_name_object"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
         android:text="Blue Print"
         android:textSize="22sp"
         android:textColor="@color/black"
         android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@+id/avatar"
+        app:layout_constraintStart_toEndOf="@+id/cardView_background_notification"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -48,8 +62,8 @@
         android:textColor="@color/black"
         android:text="You are invited to the group. Do you accept?"
         android:textSize="16sp"
-        app:layout_constraintStart_toEndOf="@+id/avatar"
-        app:layout_constraintTop_toTopOf="@id/notification_name" />
+        app:layout_constraintStart_toEndOf="@+id/cardView_background_notification"
+        app:layout_constraintTop_toTopOf="@id/notification_name_object" />
 
     <Button
         android:id="@+id/btn_accept_join_notification"
@@ -62,7 +76,7 @@
         android:textSize="16dp"
         android:textColor="@color/black"
         android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@+id/avatar"
+        app:layout_constraintStart_toEndOf="@+id/cardView_background_notification"
         app:layout_constraintTop_toBottomOf="@+id/notification_message" />
 
     <Button

@@ -159,7 +159,7 @@ public class DashBoardFragment extends Fragment {
         recyclerViewDashBoard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(), "Test", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getContext(), "Test", Toast.LENGTH_SHORT).show();
                 getFragmentManager().beginTransaction().addToBackStack("IssueDetailFragment return Dashboard Fragment").replace(R.id.frame_main, new IssueDetailFragment()).commit();
             }
         });

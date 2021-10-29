@@ -77,21 +77,18 @@ public class CreateProjectFragment extends DialogFragment {
 
     FirebaseAuth auth;
     FirebaseUser firebaseUser;
-    DatabaseReference reference1, reference2;
 
     DateFormat dateFormat = new DateFormat();
     Calendar myCalendar = Calendar.getInstance();
 
     //Project Information
-    String project_ID;
-    String project_Name;
-    String project_Description;
-    String project_FinishDate;
-    String project_Type;
-    String project_DateCreate;
-    String project_Leader;
-
-    private static final String TAG = "CreateProjectFragment";
+    String project_ID = " ";
+    String project_Name = " ";
+    String project_Description = " ";
+    String project_FinishDate = " ";
+    String project_Type = " ";
+    String project_DateCreate = " ";
+    String project_Leader = " ";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -283,7 +280,7 @@ public class CreateProjectFragment extends DialogFragment {
 //                                                + estimedate + "\n"
 //                                                + username + "\n"
 //                                                + datecreate, Toast.LENGTH_SHORT).show();
-                                    reference1 = FirebaseDatabase.getInstance().getReference("Projects");
+                                    DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Projects");
                                     project_ID = reference1.push().getKey();
                                     HashMap<String, Object> hashMap = new HashMap<>();
                                     hashMap.put("project_ID", project_ID);
@@ -299,7 +296,7 @@ public class CreateProjectFragment extends DialogFragment {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()){
-                                                reference2 = FirebaseDatabase.getInstance().getReference("User_List_By_Project").child(project_ID);
+                                                DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference("User_List_By_Project").child(project_ID);
                                                 HashMap<String, Object> hashMap1 = new HashMap<>();
                                                 hashMap1.put("user_ID", project_Leader);
                                                 hashMap1.put("project_ID", project_ID);
@@ -308,12 +305,11 @@ public class CreateProjectFragment extends DialogFragment {
                                                     @Override
                                                     public void onComplete(@NonNull Task<Void> task) {
                                                         if (task.isSuccessful()){
+                                                            ProjectsFragment.getInstance().projects.clear();
+                                                            ProjectsFragment.getInstance().showProjectList();
                                                             Toast.makeText(activity, "Create success", Toast.LENGTH_SHORT).show();
-                                                            DashBoardFragment.getInstance().issue_list.clear();
-                                                            DashBoardFragment.getInstance().toDo_list.clear();
-                                                            DashBoardFragment.getInstance().inProgress_list.clear();
-                                                            DashBoardFragment.getInstance().done_list.clear();
-                                                            DashBoardFragment.getInstance().getIssueList();
+                                                            progressDialog.dismiss();
+                                                            dismiss();
                                                         }else {
                                                             Toast.makeText(activity, "Create failed", Toast.LENGTH_SHORT).show();
                                                         }
@@ -322,8 +318,6 @@ public class CreateProjectFragment extends DialogFragment {
                                             }
                                         }
                                     });
-                                    progressDialog.dismiss();
-                                    dismiss();
                                     break;
 
                                 case DialogInterface.BUTTON_NEGATIVE:

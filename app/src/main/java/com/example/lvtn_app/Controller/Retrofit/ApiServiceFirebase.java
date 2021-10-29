@@ -1,7 +1,7 @@
 package com.example.lvtn_app.Controller.Retrofit;
 
-import com.example.lvtn_app.View.Notification.MyResponse;
-import com.example.lvtn_app.View.Notification.Sender;
+import com.example.lvtn_app.View.NotificationMessage.MyResponse;
+import com.example.lvtn_app.View.NotificationMessage.Sender;
 
 import retrofit2.Call;
 import retrofit2.http.Body;

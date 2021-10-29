@@ -1,4 +1,4 @@
-package com.example.lvtn_app.View.Notification;
+package com.example.lvtn_app.View.NotificationMessage;
 
 public class Sender {
     public Data data;

@@ -62,4 +62,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:22.0.0'
     //MPAndroidChart
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+    //Meow Bottom Navigation
+    implementation 'com.etebarian:meow-bottom-navigation-java:1.2.0'
 }

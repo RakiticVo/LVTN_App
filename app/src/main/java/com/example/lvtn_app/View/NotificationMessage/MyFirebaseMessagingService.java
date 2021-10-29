@@ -1,11 +1,10 @@
-package com.example.lvtn_app.View.Notification;
+package com.example.lvtn_app.View.NotificationMessage;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -18,6 +17,7 @@ import androidx.core.app.NotificationCompat;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 import com.example.lvtn_app.View.Activity.ChatActivity;
+import com.example.lvtn_app.View.Notifications;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -58,7 +58,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void sendNotification(RemoteMessage remoteMessage) {
         Map<String, String> dataPayload = remoteMessage.getData();
         String user = dataPayload.get("user");
-        String icon = dataPayload.get("icon");
+        String group_id = dataPayload.get("group_id");
         String body = dataPayload.get("body");
         String title = dataPayload.get("title");
 
@@ -72,16 +72,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         int j = Integer.parseInt(user.replaceAll("[\\D]", ""));
         Intent intent = new Intent(this, ChatActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putString("id_group", user);
+        bundle.putString("id_group", group_id);
         intent.putExtras(bundle);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, j, intent, PendingIntent.FLAG_ONE_SHOT);
 
         Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(Integer.parseInt(icon))
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, Notifications.CHANNEL_3_ID)
+                .setSmallIcon(R.drawable.logo)
                 .setContentTitle(title)
                 .setContentText(body)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setCategory(NotificationCompat.CATEGORY_PROMO) // Promotion.
                 .setAutoCancel(true)
                 .setSound(defaultSound)
                 .setContentIntent(pendingIntent);

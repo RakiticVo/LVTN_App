@@ -1,15 +1,14 @@
-package com.example.lvtn_app.View.Notification;
+package com.example.lvtn_app.View.NotificationMessage;
 
 public class Data {
     private String user; //sender
-    private int icon;
+    private String group_id;
     private String body;
     private String title;
     private String sented; //receiver
 
-    public Data(String user, int icon, String body, String title, String sented) {
+    public Data(String user, String group_id, String body, String title, String sented) {
         this.user = user;
-        this.icon = icon;
         this.body = body;
         this.title = title;
         this.sented = sented;
@@ -26,12 +25,12 @@ public class Data {
         this.user = user;
     }
 
-    public int getIcon() {
-        return icon;
+    public String getGroup_id() {
+        return group_id;
     }
 
-    public void setIcon(int icon) {
-        this.icon = icon;
+    public void setGroup_id(String group_id) {
+        this.group_id = group_id;
     }
 
     public String getBody() {

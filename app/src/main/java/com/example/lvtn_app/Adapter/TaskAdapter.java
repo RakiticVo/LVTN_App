@@ -67,6 +67,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>{
                     editor = sharedPreferences.edit();
                     editor.putString("task_id", tasks_list.get(getAdapterPosition()).getTask_ID() + "");
                     editor.putString("task_name", (tasks_list.get(getAdapterPosition()).getTask_Name()));
+                    editor.putString("task_type", tasks_list.get(getAdapterPosition()).getTask_Type() + "");
+                    editor.putString("task_description", (tasks_list.get(getAdapterPosition()).getTask_Description()));
+                    editor.putString("task_start_date", (tasks_list.get(getAdapterPosition()).getTask_StartDate()));
                     editor.commit();
                     TaskDetailFragment dialog = new TaskDetailFragment();
                     dialog.show(((AppCompatActivity) context).getSupportFragmentManager(), "TaskDetailFragment");

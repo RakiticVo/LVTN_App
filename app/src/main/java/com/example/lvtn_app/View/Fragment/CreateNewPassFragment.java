@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
@@ -20,9 +22,20 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -33,11 +46,15 @@ public class CreateNewPassFragment extends DialogFragment {
     //Khai báo
     TextInputLayout password_text_input_layout, new_password_text_input_layout;
     Button btn_confirm_create_new_password, btn_cancel_create_new_password;
-    SharedPreferences mSharedPreferences;
+
+    FirebaseUser firebaseUser;
+    AppCompatActivity activity;
+    SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
+    String currentpass = "";
 
     //User Information for Update userPass
-    int id_user;
+    String id_user = "";
     String userPass = "";
 
     @Override
@@ -55,10 +72,12 @@ public class CreateNewPassFragment extends DialogFragment {
         btn_confirm_create_new_password = view.findViewById(R.id.btn_confirm_create_new_password);
         btn_cancel_create_new_password = view.findViewById(R.id.btn_cancel_create_new_password);
 
-        mSharedPreferences = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
-        editor = mSharedPreferences.edit();
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        activity = (AppCompatActivity) getContext();
 
-        Toast.makeText(getContext(), "" + mSharedPreferences.getString("userPassword_txt", "123"), Toast.LENGTH_SHORT).show();
+        sharedPreferences = requireActivity().getSharedPreferences("User", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+        currentpass = sharedPreferences.getString("user_Pass", "token");
 
         //Bắt sự kiện
         //Todo: Xử lý sự kiện rời khỏi fragment
@@ -75,9 +94,15 @@ public class CreateNewPassFragment extends DialogFragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     if (password_text_input_layout.getEditText().getText().length() == 0){
-                        password_text_input_layout.setError("Please enter password");
+                        password_text_input_layout.setError("Please enter password!!!");
                         password_text_input_layout.setErrorEnabled(true);
-                    }else CheckPassword(password_text_input_layout, mSharedPreferences.getString("userPassword_txt", "123"));
+                    }else if(password_text_input_layout.getEditText().getText().length() <6){
+                        password_text_input_layout.setError("Password must be more than 6 characters!!!");
+                        password_text_input_layout.setErrorEnabled(true);
+                    }else if (!password_text_input_layout.getEditText().getText().toString().equals(currentpass)){
+                        password_text_input_layout.setError("wrong password!!!");
+                        password_text_input_layout.setErrorEnabled(true);
+                    }else password_text_input_layout.setErrorEnabled(false);
                 }else {
                     password_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
                         @Override
@@ -95,7 +120,6 @@ public class CreateNewPassFragment extends DialogFragment {
 
                         @Override
                         public void afterTextChanged(Editable s) {
-                            CheckPassword(password_text_input_layout, mSharedPreferences.getString("userPassword_txt", "123"));
                         }
                     });
                 }
@@ -110,7 +134,7 @@ public class CreateNewPassFragment extends DialogFragment {
                     if (new_password_text_input_layout.getEditText().getText().length() == 0){
                         new_password_text_input_layout.setError("Please enter new password");
                         new_password_text_input_layout.setErrorEnabled(true);
-                    }else CheckPassword(new_password_text_input_layout, mSharedPreferences.getString("userPassword_txt", "123"));
+                    }else CheckPassword(new_password_text_input_layout, currentpass);
                 }else{
                     new_password_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
                         @Override
@@ -147,13 +171,18 @@ public class CreateNewPassFragment extends DialogFragment {
                 if (password_text_input_layout.getEditText().getText().length() == 0){
                     password_text_input_layout.setError("Please enter password!!!");
                     password_text_input_layout.setErrorEnabled(true);
-                }else {
-                    CheckPassword(password_text_input_layout, mSharedPreferences.getString("userPassword_txt", "123"));
-                }
+                }else if(password_text_input_layout.getEditText().getText().length() <6){
+                    password_text_input_layout.setError("Password must be more than 6 characters!!!");
+                    password_text_input_layout.setErrorEnabled(true);
+                }else if (!password_text_input_layout.getEditText().getText().toString().equals(currentpass)){
+                    password_text_input_layout.setError("wrong password!!!");
+                    password_text_input_layout.setErrorEnabled(true);
+                }else password_text_input_layout.setErrorEnabled(false);
+
                 if (new_password_text_input_layout.getEditText().getText().length() == 0){
                     new_password_text_input_layout.setError("Please enter password!!!");
                     new_password_text_input_layout.setErrorEnabled(true);
-                }else CheckPassword(new_password_text_input_layout, mSharedPreferences.getString("userPassword_txt", "123"));
+                }else CheckPassword(new_password_text_input_layout, currentpass);
 
                 if (password_text_input_layout.isErrorEnabled() || new_password_text_input_layout.isErrorEnabled()) {
                     Toast.makeText(getContext(), "Please check error!!!", Toast.LENGTH_SHORT).show();
@@ -164,12 +193,22 @@ public class CreateNewPassFragment extends DialogFragment {
                             switch (which){
                                 case DialogInterface.BUTTON_POSITIVE:
                                     //Yes button clicked
-                                    id_user = mSharedPreferences.getInt("userId_txt", -1);
+                                    id_user = firebaseUser.getUid();
                                     userPass = new_password_text_input_layout.getEditText().getText().toString();
-                                    Toast.makeText(getContext(), "" + id_user + "\n" + userPass, Toast.LENGTH_SHORT).show();
-                                    if (id_user != -1){
-//                                        updateUserPass(id_user, userPass);
-                                    }
+                                    DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+                                    HashMap<String, Object> hashMap = new HashMap<>();
+                                    hashMap.put("user_Pass", userPass);
+                                    reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                                editor.putString("user_Pass", userPass);
+                                                editor.commit();
+                                                Toast.makeText(activity, "Change password success", Toast.LENGTH_SHORT).show();
+                                                dismiss();
+                                            }
+                                        }
+                                    });
                                     break;
 
                                 case DialogInterface.BUTTON_NEGATIVE:
@@ -188,28 +227,6 @@ public class CreateNewPassFragment extends DialogFragment {
 
         return view;
     }
-
-//    public void updateUserPass(int id_user, String userPass){
-//        ApiService updateUserPass = ApiUtils.connectRetrofit();
-//        updateUserPass.isUpdateUserPassSuccess(id_user, userPass).enqueue(new Callback<String>() {
-//            @Override
-//            public void onResponse(Call<String> call, Response<String> response) {
-//                if (response.body().equals("SUCCESS")){
-//                    Toast.makeText(getContext(), "Update success" , Toast.LENGTH_SHORT).show();
-//                    editor.putString("userPassword_txt", userPass);
-//                    editor.commit();
-//                    Objects.requireNonNull(getDialog()).dismiss();
-//                }else {
-//                    Toast.makeText(getContext(), "Update failed" , Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<String> call, Throwable t) {
-//                Toast.makeText(getContext(), "" + call + "\n" + t.getMessage(), Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
 
     public void CheckPassword(TextInputLayout textInputLayout, String password){
         if(textInputLayout.getEditText().getText().toString().length() <6){
