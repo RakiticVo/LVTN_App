@@ -676,7 +676,7 @@ public class IssueDetailFragment extends DialogFragment {
                                     hashMap.put("issue_Assignee", issue_Assignee);
                                     hashMap.put("issue_EstimateTime", issue_EstimateFinishDate);
 
-                                    reference = FirebaseDatabase.getInstance().getReference("Issues").child(project_ID).child(issue_ID);
+                                    DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Issues").child(project_ID).child(issue_ID);
                                     AppCompatActivity activity = (AppCompatActivity) getContext();
                                     reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
@@ -723,11 +723,14 @@ public class IssueDetailFragment extends DialogFragment {
                                     if (processType_list.get(i).getName().equals("Done")){
                                         spinner_process_issue_detail.setSelection(i);
                                         issue_ProcessType = processType_list.get(i).getName().toString();
+                                        DateFormat dateFormat = new DateFormat();
+                                        String currentDate = dateFormat.formatDate(Calendar.getInstance().getTime());
                                         processTypeAdapter.notifyDataSetChanged();
                                         HashMap<String, Object> hashMap = new HashMap<>();
                                         hashMap.put("issue_ProcessType", issue_ProcessType);
+                                        hashMap.put("issue_FinishDate", currentDate);
 
-                                        reference = FirebaseDatabase.getInstance().getReference("Issues").child(issue_ID);
+                                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Issues").child(project_ID).child(issue_ID);
                                         AppCompatActivity activity = (AppCompatActivity) getContext();
                                         reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override

@@ -18,7 +18,11 @@ import com.example.lvtn_app.Adapter.ProjectsAdapter;
 import com.example.lvtn_app.Model.Joining_Group_Chat;
 import com.example.lvtn_app.Model.Joining_Project;
 import com.example.lvtn_app.Model.Joining_Request;
+import com.example.lvtn_app.Model.Project;
+import com.example.lvtn_app.Model.Project_Issue_Request;
 import com.example.lvtn_app.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -144,39 +148,22 @@ public class NotificationFragment extends Fragment {
     }
 
     public void getJoiningProjectRequest(ArrayList<String> projectID){
-        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Notifications").child("Joining_Project");
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notifications")
+                .child("Joining_Project");
         for (String s : projectID){
-            reference1.child(s).addValueEventListener(new ValueEventListener() {
+            reference.child(s).child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-                        if (dataSnapshot.getKey().equals(firebaseUser.getUid())){
-                            DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference("Notifications")
-                                    .child("Joining_Project").child(s).child(dataSnapshot.getKey());
-                            reference2.addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    Joining_Project joiningProject = snapshot.getValue(Joining_Project.class);
-                                    if (joiningProject != null){
-                                        saveList(new Joining_Request(
-                                                joiningProject.getType(),
-                                                joiningProject.getLeader_ID(),
-                                                joiningProject.getProject_ID(),
-                                                joiningProject.getReceiver_ID(),
-                                                joiningProject.getPosition(),
-                                                joiningProject.getStatus(),
-                                                joiningProject.getResult()));
-                                        showNotification(storage);
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
-                            break;
-                        }
+                    Joining_Project joiningProject = snapshot.getValue(Joining_Project.class);
+                    if (joiningProject != null){
+                        saveList(new Joining_Request(
+                                joiningProject.getType(),
+                                joiningProject.getLeader_ID(),
+                                joiningProject.getProject_ID(),
+                                joiningProject.getReceiver_ID(),
+                                joiningProject.getPosition(),
+                                joiningProject.getStatus(),
+                                joiningProject.getResult()));
                     }
                 }
 
@@ -201,7 +188,7 @@ public class NotificationFragment extends Fragment {
                 if (temp.size() > 0) {
                     getJoiningGroupChatRequest(temp);
                 }else {
-                    showNotification(storage);
+                    getIssueProjectID();
                 }
             }
 
@@ -213,40 +200,86 @@ public class NotificationFragment extends Fragment {
     }
 
     public void getJoiningGroupChatRequest(ArrayList<String> groupChatID){
-        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Notifications").child("Joining_Group_Chat");
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notifications").child("Joining_Group_Chat");
         for (String s : groupChatID){
-            reference1.child(s).addValueEventListener(new ValueEventListener() {
+            reference.child(s).child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Joining_Group_Chat joiningGroupChat = snapshot.getValue(Joining_Group_Chat.class);
+                    if (joiningGroupChat != null){
+                        saveList(new Joining_Request(
+                                joiningGroupChat.getType(),
+                                joiningGroupChat.getLeader_ID(),
+                                joiningGroupChat.getGroup_ID(),
+                                joiningGroupChat.getReceiver_ID(),
+                                joiningGroupChat.getPosition(),
+                                joiningGroupChat.getStatus(),
+                                joiningGroupChat.getResult()));
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+        getIssueProjectID();
+    }
+
+    public void getIssueProjectID(){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notifications").child("Project_Issue_Request");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ArrayList<String> temp = new ArrayList<>();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    temp.add(dataSnapshot.getKey());
+                }
+                if (temp.size() > 0){
+                    getProjectIssueRequest(temp);
+                }else {
+                    showNotification(storage);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void getProjectIssueRequest(ArrayList<String> projectID){
+        ArrayList<Project_Issue_Request> temp = new ArrayList<>();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notifications").child("Project_Issue_Request");
+        for (String s : projectID){
+            temp.clear();
+            reference.child(s).child(firebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    temp.clear();
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-                        if (dataSnapshot.getKey().equals(firebaseUser.getUid())){
-                            DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference("Notifications")
-                                    .child("Joining_Group_Chat").child(s).child(dataSnapshot.getKey());
-                            reference2.addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    Joining_Group_Chat joiningGroupChat = snapshot.getValue(Joining_Group_Chat.class);
-                                    if (joiningGroupChat != null){
-                                        saveList(new Joining_Request(
-                                                joiningGroupChat.getType(),
-                                                joiningGroupChat.getLeader_ID(),
-                                                joiningGroupChat.getGroup_ID(),
-                                                joiningGroupChat.getReceiver_ID(),
-                                                joiningGroupChat.getPosition(),
-                                                joiningGroupChat.getStatus(),
-                                                joiningGroupChat.getResult()));
-                                        showNotification(storage);
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
+                        Project_Issue_Request projectIssueRequest = dataSnapshot.getValue(Project_Issue_Request.class);
+                        if (projectIssueRequest != null){
+                            temp.add(projectIssueRequest);
+                        }
+                        if (temp.size() == snapshot.getChildrenCount()){
+                            for (Project_Issue_Request issue : temp) {
+                                saveList(new Joining_Request(
+                                        issue.getType(),
+                                        issue.getLeader_ID(),
+                                        issue.getProject_ID(),
+                                        issue.getReceiver_ID(),
+                                        issue.getIssue_ID(),
+                                        issue.getStatus(),
+                                        issue.getResult()));
+                            }
                             break;
                         }
                     }
+//                    Toast.makeText(activity, "" + storage.size(), Toast.LENGTH_SHORT).show();
+                    showNotification(storage);
                 }
 
                 @Override
@@ -267,7 +300,6 @@ public class NotificationFragment extends Fragment {
         if (requests.size() > 0){
             for (Joining_Request request : requests){
                 joining_requests.add(request);
-//            Toast.makeText(activity, "" + request.getType(), Toast.LENGTH_SHORT).show();
                 notificationAdapter.notifyDataSetChanged();
             }
         }

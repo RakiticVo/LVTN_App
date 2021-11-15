@@ -37,7 +37,6 @@ public class DashboardItemAdapter  extends RecyclerView.Adapter<DashboardItemAda
     private ArrayList<Process> process_list;
     private IssueAdapter issueAdapter;
     SharedPreferences sharedPreferences;
-    SharedPreferences.Editor editor;
     FirebaseAuth auth;
     FirebaseUser firebaseUser;
 
@@ -56,6 +55,7 @@ public class DashboardItemAdapter  extends RecyclerView.Adapter<DashboardItemAda
 
     @Override
     public void onBindViewHolder(@NonNull DashboardItemAdapter.ViewHolder holder, int position) {
+        String processName = process_list.get(position).getName().toString();
         holder.list.clear();
         holder.tv_process.setText(process_list.get(position).getName());
         holder.reference.addValueEventListener(new ValueEventListener() {
@@ -64,7 +64,7 @@ public class DashboardItemAdapter  extends RecyclerView.Adapter<DashboardItemAda
                 Project project = snapshot.getValue(Project.class);
                 if (project != null){
                     if (project.getProject_Leader().equals(firebaseUser.getUid()) &&
-                            process_list.get(position).getName().equals("ToDo")){
+                            processName.equals("ToDo")){
                         holder.linear_create_task.setVisibility(View.VISIBLE);
                     }else {
                         holder.linear_create_task.setVisibility(View.GONE);

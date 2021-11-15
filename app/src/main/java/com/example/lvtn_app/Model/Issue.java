@@ -3,6 +3,7 @@ package com.example.lvtn_app.Model;
 public class Issue {
     private String issue_ID;
     private String issue_Name;
+    private String issue_Request_Decision;
     private String issue_ProcessType;
     private String issue_Description;
     private String issue_Type;
@@ -14,9 +15,10 @@ public class Issue {
     private String issue_project_ID;
     private String issue_FinishDate;
 
-    public Issue(String issue_ID, String issue_Name, String issue_ProcessType, String issue_Description, String issue_Type, String issue_StartDate, String issue_Priority, String issue_Assignee, String issue_EstimateFinishDate, String issue_Creator, String issue_project_ID, String issue_FinishDate) {
+    public Issue(String issue_ID, String issue_Name, String issue_Request_Decision, String issue_ProcessType, String issue_Description, String issue_Type, String issue_StartDate, String issue_Priority, String issue_Assignee, String issue_EstimateFinishDate, String issue_Creator, String issue_project_ID, String issue_FinishDate) {
         this.issue_ID = issue_ID;
         this.issue_Name = issue_Name;
+        this.issue_Request_Decision = issue_Request_Decision;
         this.issue_ProcessType = issue_ProcessType;
         this.issue_Description = issue_Description;
         this.issue_Type = issue_Type;
@@ -46,6 +48,14 @@ public class Issue {
 
     public void setIssue_Name(String issue_Name) {
         this.issue_Name = issue_Name;
+    }
+
+    public String getIssue_Request_Decision() {
+        return issue_Request_Decision;
+    }
+
+    public void setIssue_Request_Decision(String issue_Request_Decision) {
+        this.issue_Request_Decision = issue_Request_Decision;
     }
 
     public String getIssue_ProcessType() {

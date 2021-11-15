@@ -41,4 +41,11 @@
     <string name="position"><u>Position</u><font color='#FF0000'>*</font></string>
     <string name="project_leader"><u>Project Leader</u><font color='#FF0000'>*</font></string>
     <string name="total_issue">Total issue:</string>
+    <string name="project">Project</string>
+    <string name="issueName">Issue Name</string>
+    <string name="priorities">Priority</string>
+    <string name="issueType">Issue Type</string>
+    <string name="personal_working_efficiency">Personal Working Efficiency</string>
+    <string name="project_issues">Project Issues</string>
+    <string name="personal_issues">Personal Issues</string>
 </resources>

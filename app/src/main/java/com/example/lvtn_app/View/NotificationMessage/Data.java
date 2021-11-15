@@ -9,6 +9,7 @@ public class Data {
 
     public Data(String user, String group_id, String body, String title, String sented) {
         this.user = user;
+        this.group_id = group_id;
         this.body = body;
         this.title = title;
         this.sented = sented;

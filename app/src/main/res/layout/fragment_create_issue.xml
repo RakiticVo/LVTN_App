@@ -156,6 +156,7 @@
                         android:id="@+id/edt_description_issue_create"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:singleLine="true"
                         android:background="@drawable/custom_edt"
                         android:padding="8dp"
                         android:text=" "
@@ -451,7 +452,7 @@
                             android:inputType="date"
                             android:padding="8dp"
                             android:singleLine="true"
-                            android:text="06/09/2021"
+                            android:text=" "
                             android:textSize="18sp" />
 
                     </com.google.android.material.textfield.TextInputLayout>

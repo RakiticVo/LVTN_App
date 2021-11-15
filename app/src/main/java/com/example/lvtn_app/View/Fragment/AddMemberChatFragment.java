@@ -59,13 +59,12 @@ public class AddMemberChatFragment extends DialogFragment {
     SharedPreferences sharedPreferences, sharedPreferences_chat;
     FirebaseAuth auth;
     FirebaseUser firebaseUser;
-    DatabaseReference reference1, reference2, reference3;
+    DatabaseReference reference1, reference2;
     String id_user, id_group;
     ProgressDialog progressDialog;
     AppCompatActivity activity;
 
     ArrayList<String> user_ID_list = new ArrayList<>();
-    ArrayList<String> id = new ArrayList<>();
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -285,13 +284,11 @@ public class AddMemberChatFragment extends DialogFragment {
     }
 
     public void CheckUserInGroupChat(String user_ID, String position){
-        id.clear();
         final boolean[] check = {false};
         reference2 = FirebaseDatabase.getInstance().getReference("User_List_By_Group_Chat").child(id_group);
         reference2.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                id.clear();
                 for (DataSnapshot dataSnapshot1 : snapshot.getChildren()){
                     Group_Chat_Users users = dataSnapshot1.getValue(Group_Chat_Users.class);
                     if (user_ID.equals(users.getUser_ID())){

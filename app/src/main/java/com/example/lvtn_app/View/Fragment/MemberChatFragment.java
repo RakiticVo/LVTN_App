@@ -303,6 +303,8 @@ public class MemberChatFragment extends Fragment implements MemberAdapter.ItemCl
                 reference3.child(s).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        member_list.clear();
+                        delete_member_list.clear();
                         User user = snapshot.getValue(User.class);
 //                    Toast.makeText(activity, "" + groupChat.getGroup_ID(), Toast.LENGTH_SHORT).show();
                         member_list.add(user);
