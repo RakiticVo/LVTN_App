@@ -126,16 +126,16 @@ public class DashBoardFragment extends Fragment {
         processes = new ArrayList<>();
 
         //ToDo_Task_List
-        toDo_list.add(new Issue("1", "Demo ứng dụng", "Todo", "", "Task", "27/09/2021", "Medium", "Chí Thiện", "1w", "Chí Thiện", project_ID, ""));
-        toDo_list.add(new Issue("2", "Viết tài liệu thiết kế", "Todo", "", "Story", "15/09/2021", "High", "Thiện Võ", "1w", "Chí Thiện", project_ID, ""));
+        toDo_list.add(new Issue("1", "Demo ứng dụng"," ",  "Todo", "", "Task", "27/09/2021", "Medium", "Chí Thiện", "1w", "Chí Thiện", project_ID, ""));
+        toDo_list.add(new Issue("2", "Viết tài liệu thiết kế", " ","Todo", "", "Story", "15/09/2021", "High", "Thiện Võ", "1w", "Chí Thiện", project_ID, ""));
 
         //InProgress_Task_List
-        inProgress_list.add(new Issue("1", "Thiết kế giao diện ứng dụng", "InProgress", "", "Task", "12/09/2021", "Medium", "Rakitic Võ", "1w", "Chí Thiện", project_ID, ""));
+        inProgress_list.add(new Issue("1", "Thiết kế giao diện ứng dụng", " ", "InProgress", "", "Task", "12/09/2021", "Medium", "Rakitic Võ", "1w", "Chí Thiện", project_ID, ""));
 
         //Done_Task_List
-        done_list.add(new Issue("1", "Viết mô tả ứng dụng", "Done", "", "Story", "26/08/2021", "Medium", "Chí Thiện", "1w", "Chí Thiện", project_ID, ""));
-        done_list.add(new Issue("2", "Viết lại mô tả ứng dụng", "Done", "", "Bug", "01/09/2021", "Low", "Võ Rakitic", "1w", "Chí Thiện", project_ID, ""));
-        done_list.add(new Issue("3", "Thiết kế mô hình dữ liệu", "Done", "",  "Story", "09/09/2021", "High", "Thiện Võ", "1w", "Chí Thiện", project_ID, ""));
+        done_list.add(new Issue("1", "Viết mô tả ứng dụng"," ", "Done", "", "Story", "26/08/2021", "Medium", "Chí Thiện", "1w", "Chí Thiện", project_ID, ""));
+        done_list.add(new Issue("2", "Viết lại mô tả ứng dụng"," ","Done", "", "Bug", "01/09/2021", "Low", "Võ Rakitic", "1w", "Chí Thiện", project_ID, ""));
+        done_list.add(new Issue("3", "Thiết kế mô hình dữ liệu", " ","Done", "",  "Story", "09/09/2021", "High", "Thiện Võ", "1w", "Chí Thiện", project_ID, ""));
 
         //ToDo_List
         processes.add(new Process(1, sharedPreferences.getString("project_name_txt", "Project_name"),"ToDo", toDo_list));

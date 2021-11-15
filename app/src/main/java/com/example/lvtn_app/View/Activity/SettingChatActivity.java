@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.lvtn_app.Controller.Service.NotificationService;
 import com.example.lvtn_app.Model.GroupChat;
 import com.example.lvtn_app.R;
 import com.example.lvtn_app.View.Fragment.MemberChatFragment;
@@ -157,5 +158,25 @@ public class SettingChatActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+//        Toast.makeText(SettingChatActivity.this, "On Start", Toast.LENGTH_SHORT).show();
+        stopService(new Intent(this, NotificationService.class));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+//        Toast.makeText(SettingChatActivity.this, "On Stop", Toast.LENGTH_SHORT).show();
+        startService(new Intent(this, NotificationService.class));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        startService(new Intent(this, NotificationService.class));
     }
 }

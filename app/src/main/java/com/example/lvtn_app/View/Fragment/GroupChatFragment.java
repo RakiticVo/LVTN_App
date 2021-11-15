@@ -195,22 +195,13 @@ public class GroupChatFragment extends Fragment {
 
             }
         });
-
-        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
-            @Override
-            public void onComplete(@NonNull Task<String> task) {
-                if (task.isSuccessful()){
-                    updateToken(task.getResult());
-                }
-            }
-        });
         return view;
     }
 
     public void showGroupChatList()
     {
         messageArrayList.clear();
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Chats").child(id_group);
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Messages").child(id_group);
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -245,12 +236,6 @@ public class GroupChatFragment extends Fragment {
             }
         });
         groupChatAdapter.notifyDataSetChanged();
-    }
-
-    private void updateToken(String token){
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Tokens");
-        Token token1 = new Token(token);
-        reference.child(firebaseUser.getUid()).setValue(token1);
     }
 
     public void getGroupChatIDList(){

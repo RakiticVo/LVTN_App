@@ -15,7 +15,9 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.lvtn_app.Controller.Service.NotificationService;
 import com.example.lvtn_app.R;
 
 public class IntroduceActivity extends AppCompatActivity {

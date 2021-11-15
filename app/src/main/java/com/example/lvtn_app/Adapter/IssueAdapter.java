@@ -44,7 +44,7 @@ public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.ViewHolder>{
 
     @Override
     public void onBindViewHolder(@NonNull IssueAdapter.ViewHolder holder, int position) {
-        holder.tv_name_issue.setText(issue_list.get(position).getIssue_Name());
+        holder.tv_name_issue.setText(issue_list.get(position).getIssue_Name() + issue_list.get(position).getIssue_Request_Decision());
         holder.tv_name_assignee.setText(issue_list.get(position).getIssue_Assignee());
         holder.tv_start_date_issue.setText(issue_list.get(position).getIssue_StartDate());
         switch (issue_list.get(position).getIssue_Type()){

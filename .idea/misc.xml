@@ -10,6 +10,7 @@
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_background_main.xml" value="0.27076923076923076" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_background_main_2.xml" value="0.27076923076923076" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_background_main_3.xml" value="0.27076923076923076" />
+        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_background_white_cross.xml" value="0.2916666666666667" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_btn.xml" value="0.1625" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_btn_grey.xml" value="0.2916666666666667" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_btn_login.xml" value="0.275" />
@@ -19,6 +20,7 @@
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_edt_error.xml" value="0.2916666666666667" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_edt_select.xml" value="0.2916666666666667" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_fragment.xml" value="0.2916666666666667" />
+        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_heading_gridview.xml" value="0.2916666666666667" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_message_frame.xml" value="0.27076923076923076" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_message_frame_receiver.xml" value="0.27076923076923076" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_message_frame_sender.xml" value="0.2916666666666667" />
@@ -30,6 +32,8 @@
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_shape_rounded_grey.xml" value="0.2916666666666667" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_shape_task.xml" value="0.2916666666666667" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custom_spinner.xml" value="0.2916666666666667" />
+        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custome_data_gridview.xml" value="0.2916666666666667" />
+        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/custome_table_row.xml" value="0.2916666666666667" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/drawable/ic_baseline_settings_24.xml" value="0.2916666666666667" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/activity_chat.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/activity_introduce.xml" value="0.25885416666666666" />
@@ -38,6 +42,12 @@
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/activity_setting_chat.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/custom_background_work.xml" value="0.25885416666666666" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/custom_btn_logo.xml" value="0.25885416666666666" />
+        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/custom_gridview.xml" value="0.2755208333333333" />
+        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/custom_gridview_heading.xml" value="0.2755208333333333" />
+        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/custom_gv.xml" value="0.2755208333333333" />
+        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/custom_gv_issue_name.xml" value="0.2755208333333333" />
+        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/custom_gv_issue_type.xml" value="0.2755208333333333" />
+        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/custom_popup_window.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_add_member.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_add_member_chat.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_add_member_project.xml" value="0.2755208333333333" />
@@ -51,6 +61,7 @@
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_dash_board.xml" value="0.24479166666666666" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_group_chat.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_home.xml" value="0.25885416666666666" />
+        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_issue_completed_table.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_issue_detail.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_login.xml" value="0.25885416666666666" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_login2.xml" value="0.25885416666666666" />
@@ -62,16 +73,20 @@
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_member_detail_project.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_member_project.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_message.xml" value="0.25885416666666666" />
+        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_my_dash_board.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_my_tasks.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_notification.xml" value="0.24259259259259258" />
+        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_personal_stactistic.xml" value="0.26145833333333335" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_personal_tasks.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_profile.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_project_detail.xml" value="0.25885416666666666" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_project_info.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_projects.xml" value="0.2755208333333333" />
+        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_schedule.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_setting_message.xml" value="0.2" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_sign_up_tab.xml" value="0.25885416666666666" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_statistic.xml" value="0.2755208333333333" />
+        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_table_dash_board.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_task_detail.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/fragment_work_detail.xml" value="0.25885416666666666" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/item_accept_notification.xml" value="0.25885416666666666" />
@@ -83,7 +98,7 @@
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/item_chat_right.xml" value="0.25885416666666666" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/item_dashboard.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/item_group_chat.xml" value="0.2755208333333333" />
-        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/item_issue.xml" value="0.8" />
+        <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/item_issue.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/item_issue_type.xml" value="0.2755208333333333" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/item_member.xml" value="0.36644591611479027" />
         <entry key="..\:/Users/thien/Desktop/Luan_Van_Tot_Nghiep/LVTN_App/app/src/main/res/layout/item_member_remove.xml" value="0.2755208333333333" />

@@ -31,12 +31,14 @@ import com.example.lvtn_app.Adapter.IssueTypeAdapter;
 import com.example.lvtn_app.Adapter.PriorityAdapter;
 import com.example.lvtn_app.Adapter.ProcessTypeAdapter;
 import com.example.lvtn_app.Controller.Method.DateFormat;
+import com.example.lvtn_app.Model.Group_Chat_Users;
 import com.example.lvtn_app.Model.IssueType;
 import com.example.lvtn_app.Model.ProcessType;
 import com.example.lvtn_app.Model.Project_Users;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 import com.example.lvtn_app.Model.Priority;
+import com.example.lvtn_app.View.NotificationMessage.Data;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
@@ -81,8 +83,7 @@ public class CreateIssueFragment extends DialogFragment {
     DateFormat dateFormat = new DateFormat();
     Calendar myCalendar = Calendar.getInstance();
 
-    SharedPreferences sharedPreferences_user, sharedPreferences_project;
-    String user_ID = "";
+    SharedPreferences sharedPreferences_project;
     String project_ID = "";
 
     FirebaseAuth auth;
@@ -166,9 +167,7 @@ public class CreateIssueFragment extends DialogFragment {
         assigneeAdapter = new AssigneeAdapter(getContext(), member_list);
         spinner_detail_assignee_issue_create.setAdapter(assigneeAdapter);
 
-        sharedPreferences_user = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
         sharedPreferences_project = requireContext().getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
-        user_ID = sharedPreferences_user.getString("user_ID", "abc");
         project_ID = sharedPreferences_project.getString("project_ID", "abc");
 //        member_list.clear();
         activity = (AppCompatActivity) getContext();
@@ -580,36 +579,36 @@ public class CreateIssueFragment extends DialogFragment {
 //                                            + estimatetime + "\n"
 //                                            + project_id + "\n"
 //                                            + finishdate + "\n", Toast.LENGTH_LONG).show();
-                                    if (!user_ID.equals("abc") && user_ID.equals(firebaseUser.getUid())){
-                                        if (!project_ID.equals("abc")){
-                                            issue_Creator = user_ID;
-                                            issue_project_ID = project_ID;
-                                            DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Issues").child(project_ID);
-                                            issue_ID = reference1.push().getKey();
-                                            HashMap<String, Object> hashMap = new HashMap<>();
-                                            hashMap.put("issue_ID", issue_ID);
-                                            hashMap.put("issue_Name", issue_Name);
-                                            hashMap.put("issue_ProcessType", issue_ProcessType);
-                                            hashMap.put("issue_Description", issue_Description);
-                                            hashMap.put("issue_Type", issue_Type);
-                                            hashMap.put("issue_StartDate", issue_StartDate);
-                                            hashMap.put("issue_Priority", issue_Priority);
-                                            hashMap.put("issue_Assignee", issue_Assignee);
-                                            hashMap.put("issue_EstimateFinishDate", issue_EstimateFinishDate);
-                                            hashMap.put("issue_Creator", issue_Creator);
-                                            hashMap.put("issue_project_ID", issue_project_ID);
-                                            hashMap.put("issue_FinishDate", issue_FinishDate);
-                                            reference1.child(issue_ID).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if (task.isSuccessful()){
-                                                        updateIssueListByProject(issue_ID, project_ID, issue_Assignee);
-                                                    }else {
-                                                        Toast.makeText(activity, "Create failed", Toast.LENGTH_SHORT).show();
-                                                    }
+                                    if (!project_ID.equals("abc")){
+                                        issue_Creator = firebaseUser.getUid();
+                                        issue_project_ID = project_ID;
+                                        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Issues").child(project_ID);
+                                        issue_ID = reference1.push().getKey();
+                                        HashMap<String, Object> hashMap = new HashMap<>();
+                                        hashMap.put("issue_ID", issue_ID);
+                                        hashMap.put("issue_Name", issue_Name);
+                                        hashMap.put("issue_Request_Decision", "-(Waiting for decision)");
+                                        hashMap.put("issue_ProcessType", issue_ProcessType);
+                                        hashMap.put("issue_Description", issue_Description);
+                                        hashMap.put("issue_Type", issue_Type);
+                                        hashMap.put("issue_StartDate", issue_StartDate);
+                                        hashMap.put("issue_Priority", issue_Priority);
+                                        hashMap.put("issue_Assignee", issue_Assignee);
+                                        hashMap.put("issue_EstimateFinishDate", issue_EstimateFinishDate);
+                                        hashMap.put("issue_Creator", issue_Creator);
+                                        hashMap.put("issue_project_ID", issue_project_ID);
+                                        hashMap.put("issue_FinishDate", issue_FinishDate);
+                                        reference1.child(issue_ID).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()){
+                                                    getUserByUserName(issue_Assignee, issue_ID);
+                                                    //updateIssueListByUser(issue_ID, issue_Name, issue_ProcessType, issue_Type, project_ID, issue_Assignee);
+                                                }else {
+                                                    Toast.makeText(activity, "Create failed", Toast.LENGTH_SHORT).show();
                                                 }
-                                            });
-                                        }
+                                            }
+                                        });
                                     }
                                     break;
 
@@ -631,35 +630,67 @@ public class CreateIssueFragment extends DialogFragment {
         return view;
     }
 
-    public void updateIssueListByProject(String issue_ID, String project_ID, String issue_Assignee){
-        DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference("Issue_List_By_Project");
-        HashMap<String, Object> hashMap1 = new HashMap<>();
-        hashMap1.put("issue_ID", issue_ID);
-        hashMap1.put("project_ID", project_ID);
-        reference2.child(project_ID).setValue(hashMap1).addOnCompleteListener(new OnCompleteListener<Void>() {
+    public void getUserByUserName(String userName, String issue_ID){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+        reference.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()){
-                    updateIssueListByUser(issue_ID, project_ID, issue_Assignee);
-                }else Toast.makeText(activity, "Create failed", Toast.LENGTH_SHORT).show();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    User user = dataSnapshot.getValue(User.class);
+                    if (user.getUser_Name().equals(userName)){
+                        CheckUserInGroupChat(user.getUser_ID(), issue_ID);
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
 
-    public void updateIssueListByUser(String issue_ID, String project_ID, String issue_Assignee){
-        DatabaseReference reference3 = FirebaseDatabase.getInstance().getReference("Issue_List_By_User");
+    public void CheckUserInGroupChat(String user_ID, String issue_ID){
+        DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference("User_List_By_Project").child(project_ID);
+        reference2.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot dataSnapshot1 : snapshot.getChildren()){
+                    Project_Users users = dataSnapshot1.getValue(Project_Users.class);
+                    if (user_ID.equals(users.getUser_ID())){
+                        PushData(user_ID, issue_ID);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void PushData(String user_id, String issue_ID) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Notifications").child("Project_Issue_Request");
+
         HashMap<String, Object> hashMap2 = new HashMap<>();
         hashMap2.put("issue_ID", issue_ID);
-        hashMap2.put("user_name", issue_Assignee);
+        hashMap2.put("type", "project_request_issue");
+        hashMap2.put("leader_ID", firebaseUser.getUid());
         hashMap2.put("project_ID", project_ID);
-        reference3.child(user_ID).setValue(hashMap2).addOnCompleteListener(new OnCompleteListener<Void>() {
+        hashMap2.put("receiver_ID", user_id);
+        hashMap2.put("status", "sent");
+        hashMap2.put("result", "undecided");
+
+        databaseReference.child(project_ID).child(user_id).child(issue_ID).setValue(hashMap2).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-                    Toast.makeText(activity, "Create success", Toast.LENGTH_SHORT).show();
-                    activity.getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, new ProjectDetailFragment()).commit();
+                    NotificationFragment notificationFragment = new NotificationFragment();
                     dismiss();
-                }else Toast.makeText(activity, "Create failed", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(activity, "Invite: " + id, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

@@ -8,13 +8,11 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.media.Image;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -263,11 +261,11 @@ public class CreateNewPersonalTaskFragment extends DialogFragment {
                                             if (task.isSuccessful()){
                                                 try {
                                                     Date start_date = dateFormat.sdf.parse(task_StartDate);
-                                                    MyTasksFragment.getInstance().calendarView.setCurrentDate(start_date);
-                                                    MyTasksFragment.getInstance().setDay(start_date);
+                                                    ScheduleFragment.getInstance().calendarView.setCurrentDate(start_date);
+                                                    ScheduleFragment.getInstance().setDay(start_date);
                                                     String today = new SimpleDateFormat("EE, dd/MM/yyyy", Locale.getDefault()).format(Calendar.getInstance().getTime());
-                                                    MyTasksFragment.getInstance().tv_today.setText(today);
-                                                    MyTasksFragment.getInstance().getTaskByDate(task_StartDate);
+                                                    ScheduleFragment.getInstance().tv_today.setText(today);
+                                                    ScheduleFragment.getInstance().getTaskByDate(task_StartDate);
                                                     progressDialog.dismiss();
                                                     Toast.makeText(activity, "Create success", Toast.LENGTH_SHORT).show();
                                                 } catch (ParseException e) {

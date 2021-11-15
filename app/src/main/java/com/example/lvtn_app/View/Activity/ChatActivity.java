@@ -19,6 +19,7 @@ import com.example.lvtn_app.Adapter.MessageAdapter;
 import com.example.lvtn_app.Controller.Method.DateFormat;
 import com.example.lvtn_app.Controller.Retrofit.ApiServiceFirebase;
 import com.example.lvtn_app.Controller.Retrofit.RetrofitClient;
+import com.example.lvtn_app.Controller.Service.NotificationService;
 import com.example.lvtn_app.Model.GroupChat;
 import com.example.lvtn_app.Model.Group_Chat_Users;
 import com.example.lvtn_app.Model.Message;
@@ -107,6 +108,12 @@ public class ChatActivity extends AppCompatActivity {
         id_user = sharedPreferences.getString("user_ID", "token");
         id_group = sharedPreferences_chat.getString("group_ID", "token");
 
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        if (bundle != null){
+            id_group = bundle.getString("id_group");
+        }
+
         apiService = RetrofitClient.getClient("https://fcm.googleapis.com/").create(ApiServiceFirebase.class);
 
         currentDate = dateFormat.formatDate(date);
@@ -191,7 +198,7 @@ public class ChatActivity extends AppCompatActivity {
                                 editor.putString("user_Name", user.getUser_Name());
                                 editor.putString("user_Avatar", user.getUser_Avatar());
                                 editor.commit();
-                                sendMessage(message_group_ID, message_sender, message_img_sender, message_text, message_send_time, message_send_date);
+                                sendMessage(id_group, message_sender, message_img_sender, message_text, message_send_time, message_send_date);
                             }
 
                             @Override
@@ -229,7 +236,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void sendMessage(String message_group_ID, String message_sender, String message_img_sender, String message_text, String message_send_time, String message_send_date)
     {
-        reference2 = FirebaseDatabase.getInstance().getReference("Chats");
+        reference2 = FirebaseDatabase.getInstance().getReference("Messages");
         message_ID = reference2.push().getKey().toString();
         HashMap<String , Object> hashMap = new HashMap<>();
         hashMap.put("message_ID", message_ID);
@@ -283,7 +290,7 @@ public class ChatActivity extends AppCompatActivity {
                         list.add(users.getUser_ID());
                     }
                 }
-                sendNotification(list, sender_name, message, id_group_receive);
+                sendNotification(list, sender_name, message);
             }
 
             @Override
@@ -293,7 +300,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    private void sendNotification(ArrayList<String> receiver, String sender_name, String message, String id_group){
+    private void sendNotification(ArrayList<String> receiver, String sender_name, String message){
         DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
         for (String s : receiver){
             Query query = tokens.orderByKey().equalTo(s);
@@ -302,6 +309,7 @@ public class ChatActivity extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()){
                         Token token = dataSnapshot.getValue(Token.class);
+//                        Toast.makeText(ChatActivity.this, "" + id_group, Toast.LENGTH_SHORT).show();
                         Data data = new Data(firebaseUser.getUid(), id_group, sender_name+": " + message,
                                 "New message", s);
                         Sender sender = new Sender(data, token.getToken());
@@ -310,7 +318,7 @@ public class ChatActivity extends AppCompatActivity {
                             public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
                                 if (response.code() == 200){
                                     if (response.body().success != 1){
-                                        Toast.makeText(ChatActivity.this, "Failed!!!", Toast.LENGTH_SHORT).show();
+//                                        Toast.makeText(ChatActivity.this, "Failed!!!", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             }
@@ -333,7 +341,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void seenMessage (String id_group, String id_user)
     {
-        reference2 = FirebaseDatabase.getInstance().getReference("Chats").child(id_group);
+        reference2 = FirebaseDatabase.getInstance().getReference("Messages").child(id_group);
         seenListener = reference2.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -362,7 +370,7 @@ public class ChatActivity extends AppCompatActivity {
     private void readMessage(String id_group)
     {
         messageArrayList.clear();
-        reference2 = FirebaseDatabase.getInstance().getReference("Chats").child(id_group);
+        reference2 = FirebaseDatabase.getInstance().getReference("Messages").child(id_group);
         reference2.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -398,7 +406,23 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+//        Toast.makeText(MainActivity.this, "On Start", Toast.LENGTH_SHORT).show();
+        stopService(new Intent(this, NotificationService.class));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+//        Toast.makeText(MainActivity.this, "On Stop", Toast.LENGTH_SHORT).show();
+        startService(new Intent(this, NotificationService.class));
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
+//        Toast.makeText(MainActivity.this, "On Stop", Toast.LENGTH_SHORT).show();
+        startService(new Intent(this, NotificationService.class));
     }
 }
