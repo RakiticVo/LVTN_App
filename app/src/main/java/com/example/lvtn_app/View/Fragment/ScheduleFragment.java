@@ -161,10 +161,10 @@ public class ScheduleFragment extends Fragment {
         tasks = new ArrayList<>();
         daily_tasks = new ArrayList<>();
         events = new ArrayList<>();
-        tasks.add(new Task("1", "Làm mô tả chi tiết", "", selectedDate, username, "Tasks"));
-        tasks.add(new Task("2", "Phân tích các chức năng và phi chức năng", "", "19/09/2021", username, "Tasks"));
-        tasks.add(new Task("3", "Báo cáo tiến độ", "", "18/09/2021", username, "Tasks"));
-        tasks.add(new Task("4", "Demo thử ứng dụng", "", selectedDate, username, "Tasks"));
+        tasks.add(new Task("1", "Làm mô tả chi tiết", "","", selectedDate, username, "Tasks"));
+        tasks.add(new Task("2", "Phân tích các chức năng và phi chức năng", "","", "19/09/2021", username, "Tasks"));
+        tasks.add(new Task("3", "Báo cáo tiến độ", "","", "18/09/2021", username, "Tasks"));
+        tasks.add(new Task("4", "Demo thử ứng dụng", "","", selectedDate, username, "Tasks"));
 
         today = new SimpleDateFormat("EE, dd/MM/yyyy", Locale.getDefault()).format(Calendar.getInstance().getTime());
         tv_today.setText(today);
@@ -336,7 +336,8 @@ public class ScheduleFragment extends Fragment {
                         for (DataSnapshot dataSnapshot : snapshot.getChildren()){
                             Issue issue = dataSnapshot.getValue(Issue.class);
                             if (issue.getIssue_Assignee().equals(user.getUser_Name())
-                                    && issue.getIssue_ProcessType().toLowerCase().equals("todo")){
+                                    && (issue.getIssue_ProcessType().toLowerCase().equals("todo") ||
+                                        issue.getIssue_ProcessType().toLowerCase().equals("inprogress"))){
                                 issue_list.add(issue);
                             }
                         }
@@ -346,6 +347,7 @@ public class ScheduleFragment extends Fragment {
 //                                Toast.makeText(activity, "" + issueName, Toast.LENGTH_SHORT).show();
                                 tasks.add(new Task(issue.getIssue_ID(),
                                         task_issue_name,
+                                        issue.getIssue_project_ID(),
                                         issue.getIssue_Description(),
                                         issue.getIssue_StartDate(),
                                         issue.getIssue_Creator(),

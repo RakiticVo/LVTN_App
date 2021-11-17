@@ -104,10 +104,10 @@ public class MemberDeleteAdapter extends RecyclerView.Adapter<MemberDeleteAdapte
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (isChecked){
-                        Toast.makeText(context, "Checkbox " + (holder.getAdapterPosition() + 1) + " is checked", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(context, "Checkbox " + (holder.getAdapterPosition() + 1) + " is checked", Toast.LENGTH_SHORT).show();
                         members_checked.add(members.get(holder.getAdapterPosition()));
                     }else {
-                        Toast.makeText(context, "Checkbox " + (holder.getAdapterPosition() + 1) + " is unchecked", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(context, "Checkbox " + (holder.getAdapterPosition() + 1) + " is unchecked", Toast.LENGTH_SHORT).show();
                         String member_name = members.get(holder.getAdapterPosition()).getUser_Name();
                         for (int i = 0; i < members_checked.size(); i++) {
                             if (members_checked.get(i).getUser_Name().equals(member_name)){

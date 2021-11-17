@@ -298,7 +298,7 @@ public class PersonalStactisticFragment extends Fragment {
 
     public void getallIssue(ArrayList<Issue> issue_list){
         if (issue_list.size() > 0){
-            Toast.makeText(activity, "" + issue_list.size(), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(activity, "" + issue_list.size(), Toast.LENGTH_SHORT).show();
             barChart_personal_issues.setVisibility(View.VISIBLE);
             pieChart_personal_working_efficiency.setVisibility(View.VISIBLE);
             textView_number_3.setVisibility(View.VISIBLE);

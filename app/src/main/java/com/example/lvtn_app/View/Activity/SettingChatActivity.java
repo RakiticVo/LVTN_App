@@ -91,14 +91,14 @@ public class SettingChatActivity extends AppCompatActivity {
                                 DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                                        Toast.makeText(SettingChatActivity.this, "Todo: Delete Group Chat", Toast.LENGTH_SHORT).show();
+//                                        Toast.makeText(SettingChatActivity.this, "Todo: Delete Group Chat", Toast.LENGTH_SHORT).show();
                                         deleteGroupChatAll(id_group);
                                     }
                                 })
                         .setNegativeButton("No", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                Toast.makeText(SettingChatActivity.this, "You choose No", Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(SettingChatActivity.this, "You choose No", Toast.LENGTH_SHORT).show();
                             }
                         })
                         .show();
@@ -117,10 +117,10 @@ public class SettingChatActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-                    Toast.makeText(SettingChatActivity.this, "Delete chat list success", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(SettingChatActivity.this, "Delete chat list success", Toast.LENGTH_SHORT).show();
                     deleteUserListByGroupChat(id_group);
                 }else {
-                    Toast.makeText(SettingChatActivity.this, "Delete chat list failed", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(SettingChatActivity.this, "Delete chat list failed", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -132,10 +132,10 @@ public class SettingChatActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-                    Toast.makeText(SettingChatActivity.this, "Delete user list by group chat success", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(SettingChatActivity.this, "Delete user list by group chat success", Toast.LENGTH_SHORT).show();
                     deleteGroupChat(id_group);
                 }else {
-                    Toast.makeText(SettingChatActivity.this, "Delete user list by group chat failed", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(SettingChatActivity.this, "Delete user list by group chat failed", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -147,14 +147,14 @@ public class SettingChatActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-                    Toast.makeText(SettingChatActivity.this, "Delete group chat success", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(SettingChatActivity.this, "Delete group chat success", Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                     Intent intent = new Intent(SettingChatActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                     finish();
                 }else {
-                    Toast.makeText(SettingChatActivity.this, "Delete group chat failed", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(SettingChatActivity.this, "Delete group chat failed", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -163,20 +163,33 @@ public class SettingChatActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-//        Toast.makeText(SettingChatActivity.this, "On Start", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(MainActivity.this, "On Start", Toast.LENGTH_SHORT).show();
+        stopService(new Intent(this, NotificationService.class));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        stopService(new Intent(this, NotificationService.class));
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
         stopService(new Intent(this, NotificationService.class));
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-//        Toast.makeText(SettingChatActivity.this, "On Stop", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(MainActivity.this, "On Stop", Toast.LENGTH_SHORT).show();
         startService(new Intent(this, NotificationService.class));
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+//        Toast.makeText(MainActivity.this, "On Stop", Toast.LENGTH_SHORT).show();
         startService(new Intent(this, NotificationService.class));
     }
 }
