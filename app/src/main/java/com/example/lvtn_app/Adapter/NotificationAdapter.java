@@ -1,10 +1,17 @@
 package com.example.lvtn_app.Adapter;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -21,6 +28,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,6 +37,7 @@ import com.bumptech.glide.Glide;
 import com.example.lvtn_app.Model.GroupChat;
 import com.example.lvtn_app.Model.Issue;
 import com.example.lvtn_app.Model.Joining_Group_Chat;
+import com.example.lvtn_app.Model.Joining_Project;
 import com.example.lvtn_app.Model.Joining_Request;
 import com.example.lvtn_app.Model.Project;
 import com.example.lvtn_app.Model.User;
@@ -41,6 +51,7 @@ import com.example.lvtn_app.View.Fragment.MyDashBoardFragment;
 import com.example.lvtn_app.View.Fragment.NotificationFragment;
 import com.example.lvtn_app.View.Fragment.ProjectDetailFragment;
 import com.example.lvtn_app.View.Fragment.ProjectsFragment;
+import com.example.lvtn_app.View.Notifications;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -65,6 +76,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     private ArrayList<Joining_Request> joiningRequests;
     SharedPreferences sharedPreferences1, sharedPreferences2;
     SharedPreferences.Editor editor1, editor2;
+    FirebaseUser firebaseUser;
+    NotificationManagerCompat notificationManagerCompat;
 
 
     public NotificationAdapter(Context context, ArrayList<Joining_Request> joiningRequests) {
@@ -81,7 +94,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     @Override
     public void onBindViewHolder(@NonNull NotificationAdapter.ViewHolder holder, int position) {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        notificationManagerCompat = NotificationManagerCompat.from(context);
         if (joiningRequests != null){
             String objectID = joiningRequests.get(position).getObject_ID();
             String type = joiningRequests.get(position).getType();
@@ -119,6 +133,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()){
                                         deleteNotification("Joining_Group_Chat", objectID, userID, " ");
+                                        NotificationFragment notificationFragment = new NotificationFragment();
+                                        MemberChatFragment memberChatFragment = new MemberChatFragment();
                                     }
                                 }
                             });
@@ -190,6 +206,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
                                         deleteNotification("Joining_Project", objectID, userID, " ");
+                                        NotificationFragment notificationFragment = new NotificationFragment();
+                                        MemberProjectFragment memberProjectFragment = new MemberProjectFragment();
                                     }
                                 }
                             });
@@ -244,25 +262,26 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                                     Issue issue = snapshot.getValue(Issue.class);
+                                    if (issue != null){
+                                        String noti = "You have been assigned an issue: " + issue.getIssue_Name() + " at the " + project.getProject_Name() + " project. \n Do you accept it?";
+                                        String match1 = "issue: ";
+                                        String match2 = " at the ";
+                                        String match3 = " project";
 
-                                    String noti = "You have been assigned an issue: " + issue.getIssue_Name() + " at the " + project.getProject_Name() + " project. \n Do you accept it?";
-                                    String match1 = "issue: ";
-                                    String match2 = " at the ";
-                                    String match3 = " project";
-
-                                    int i1 = noti.indexOf(match1) + 7;
-                                    int i2 = noti.indexOf(match2);
-                                    int i3 = noti.indexOf(match2) + 7;
-                                    int i4 = noti.indexOf(match3);
+                                        int i1 = noti.indexOf(match1) + 7;
+                                        int i2 = noti.indexOf(match2);
+                                        int i3 = noti.indexOf(match2) + 7;
+                                        int i4 = noti.indexOf(match3);
 //                                    Toast.makeText(context, "" + noti.substring(i3, i4), Toast.LENGTH_SHORT).show();
 
-                                    final SpannableStringBuilder sb = new SpannableStringBuilder(noti);
+                                        final SpannableStringBuilder sb = new SpannableStringBuilder(noti);
 
-                                    final StyleSpan bss1 = new StyleSpan(Typeface.BOLD_ITALIC); // Span to make text bold
-                                    final StyleSpan bss2 = new StyleSpan(Typeface.BOLD_ITALIC); // Span to make text bold
-                                    sb.setSpan(bss1, i1, i2, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // make first 4 characters Bold
-                                    sb.setSpan(bss2, i3, i4, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // make first 4 characters Bold
-                                    holder.notification_message.setText(sb);
+                                        final StyleSpan bss1 = new StyleSpan(Typeface.BOLD_ITALIC); // Span to make text bold
+                                        final StyleSpan bss2 = new StyleSpan(Typeface.BOLD_ITALIC); // Span to make text bold
+                                        sb.setSpan(bss1, i1, i2, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // make first 4 characters Bold
+                                        sb.setSpan(bss2, i3, i4, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // make first 4 characters Bold
+                                        holder.notification_message.setText(sb);
+                                    }
                                 }
 
                                 @Override

@@ -19,12 +19,15 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation;
+import com.example.lvtn_app.Controller.Method.DateFormat;
 import com.example.lvtn_app.Controller.Service.NotificationService;
 import com.example.lvtn_app.Model.GroupChat;
+import com.example.lvtn_app.Model.Issue;
 import com.example.lvtn_app.Model.Joining_Group_Chat;
 import com.example.lvtn_app.Model.Joining_Project;
 import com.example.lvtn_app.Model.Project;
 import com.example.lvtn_app.Model.Project_Issue_Request;
+import com.example.lvtn_app.Model.User_Issue_List;
 import com.example.lvtn_app.R;
 import com.example.lvtn_app.View.Fragment.DashBoardFragment;
 import com.example.lvtn_app.View.Fragment.GroupChatFragment;
@@ -46,7 +49,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 
@@ -56,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
     private NotificationManagerCompat notificationManagerCompat;
+    DateFormat dateFormat;
 
     private final int ID_PROJECTS = 1;
     private final int ID_MY_TASKS = 2;
@@ -65,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
 
     FirebaseAuth auth;
     FirebaseUser firebaseUser;
+    DatabaseReference referenceIssueToDay, referenceNotificationToday;
+    ValueEventListener valueEventListenerIssueToDay, valueEventListenerNotificationToday;
+
 
     static MainActivity instance;
 
@@ -177,6 +187,8 @@ public class MainActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("User", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
+        dateFormat = new DateFormat();
+
         getNotificationJoiningGroupChat();
         getNotificationProject();
         getNotificationIssue();
@@ -185,21 +197,16 @@ public class MainActivity extends AppCompatActivity {
         getJoiningProjectID();
         getIssueProjectID();
 
+        Date currentDate = Calendar.getInstance().getTime();
+        getIssueIDToDay(currentDate);
+
         String object_ID = getIntent().getStringExtra("group_ID");
         if (object_ID != null) {
-//            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notifications").child("Joining_Group_Chat");
-//            HashMap<String, Object> hashMap = new HashMap();
-//            hashMap.put("status", "received");
-//            reference.child(object_ID).child(firebaseUser.getUid()).updateChildren(hashMap);
             meowBottomNavigation.show(ID_NOTIFICATION, true);
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, new NotificationFragment()).commit();
         }else {
             object_ID = getIntent().getStringExtra("project_ID");
             if (object_ID != null) {
-//                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notifications").child("Joining_Project");
-//                HashMap<String, Object> hashMap = new HashMap();
-//                hashMap.put("status", "received");
-//                reference.child(object_ID).child(firebaseUser.getUid()).updateChildren(hashMap);
                 meowBottomNavigation.show(ID_NOTIFICATION, true);
                 getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, new NotificationFragment()).commit();
             }else {
@@ -209,17 +216,124 @@ public class MainActivity extends AppCompatActivity {
                     getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, new GroupChatFragment()).commit();
                 }else{
                     object_ID = getIntent().getStringExtra("project_issue_ID");
-//                    Toast.makeText(MainActivity.this, "" + object_ID, Toast.LENGTH_SHORT).show();
                     if (object_ID != null){
                         meowBottomNavigation.show(ID_NOTIFICATION, true);
                         getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, new NotificationFragment()).commit();
                     }else {
-                        meowBottomNavigation.show(ID_PROJECTS, true);
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, new ProjectsFragment()).commit();
+                        object_ID = getIntent().getStringExtra("currentDateIssues");
+                        if (object_ID != null){
+                            referenceIssueToDay.removeEventListener(valueEventListenerIssueToDay);
+                            meowBottomNavigation.show(ID_MY_TASKS, true);
+                            MyTasksFragment myTasksFragment = new MyTasksFragment();
+                            Bundle bundle = new Bundle();
+                            bundle.putInt("schedule", 1);
+                            myTasksFragment.setArguments(bundle);
+                            getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, myTasksFragment).commit();
+                        }else {
+                            meowBottomNavigation.show(ID_PROJECTS, true);
+                            getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, new ProjectsFragment()).commit();
+                        }
                     }
                 }
             }
         }
+    }
+
+    private void updateToken(String token){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Tokens");
+        Token token1 = new Token(token);
+        reference.child(firebaseUser.getUid()).setValue(token1);
+    }
+
+    public void getIssueIDToDay(Date currentDate){
+        ArrayList<Issue> issues = new ArrayList<>();
+        final int[] i = {0};
+        referenceIssueToDay = FirebaseDatabase.getInstance().getReference("Issue_List_By_User").child(firebaseUser.getUid());
+        valueEventListenerIssueToDay = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    i[0]++;
+                    User_Issue_List issue = dataSnapshot.getValue(User_Issue_List.class);
+                    getIssueToDay(currentDate, issue.getProject_ID(), issue.getIssue_ID(), issues, i[0], (int) snapshot.getChildrenCount());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        referenceIssueToDay.addValueEventListener(valueEventListenerIssueToDay);
+    }
+
+    public void getIssueToDay(Date currentDate, String projectID, String issueID, ArrayList<Issue> issues, int count, int end){
+        referenceNotificationToday = FirebaseDatabase.getInstance().getReference("Issues").child(projectID).child(issueID);
+        valueEventListenerNotificationToday = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Issue issue = snapshot.getValue(Issue.class);
+                String date = dateFormat.formatDate(currentDate);
+                if (date.equals(issue.getIssue_StartDate())){
+                    issues.add(issue);
+                }
+                if (count == end){
+//                    Toast.makeText(MainActivity.this, count + "-" + end + "\n Size: " + issues.size(), Toast.LENGTH_SHORT).show();
+                    sendNotificationIssueToDay(date, issues.size());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+
+        referenceNotificationToday.addValueEventListener(valueEventListenerNotificationToday);
+    }
+
+    public void sendNotificationIssueToDay(String date, int size){
+        String channelId = getString(R.string.default_notification_channel_id);
+        int j = 123456789;
+        String s = "You have Issue today";
+        if (size > 1){
+            s = "You have some Issues today";
+        }
+        Intent intent = new Intent(this, MainActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("currentDateIssues", date);
+        intent.putExtras(bundle);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, j, intent, PendingIntent.FLAG_ONE_SHOT);
+
+        Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Notification notification = new NotificationCompat.Builder(this, Notifications.CHANNEL_1_ID)
+                .setSmallIcon(R.drawable.logo)
+                .setContentTitle("Issue Today")
+                .setContentText(s)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setCategory(NotificationCompat.CATEGORY_PROMO) // Promotion.
+                .setAutoCancel(true)
+                .setSound(defaultSound)
+                .setContentIntent(pendingIntent)
+                .build();
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Since android Oreo notification channel is needed.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(channelId,
+                    "Channel human readable title",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        int i = 0;
+        if (j > i){
+            i = j;
+        }
+        notificationManagerCompat.notify(i, notification);
     }
 
     public void getNotificationJoiningGroupChat(){
@@ -521,11 +635,6 @@ public class MainActivity extends AppCompatActivity {
         this.notificationManagerCompat.notify(i, notification);
     }
 
-    private void updateToken(String token){
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Tokens");
-        Token token1 = new Token(token);
-        reference.child(firebaseUser.getUid()).setValue(token1);
-    }
 
     public void getJoiningProjectID(){
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notifications").child("Joining_Project");
@@ -701,6 +810,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 //        Toast.makeText(MainActivity.this, "On Start", Toast.LENGTH_SHORT).show();
+        stopService(new Intent(this, NotificationService.class));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        stopService(new Intent(this, NotificationService.class));
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
         stopService(new Intent(this, NotificationService.class));
     }
 

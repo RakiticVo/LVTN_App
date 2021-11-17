@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
@@ -42,7 +43,7 @@ public class TaskDetailFragment extends DialogFragment {
     //Khai báo
     TextView tv_name_task_detail;
     ImageView img_task_type_detail;
-    ImageButton ibtn_back_task_detail, ibtn_confirm_done_task, calendar_start_task_issue_detail;
+    ImageButton ibtn_back_task_detail, ibtn_go_to_project_issue_detail, calendar_start_task_issue_detail;
     TextInputLayout description_task_detail_text_input_layout, start_date_task_detail_text_input_layout;
     Button btn_update_task_detail, btn_cancel_task_detail;
 
@@ -50,11 +51,13 @@ public class TaskDetailFragment extends DialogFragment {
     DateFormat dateFormat = new DateFormat();
     Date date1 = new Date();
 
+    AppCompatActivity activity;
     SharedPreferences sharedPreferences;
 
     //New task information
     String taskType = "";
     String taskName = "";
+    String taskProjectID = "";
     String taskDescription = "";
     String task_start_date = "";
 
@@ -111,10 +114,12 @@ public class TaskDetailFragment extends DialogFragment {
         tv_name_task_detail = view.findViewById(R.id.tv_name_task_detail);
         img_task_type_detail = view.findViewById(R.id.img_task_type_detail);
         ibtn_back_task_detail = view.findViewById(R.id.ibtn_back_task_detail);
-        ibtn_confirm_done_task = view.findViewById(R.id.ibtn_confirm_done_task);
+        ibtn_go_to_project_issue_detail = view.findViewById(R.id.ibtn_go_to_project_issue_detail);
         calendar_start_task_issue_detail = view.findViewById(R.id.calendar_start_task_issue_detail);
         btn_update_task_detail = view.findViewById(R.id.btn_update_task_detail);
         btn_cancel_task_detail = view.findViewById(R.id.btn_cancel_task_detail);
+
+        activity = (AppCompatActivity) getContext();
 
         description_task_detail_text_input_layout = view.findViewById(R.id.description_task_detail_text_input_layout);
         start_date_task_detail_text_input_layout = view.findViewById(R.id.start_date_task_detail_text_input_layout);
@@ -135,6 +140,7 @@ public class TaskDetailFragment extends DialogFragment {
         sharedPreferences = requireActivity().getSharedPreferences("Task", Context.MODE_PRIVATE);
         taskType = sharedPreferences.getString("task_type", "abc");
         taskName  = sharedPreferences.getString("task_name", "abc");
+        taskProjectID  = sharedPreferences.getString("task_projectID", "abc");
         taskDescription  = sharedPreferences.getString("task_description", "abc");
         task_start_date  = sharedPreferences.getString("task_start_date", "abc");
 //        Toast.makeText(getContext(), "" + taskType, Toast.LENGTH_SHORT).show();
@@ -260,33 +266,18 @@ public class TaskDetailFragment extends DialogFragment {
             }
         });
 
-        //Todo: Xử lý sự kiện hoàn thành một Task
-        // - Gọi Api Service để xác nhận hoàn thành một Task(Issue) trên database ----- (Incomplete)
-        // - Gọi một Instance để xác nhận hoàn thành một Task(Issue) ----- (Incomplete)
-        ibtn_confirm_done_task.setOnClickListener(new View.OnClickListener() {
+        ibtn_go_to_project_issue_detail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Update list with process is done and return dashboard
-                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
-                            case DialogInterface.BUTTON_POSITIVE:
-                                //Yes button clicked
-                                Toast.makeText(getContext(), "This task is Done!!!", Toast.LENGTH_SHORT).show();
-                                dismiss();
-                                break;
-
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                //No button clicked
-                                break;
-                        }
-                    }
-                };
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setMessage("Would you like to confirm this issue is complete?").setPositiveButton("Confirm", dialogClickListener)
-                        .setNegativeButton("Cancel", dialogClickListener).show();
+                if (!taskProjectID.equals("abc")){
+                    SharedPreferences sharedPreferences = requireContext().getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("project_ID", taskProjectID);
+                    editor.commit();
+                    dismiss();
+                    activity.getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, new ProjectDetailFragment()).commit();
+                }
             }
         });
 

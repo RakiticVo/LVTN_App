@@ -157,13 +157,13 @@ public class ProjectInfoFragment extends DialogFragment {
                         switch (which){
                             case DialogInterface.BUTTON_POSITIVE:
                                 //Yes button clicked
-                                Toast.makeText(getContext(), "Todo: Delete Project", Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(getContext(), "Todo: Delete Project", Toast.LENGTH_SHORT).show();
                                 deleteProjectAll(project_ID);
                                 break;
 
                             case DialogInterface.BUTTON_NEGATIVE:
                                 //No button clicked
-                                Toast.makeText(getContext(), "Cancel delete!!!", Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(getContext(), "Cancel delete!!!", Toast.LENGTH_SHORT).show();
                                 break;
                         }
                     }
@@ -270,7 +270,7 @@ public class ProjectInfoFragment extends DialogFragment {
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()){
                     User_Issue_List list = dataSnapshot.getValue(User_Issue_List.class);
                     if (list.getProject_ID().equals(project_ID)){
-                        Toast.makeText(activity, "" + dataSnapshot.getKey(), Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(activity, "" + dataSnapshot.getKey(), Toast.LENGTH_SHORT).show();
                         DatabaseReference databaseReference2 = FirebaseDatabase.getInstance().getReference("Issue_List_By_User").child(dataSnapshot.getKey());
                         databaseReference2.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
@@ -279,13 +279,13 @@ public class ProjectInfoFragment extends DialogFragment {
 //                                    Toast.makeText(activity, "Delete issue list by user success", Toast.LENGTH_SHORT).show();
                                     deleteIssueListByProject(project_ID);
                                 }else {
-                                    Toast.makeText(activity, "Delete issue list by user success", Toast.LENGTH_SHORT).show();
+//                                    Toast.makeText(activity, "Delete issue list by user success", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(activity, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(activity, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -294,7 +294,7 @@ public class ProjectInfoFragment extends DialogFragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(activity, "" + error.getMessage(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(activity, "" + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
         deleteIssueListByProject(project_ID);
@@ -324,7 +324,7 @@ public class ProjectInfoFragment extends DialogFragment {
 //                    Toast.makeText(activity, "Delete issues success", Toast.LENGTH_SHORT).show();
                     deleteUserListByProject(project_ID);
                 }else {
-                    Toast.makeText(activity, "Delete issues by project failed", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(activity, "Delete issues by project failed", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -339,7 +339,7 @@ public class ProjectInfoFragment extends DialogFragment {
 //                    Toast.makeText(activity, "Delete user list by project success", Toast.LENGTH_SHORT).show();
                     deleteProject(project_ID);
                 } else {
-                    Toast.makeText(activity, "Delete user list by project failed", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(activity, "Delete user list by project failed", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -351,12 +351,12 @@ public class ProjectInfoFragment extends DialogFragment {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-                    Toast.makeText(activity, "Delete project success", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(activity, "Delete project success", Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                     dismiss();
                     getFragmentManager().beginTransaction().replace(R.id.frame_main, new ProjectsFragment()).commit();
                 }else {
-                    Toast.makeText(activity, "Delete project failed", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(activity, "Delete project failed", Toast.LENGTH_SHORT).show();
                 }
             }
         });

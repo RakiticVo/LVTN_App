@@ -57,7 +57,7 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
     Button btn_confirm_delete_members;
     TextView tvNoresult_member;
     TextInputLayout search_member_text_input_layout;
-    ArrayList<User> member_list, delete_member_list, member_search_list;
+    public ArrayList<User> member_list, delete_member_list, member_search_list;
     MemberProjectAdapter memberAdapter;
     MemberProjectDeleteAdapter memberDeleteAdapter;
 

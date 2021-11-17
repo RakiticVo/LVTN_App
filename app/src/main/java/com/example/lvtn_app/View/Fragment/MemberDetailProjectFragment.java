@@ -101,8 +101,8 @@ public class MemberDetailProjectFragment extends DialogFragment {
         btn_confirm_update_profile = view.findViewById(R.id.btn_confirm_update_profile);
         position_member_detail_text_input_layout = view.findViewById(R.id.position_member_detail_text_input_layout);
 
-        sharedPreferences_user = Objects.requireNonNull(getContext()).getSharedPreferences("User", Context.MODE_PRIVATE);
-        sharedPreferences_project = Objects.requireNonNull(getContext()).getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
+        sharedPreferences_user = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
+        sharedPreferences_project = requireContext().getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
 
         //Set up
         Bundle bundle = getArguments();
@@ -126,7 +126,7 @@ public class MemberDetailProjectFragment extends DialogFragment {
         tv_position_member_detail.setText(member_position);
         position_member_detail_text_input_layout.getEditText().setText(member_position);
 
-        Toast.makeText(getContext(), "" + member_name + "\n" + username +"\n" + leader, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getContext(), "" + member_name + "\n" + username +"\n" + leader, Toast.LENGTH_SHORT).show();
 
         if (username.equals(leader)){
             btn_confirm_update_profile.setVisibility(View.VISIBLE);

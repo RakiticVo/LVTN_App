@@ -85,7 +85,7 @@ public class NotificationService extends Service {
         initializeTimerTask();
 
         //schedule the timer, after the first 5000ms the TimerTask will run every 10000ms
-        timer.schedule(timerTask, 5000, Your_X_SECS * 1000L); //
+        timer.schedule(timerTask, 500, Your_X_SECS * 1000L); //
         //timer.schedule(timerTask, 5000,1000); //
     }
 
@@ -101,7 +101,6 @@ public class NotificationService extends Service {
 
         timerTask = new TimerTask() {
             public void run() {
-
                 //use a handler to run a toast that shows the current timestamp
                 handler.post(new Runnable() {
                     public void run() {

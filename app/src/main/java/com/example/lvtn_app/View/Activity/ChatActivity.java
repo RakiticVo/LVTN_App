@@ -413,6 +413,18 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        stopService(new Intent(this, NotificationService.class));
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        stopService(new Intent(this, NotificationService.class));
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
 //        Toast.makeText(MainActivity.this, "On Stop", Toast.LENGTH_SHORT).show();

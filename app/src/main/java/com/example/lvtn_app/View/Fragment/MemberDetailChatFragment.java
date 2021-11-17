@@ -168,7 +168,7 @@ public class MemberDetailChatFragment extends DialogFragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 GroupChat groupChat = snapshot.getValue(GroupChat.class);
-                Toast.makeText(getContext(), "" + groupChat.getGroup_Creator(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getContext(), "" + groupChat.getGroup_Creator(), Toast.LENGTH_SHORT).show();
 //                Toast.makeText(activity, "" + id_user.equals(firebaseUser.getUid()), Toast.LENGTH_SHORT).show();
 //                Toast.makeText(activity, "" + id_user.equals(groupChat.getGroup_Creator()), Toast.LENGTH_SHORT).show();
                 if (member_id.equals(groupChat.getGroup_Creator())){

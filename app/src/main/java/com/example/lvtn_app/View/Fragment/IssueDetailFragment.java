@@ -279,7 +279,7 @@ public class IssueDetailFragment extends DialogFragment {
                     spinner_priority_issue_detail.setEnabled(false);
                     spinner_process_issue_detail.setEnabled(false);
                 }else {
-                    Toast.makeText(activity, "Leader is here", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(activity, "Leader is here", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -736,7 +736,7 @@ public class IssueDetailFragment extends DialogFragment {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 if (task.isSuccessful()){
-                                                    Toast.makeText(activity, "This task is "+issue_ProcessType+"!!!" , Toast.LENGTH_SHORT).show();
+//                                                    Toast.makeText(activity, "This task is "+issue_ProcessType+"!!!" , Toast.LENGTH_SHORT).show();
                                                 }
                                             }
                                         });

@@ -39,7 +39,7 @@ public class MyTasksAdapter extends FragmentPagerAdapter {
                 return scheduleFragment;
             case 2:
                 PersonalStactisticFragment personalStactisticFragment = new PersonalStactisticFragment();
-                return  personalStactisticFragment;
+                return personalStactisticFragment;
             default:
                 return new MyDashBoardFragment();
         }

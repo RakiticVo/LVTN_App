@@ -3,14 +3,16 @@ package com.example.lvtn_app.Model;
 public class Task {
     private String task_ID;
     private String task_Name;
+    private String task_projectID;
     private String task_Description;
     private String task_StartDate;
     private String task_Creator;
     private String task_Type;
 
-    public Task(String task_ID, String task_Name, String task_Description, String task_StartDate, String task_Creator, String task_Type) {
+    public Task(String task_ID, String task_Name, String task_projectID, String task_Description, String task_StartDate, String task_Creator, String task_Type) {
         this.task_ID = task_ID;
         this.task_Name = task_Name;
+        this.task_projectID = task_projectID;
         this.task_Description = task_Description;
         this.task_StartDate = task_StartDate;
         this.task_Creator = task_Creator;
@@ -34,6 +36,14 @@ public class Task {
 
     public void setTask_Name(String task_Name) {
         this.task_Name = task_Name;
+    }
+
+    public String getTask_projectID() {
+        return task_projectID;
+    }
+
+    public void setTask_projectID(String task_projectID) {
+        this.task_projectID = task_projectID;
     }
 
     public String getTask_Description() {

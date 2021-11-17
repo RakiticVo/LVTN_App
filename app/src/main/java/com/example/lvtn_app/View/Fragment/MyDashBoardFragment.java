@@ -2,35 +2,26 @@ package com.example.lvtn_app.View.Fragment;
 
 import android.app.ProgressDialog;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
+import android.graphics.Typeface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Handler;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.example.lvtn_app.Adapter.GridViewAdapter;
 import com.example.lvtn_app.Adapter.ProcessTypeAdapter;
 import com.example.lvtn_app.Controller.Method.DateFormat;
 import com.example.lvtn_app.Model.Issue;
-import com.example.lvtn_app.Model.Process;
 import com.example.lvtn_app.Model.ProcessType;
 import com.example.lvtn_app.Model.Project;
 import com.example.lvtn_app.Model.User_Issue_List;
@@ -58,16 +49,15 @@ import java.util.HashMap;
  */
 public class MyDashBoardFragment extends Fragment {
     //Khai báo
-    RecyclerView recyclerViewIssues;
+    private TableLayout mTableLayout;
+    ProgressDialog mProgressBar;
     ArrayList<User_Issue_List> issue_list, final_list, temp_list;
     AppCompatActivity activity;
-    GridViewAdapter gridViewAdapter;
     Spinner spinner_issue_process_personal_dashoard;
     ArrayList<ProcessType> processType_list;
     ProcessTypeAdapter processTypeAdapter;
 
     DateFormat dateFormat;
-    ProgressDialog progressDialog;
 
     FirebaseUser firebaseUser;
     DatabaseReference reference;
@@ -124,7 +114,7 @@ public class MyDashBoardFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_my_dash_board, container, false);
-        recyclerViewIssues = view.findViewById(R.id.recyclerViewIssues);
+        mTableLayout = view.findViewById(R.id.tableLayout);
         spinner_issue_process_personal_dashoard = view.findViewById(R.id.spinner_issue_process_personal_dashoard);
         activity = (AppCompatActivity) getContext();
         dateFormat = new DateFormat();
@@ -148,31 +138,14 @@ public class MyDashBoardFragment extends Fragment {
         final_list = new ArrayList<>();
         issue_list.add(new User_Issue_List(" ", " ", " ", " ", " ", ""));
         final_list.add(new User_Issue_List(" ", "Issue Name", "Process", "Issue Type", "Project", ""));
-        GridLayoutManager manager = new GridLayoutManager(activity, 15);
-        manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-            @Override
-            public int getSpanSize(int position) {
-                if (position % 4 == 0){
-                    return 2;
-                }else if (position % 4 == 1){
-                    return 6;
-                }else if (position % 4 == 2){
-                    return 4;
-                }else return 3;
-            }
-        });
-        recyclerViewIssues.setLayoutManager(manager);
-        gridViewAdapter = new GridViewAdapter(activity, final_list);
-//        recyclerViewIssues.setLayoutManager(manager);
-        recyclerViewIssues.setAdapter(gridViewAdapter);
 
-        progressDialog = new ProgressDialog(activity);
-        progressDialog.setMessage("Waiting!!!");
-        progressDialog.show();
 
         issue_list.clear();
         final_list.clear();
-        getAllIssue();
+        mProgressBar = new ProgressDialog(activity);
+        mTableLayout.setStretchAllColumns(true);
+        startLoadData();
+//        getAllIssue();
 
         spinner_issue_process_personal_dashoard.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -214,6 +187,15 @@ public class MyDashBoardFragment extends Fragment {
         return view;
     }
 
+    public void startLoadData() {
+        mProgressBar.setCancelable(false);
+        mProgressBar.setMessage("Fetching Data...");
+        mProgressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressBar.show();
+        createHeaderForTable();
+        getAllIssue();
+    }
+
     public void getAllIssue(){
         issue_list.clear();
         reference = FirebaseDatabase.getInstance().getReference("Issue_List_By_User").child(firebaseUser.getUid());
@@ -241,11 +223,10 @@ public class MyDashBoardFragment extends Fragment {
 //        final_list.add(new User_Issue_List(" ", "Issue Name", "Process", "Issue Type", "Project", ""));
         final_list.addAll(issues);
 //        Toast.makeText(activity, "" + final_list.size(), Toast.LENGTH_SHORT).show();
-        gridViewAdapter = new GridViewAdapter(activity, final_list);
-        recyclerViewIssues.setAdapter(gridViewAdapter);
-        if (final_list.size() > 0){
-            recyclerViewIssues.smoothScrollToPosition(final_list.size()*4 - 1);
+        for (User_Issue_List issue : final_list){
+            addRowIntoTable(issue);
         }
+        mProgressBar.dismiss();
         updateIssue(issues);
         temp_list.addAll(issues);
     }
@@ -253,26 +234,16 @@ public class MyDashBoardFragment extends Fragment {
     public void showIssuesByProcessType(ArrayList<User_Issue_List> issues, String type){
         ArrayList<User_Issue_List> list = new ArrayList<>();
         final_list.clear();
+        mTableLayout.removeAllViews();
+        createHeaderForTable();
         switch (type) {
             case "My All Issues":
                 final_list.clear();
 //                final_list.add(new User_Issue_List(" ", "Issue Name", "Process", "Issue Type", "Project", ""));
                 final_list.addAll(issues);
-                gridViewAdapter = new GridViewAdapter(activity, final_list);
-                recyclerViewIssues.setAdapter(gridViewAdapter);
-                recyclerViewIssues.scrollToPosition(final_list.size()*4 - 1);
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        recyclerViewIssues.smoothScrollToPosition(0);
-                        progressDialog.dismiss();
-                    }
-                }, 100L * 2 * final_list.size());
-//                Toast.makeText(activity, "" + final_list.get(0).getIssue_Type() + "\n"
-//                        + final_list.get(0).getIssue_Name() + "\n"
-//                        + final_list.get(0).getProject_ID() + "\n"
-//                        + final_list.get(0).getIssue_ProcessType() + "\n", Toast.LENGTH_SHORT).show();
+                for (User_Issue_List issue : final_list){
+                    addRowIntoTable(issue);
+                }
                 break;
             case "ToDo":
                 final_list.clear();
@@ -284,15 +255,9 @@ public class MyDashBoardFragment extends Fragment {
                     }
                 }
                 final_list.addAll(list);
-                gridViewAdapter = new GridViewAdapter(activity, final_list);
-                recyclerViewIssues.setAdapter(gridViewAdapter);
-                if (final_list.size() > 0){
-                    recyclerViewIssues.smoothScrollToPosition(final_list.size()*4 - 1);
+                for (User_Issue_List issue : final_list){
+                    addRowIntoTable(issue);
                 }
-//                Toast.makeText(activity, "" + final_list.get(0).getIssue_Type() + "\n"
-//                        + final_list.get(0).getIssue_Name() + "\n"
-//                        + final_list.get(0).getProject_ID() + "\n"
-//                        + final_list.get(0).getIssue_ProcessType() + "\n", Toast.LENGTH_SHORT).show();
                 break;
             case "InProgress":
                 final_list.clear();
@@ -304,15 +269,9 @@ public class MyDashBoardFragment extends Fragment {
                     }
                 }
                 final_list.addAll(list);
-                gridViewAdapter = new GridViewAdapter(activity, final_list);
-                recyclerViewIssues.setAdapter(gridViewAdapter);
-                if (final_list.size() > 0){
-                    recyclerViewIssues.smoothScrollToPosition(final_list.size()*4 - 1);
+                for (User_Issue_List issue : final_list){
+                    addRowIntoTable(issue);
                 }
-//                Toast.makeText(activity, "" + final_list.get(0).getIssue_Type() + "\n"
-//                        + final_list.get(0).getIssue_Name() + "\n"
-//                        + final_list.get(0).getProject_ID() + "\n"
-//                        + final_list.get(0).getIssue_ProcessType() + "\n", Toast.LENGTH_SHORT).show();
                 break;
             case "Done":
                 final_list.clear();
@@ -324,20 +283,142 @@ public class MyDashBoardFragment extends Fragment {
                     }
                 }
                 final_list.addAll(list);
-                gridViewAdapter = new GridViewAdapter(activity, final_list);
-                recyclerViewIssues.setAdapter(gridViewAdapter);
-                if (final_list.size() > 0){
-                    recyclerViewIssues.smoothScrollToPosition(final_list.size()*4 - 1);
+                for (User_Issue_List issue : final_list){
+                    addRowIntoTable(issue);
                 }
-//                Toast.makeText(activity, "" + gridViewAdapter.getItemCount(), Toast.LENGTH_SHORT).show();
-//                for (User_Issue_List list1 : final_list){
-//                    Toast.makeText(activity, "" + list1.getIssue_Type() + "\n"
-//                            + list1.getIssue_Name() + "\n"
-//                            + list1.getProject_ID() + "\n"
-//                            + list1.getIssue_ProcessType() + "\n", Toast.LENGTH_SHORT).show();
 //                }
                 break;
         }
+    }
+
+    public void createHeaderForTable(){
+        TableRow row0 = new TableRow(activity);
+        TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT);
+        row0.setLayoutParams(layoutParams);
+        row0.setWeightSum(12f);
+        TextView tv0 = new TextView(activity);
+        TableRow.LayoutParams layoutParams1 = new TableRow.LayoutParams(50, TableRow.LayoutParams.WRAP_CONTENT, 3);
+        tv0.setText("Issue Type");
+        tv0.setTextColor(Color.BLACK);
+        tv0.setTextSize(16f);
+        tv0.setTypeface(tv0.getTypeface(), Typeface.BOLD);
+        tv0.setGravity(Gravity.CENTER);
+        tv0.setBackgroundResource(R.drawable.custom_heading_gridview);
+        row0.addView(tv0, 0, layoutParams1);
+
+        TextView tv1 = new TextView(activity);
+        TableRow.LayoutParams layoutParams2 = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.MATCH_PARENT, 4);
+        layoutParams2.setMargins(-3,0,0,0);
+        tv1.setText("Issue Name");
+        tv1.setTextColor(Color.BLACK);
+        tv1.setTextSize(16f);
+        tv1.setTypeface(tv0.getTypeface(), Typeface.BOLD);
+        tv1.setGravity(Gravity.CENTER);
+        tv1.setBackgroundResource(R.drawable.custom_heading_gridview);
+        row0.addView(tv1, 1, layoutParams2);
+
+        TextView tv2 = new TextView(activity);
+        TableRow.LayoutParams layoutParams3 = new TableRow.LayoutParams(50, TableRow.LayoutParams.MATCH_PARENT, 2);
+        layoutParams3.setMargins(-3,0,0,0);
+        tv2.setText("Project Name");
+        tv2.setTextColor(Color.BLACK);
+        tv2.setTextSize(16f);
+        tv2.setTypeface(tv0.getTypeface(), Typeface.BOLD);
+        tv2.setGravity(Gravity.CENTER);
+        tv2.setBackgroundResource(R.drawable.custom_heading_gridview);
+        row0.addView(tv2, 2, layoutParams3);
+
+        TextView tv3 = new TextView(activity);
+        TableRow.LayoutParams layoutParams4 = new TableRow.LayoutParams(50, TableRow.LayoutParams.MATCH_PARENT, 3);
+        layoutParams4.setMargins(-3,0,0,0);
+        tv3.setText("Process");
+        tv3.setTextColor(Color.BLACK);
+        tv3.setTextSize(16f);
+        tv3.setTypeface(tv0.getTypeface(), Typeface.BOLD);
+        tv3.setGravity(Gravity.CENTER);
+        tv3.setBackgroundResource(R.drawable.custom_heading_gridview);
+        row0.addView(tv3, 3, layoutParams4);
+        row0.setBackgroundResource(R.drawable.custom_heading_gridview);
+        mTableLayout.addView(row0);
+    }
+
+    public void addRowIntoTable(User_Issue_List issue_list){
+        TableRow row = new TableRow(activity);
+        TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT);
+        row.setLayoutParams(layoutParams);
+        row.setGravity(Gravity.CENTER);
+        row.setWeightSum(12f);
+        ImageView imageView = new ImageView(activity);
+        TableRow.LayoutParams layoutParams1 = new TableRow.LayoutParams(50, 150, 3);
+        layoutParams1.setMargins(0,-3,0,0);
+        imageView.setPadding(8,12,12,8);
+        switch (issue_list.getIssue_Type()){
+            case "Task":
+                imageView.setImageResource(R.drawable.task);
+                break;
+            case "Bug":
+                imageView.setImageResource(R.drawable.bug);
+                break;
+            case "Story":
+                imageView.setImageResource(R.drawable.story);
+                break;
+        }
+        imageView.setBackgroundResource(R.drawable.custome_data_gridview);
+        row.addView(imageView, 0, layoutParams1);
+
+        TextView tv1 = new TextView(activity);
+        TableRow.LayoutParams layoutParams2 = new TableRow.LayoutParams(350, TableRow.LayoutParams.MATCH_PARENT, 4);
+        layoutParams2.setMargins(-3,-3,0,0);
+        tv1.setPadding(12,0,0,0);
+        tv1.setText(issue_list.getIssue_Name());
+        tv1.setTextColor(Color.BLACK);
+        tv1.setTextSize(16f);
+        tv1.setGravity(Gravity.CENTER_VERTICAL);
+        tv1.setBackgroundResource(R.drawable.custome_data_gridview);
+        row.addView(tv1, 1, layoutParams2);
+
+        TextView tv2 = new TextView(activity);
+        TableRow.LayoutParams layoutParams3 = new TableRow.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.MATCH_PARENT, 2);
+        layoutParams3.setMargins(-3,-3,0,0);
+        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Projects").child(issue_list.getProject_ID());
+        reference1.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Project project = snapshot.getValue(Project.class);
+                tv2.setText(project.getProject_Name());
+                tv2.setTextColor(Color.BLACK);
+                tv2.setTextSize(16f);
+                tv2.setGravity(Gravity.CENTER);
+                tv2.setBackgroundResource(R.drawable.custome_data_gridview);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        row.addView(tv2, 2, layoutParams3);
+
+        ImageView imageView1 = new ImageView(activity);
+        TableRow.LayoutParams layoutParams4 = new TableRow.LayoutParams(50, TableRow.LayoutParams.MATCH_PARENT, 3);
+        layoutParams4.setMargins(-3,-3,0,0);
+        imageView1.setPadding(8,12,12,8);
+        switch (issue_list.getIssue_ProcessType()){
+            case "ToDo":
+                imageView1.setImageResource(R.drawable.todo);
+                imageView1.setPadding(14,14,14,14);
+                break;
+            case "InProgress":
+                imageView1.setImageResource(R.drawable.inprogress);
+                imageView1.setPadding(14,14,14,14);
+                break;
+            case "Done":
+                imageView1.setImageResource(R.drawable.done);
+                break;
+        }
+        imageView1.setBackgroundResource(R.drawable.custome_data_gridview);
+        row.addView(imageView1, 3, layoutParams4);
+        mTableLayout.addView(row);
     }
 
     public void updateIssue(ArrayList<User_Issue_List> issues){

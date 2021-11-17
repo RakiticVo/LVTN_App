@@ -24,28 +24,26 @@
                 android:layout_height="25dp"
                 android:layout_gravity="center"
                 android:layout_margin="15dp"
-                android:layout_marginStart="12dp"
                 android:background="@android:color/transparent"
                 android:scaleType="fitCenter"
                 android:src="@drawable/cancel"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <!--            <Button-->
-            <!--                android:id="@+id/ibtn_confirm_done_issue_detail"-->
-            <!--                android:layout_width="wrap_content"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginTop="8dp"-->
-            <!--                android:layout_marginEnd="8dp"-->
-            <!--                android:layout_marginBottom="8dp"-->
-            <!--                android:background="@drawable/custom_btn"-->
-            <!--                android:padding="5dp"-->
-            <!--                android:text="Comfirm Done"-->
-            <!--                android:textSize="18sp"-->
-            <!--                android:visibility="visible"-->
-            <!--                app:layout_constraintBottom_toTopOf="@+id/linearLayout2"-->
-            <!--                app:layout_constraintEnd_toEndOf="parent"-->
-            <!--                app:layout_constraintTop_toTopOf="parent" />-->
+            <ImageButton
+                android:id="@+id/ibtn_go_to_project_issue_detail"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="@android:color/transparent"
+                android:padding="5dp"
+                android:src="@drawable/go_to_project"
+                android:scaleType="fitCenter"
+                android:textSize="18sp"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
                 android:id="@+id/ibtn_confirm_done_task"

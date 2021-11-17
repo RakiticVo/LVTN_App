@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.lvtn_app.Adapter.MyTasksAdapter;
 import com.example.lvtn_app.Adapter.ProjectDetailAdapter;
@@ -87,6 +88,12 @@ public class MyTasksFragment extends Fragment {
         dateFormat = new DateFormat();
         selectedDate = dateFormat.formatDate(Calendar.getInstance().getTime());
 
+        Bundle bundle = getArguments();
+        int tab = 0;
+        if (bundle != null){
+            tab = bundle.getInt("schedule");
+        }
+
         //Set up
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.addTab(tabLayout.newTab());
@@ -98,6 +105,11 @@ public class MyTasksFragment extends Fragment {
         viewPager.setAdapter(myTasksAdapter);
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+
+        if (tab == 1){
+            viewPager.setCurrentItem(tab);
+            tab = 0;
+        }
 
         ibtn_add_task.setOnClickListener(new View.OnClickListener() {
             @Override

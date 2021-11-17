@@ -54,4 +54,37 @@ public class LoginActivity extends AppCompatActivity {
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+//        Toast.makeText(MainActivity.this, "On Start", Toast.LENGTH_SHORT).show();
+        stopService(new Intent(this, NotificationService.class));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        stopService(new Intent(this, NotificationService.class));
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        stopService(new Intent(this, NotificationService.class));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+//        Toast.makeText(MainActivity.this, "On Stop", Toast.LENGTH_SHORT).show();
+        startService(new Intent(this, NotificationService.class));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        Toast.makeText(MainActivity.this, "On Stop", Toast.LENGTH_SHORT).show();
+        startService(new Intent(this, NotificationService.class));
+    }
 }
