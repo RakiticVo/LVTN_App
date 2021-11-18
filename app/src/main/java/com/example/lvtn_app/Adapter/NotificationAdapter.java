@@ -326,13 +326,21 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                     holder.btn_denied_join_notification.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notifications").child("Joining_Project").child(objectID);
-                            reference.child(userID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notifications").child("Project_Issue_Request").child(objectID);
+                            reference.child(userID).child(role).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
-                                        AppCompatActivity activity = (AppCompatActivity) context;
-                                        activity.getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, new NotificationFragment()).commit();
+                                        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Issues").child(objectID);
+                                        reference1.child(role).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()){
+                                                    AppCompatActivity activity = (AppCompatActivity) context;
+                                                    activity.getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, new NotificationFragment()).commit();
+                                                }
+                                            }
+                                        });
                                     }
                                 }
                             });

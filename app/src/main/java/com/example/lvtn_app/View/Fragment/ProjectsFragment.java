@@ -1,5 +1,6 @@
 package com.example.lvtn_app.View.Fragment;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -54,7 +55,7 @@ public class ProjectsFragment extends Fragment {
 
     FirebaseAuth auth;
     FirebaseUser firebaseUser;
-    DatabaseReference reference, reference2;
+    ProgressDialog progressDialog;
     AppCompatActivity activity;
 
     static ProjectsFragment instance;
@@ -128,6 +129,8 @@ public class ProjectsFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
         firebaseUser = auth.getCurrentUser();
         projects.clear();
+        progressDialog = new ProgressDialog(activity);
+        progressDialog.setMessage("Waiting!!!");
         showProjectList();
 
         //Todo: get User is Leader of project to check permission of function

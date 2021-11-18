@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -195,6 +196,19 @@ public class CreateNewPassFragment extends DialogFragment {
                                     //Yes button clicked
                                     id_user = firebaseUser.getUid();
                                     userPass = new_password_text_input_layout.getEditText().getText().toString();
+                                    firebaseUser.updatePassword(userPass).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                            }
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(activity, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            Log.d("TAG123", e.getMessage());
+                                        }
+                                    });
                                     DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
                                     HashMap<String, Object> hashMap = new HashMap<>();
                                     hashMap.put("user_Pass", userPass);

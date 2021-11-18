@@ -83,6 +83,7 @@ public class ProfileFragment extends Fragment {
     FirebaseAuth auth;
     FirebaseUser firebaseUser;
     DatabaseReference reference;
+    AppCompatActivity activity;
 
     StorageReference storageReference;
     private static final int IMG_REQUEST = 1234;
@@ -185,6 +186,8 @@ public class ProfileFragment extends Fragment {
 
         avatar_profile = view.findViewById(R.id.avatar_profile);
 
+        activity = (AppCompatActivity) getContext();
+
         DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -268,7 +271,7 @@ public class ProfileFragment extends Fragment {
 
                         if (user_Avatar != null && user_Avatar.length() > 0
                             && !user_Avatar.equals(" ")){
-                            Glide.with(getContext()).load(user_Avatar).centerCrop().into(avatar_profile);
+                            Glide.with(activity).load(user_Avatar).centerCrop().into(avatar_profile);
                         }else {
                             avatar_profile.setImageResource(R.drawable.profile_1);
                         }
@@ -658,6 +661,11 @@ public class ProfileFragment extends Fragment {
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
                             auth.signOut();
+                            SharedPreferences sharedPreferences = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("user_Email", user_Email);
+                            editor.putString("user_Pass", user_Pass);
+                            editor.commit();
                             AppCompatActivity activity = (AppCompatActivity) getContext();
                             Intent intent = new Intent(activity, LoginActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

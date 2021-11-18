@@ -269,6 +269,7 @@
                         android:layout_weight="1"
                         android:background="@android:color/transparent"
                         android:scaleType="fitCenter"
+                        android:visibility="gone"
                         android:src="@drawable/calendar" />
                 </LinearLayout>
 

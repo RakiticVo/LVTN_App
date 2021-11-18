@@ -183,6 +183,8 @@ public class IssueDetailFragment extends DialogFragment {
         btn_update_issue_detail = view.findViewById(R.id.btn_update_issue_detail);
         btn_cancel_issue_detail = view.findViewById(R.id.btn_cancel_issue_detail);
 
+        start_date_issue_detail_text_input_layout.setEnabled(false);
+
         issueType_list = new ArrayList<>();
         issueType_list.add(new IssueType(R.drawable.task, "Task"));
         issueType_list.add(new IssueType(R.drawable.bug, "Bug"));
@@ -291,14 +293,26 @@ public class IssueDetailFragment extends DialogFragment {
 
         start_date_issue_detail_text_input_layout.getEditText().setText(dateFormat.sdf.format(Calendar.getInstance().getTime()));
 
-        DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
+//        DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
+//            @Override
+//            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+//                myCalendar.set(Calendar.YEAR, year);
+//                myCalendar.set(Calendar.MONTH, month);
+//                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+//                start_date_issue_detail_text_input_layout.getEditText().setText(dateFormat.sdf.format(myCalendar.getTime()));
+//                checkRightDate(start_date_issue_detail_text_input_layout);
+//            }
+//        };
+
+        DatePickerDialog.OnDateSetListener date2 = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                 myCalendar.set(Calendar.YEAR, year);
                 myCalendar.set(Calendar.MONTH, month);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                start_date_issue_detail_text_input_layout.getEditText().setText(dateFormat.sdf.format(myCalendar.getTime()));
-                checkRightDate(start_date_issue_detail_text_input_layout);
+                estimate_date_finish_issue_detail_text_input_layout.getEditText().setText(dateFormat.sdf.format(myCalendar.getTime()));
+                checkDate(estimate_date_finish_issue_detail_text_input_layout);
+                checkRightDate(estimate_date_finish_issue_detail_text_input_layout, start_date_issue_detail_text_input_layout);
             }
         };
 
@@ -487,11 +501,20 @@ public class IssueDetailFragment extends DialogFragment {
             }
         });
 
-        //Todo: Xử lý sự kiện chọn ngày từ Calendar View
-        calendar_start_date_issue_detail.setOnClickListener(new View.OnClickListener() {
+//        //Todo: Xử lý sự kiện chọn ngày từ Calendar View
+//        calendar_start_date_issue_detail.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                new DatePickerDialog(getContext(), date, myCalendar
+//                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+//                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+//            }
+//        });
+
+        calendar_estimate_date_finish_issue_detail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new DatePickerDialog(getContext(), date, myCalendar
+                new DatePickerDialog(getContext(), date2, myCalendar
                         .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                         myCalendar.get(Calendar.DAY_OF_MONTH)).show();
             }
@@ -507,7 +530,7 @@ public class IssueDetailFragment extends DialogFragment {
                         estimate_date_finish_issue_detail_text_input_layout.setErrorEnabled(true);
                     }else {
                         estimate_date_finish_issue_detail_text_input_layout.setErrorEnabled(false);
-                        checkRightDate(estimate_date_finish_issue_detail_text_input_layout);
+                        checkDate(estimate_date_finish_issue_detail_text_input_layout);
                     }
                 }else {
                     estimate_date_finish_issue_detail_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
@@ -535,43 +558,43 @@ public class IssueDetailFragment extends DialogFragment {
             }
         });
 
-        //Todo: Xử lý sự kiện nhập và kiểm tra rỗng Issue Detail Start Date
-        start_date_issue_detail_text_input_layout.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus){
-                    issue_StartDate = start_date_issue_detail_text_input_layout.getEditText().getText().toString();
-                    if (issue_StartDate.length() == 0){
-                        start_date_issue_detail_text_input_layout.setError("Please choose day!!!");
-                        start_date_issue_detail_text_input_layout.setErrorEnabled(true);
-                    }else {
-                        start_date_issue_detail_text_input_layout.setErrorEnabled(false);
-                        checkDate(issue_StartDate);
-                    }
-                }else {
-                    start_date_issue_detail_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
-                        @Override
-                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                        }
-
-                        @Override
-                        public void onTextChanged(CharSequence s, int start, int before, int count) {
-                            if (s.length() == 0){
-                                start_date_issue_detail_text_input_layout.setError("Please choose day!!!");
-                                start_date_issue_detail_text_input_layout.setErrorEnabled(true);
-                            }else{
-                                start_date_issue_detail_text_input_layout.setErrorEnabled(false);
-                            }
-                        }
-
-                        @Override
-                        public void afterTextChanged(Editable s) {
-                        }
-                    });
-                }
-            }
-        });
+//        //Todo: Xử lý sự kiện nhập và kiểm tra rỗng Issue Detail Start Date
+//        start_date_issue_detail_text_input_layout.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View v, boolean hasFocus) {
+//                if (!hasFocus){
+//                    issue_StartDate = start_date_issue_detail_text_input_layout.getEditText().getText().toString();
+//                    if (issue_StartDate.length() == 0){
+//                        start_date_issue_detail_text_input_layout.setError("Please choose day!!!");
+//                        start_date_issue_detail_text_input_layout.setErrorEnabled(true);
+//                    }else {
+//                        start_date_issue_detail_text_input_layout.setErrorEnabled(false);
+////                        checkDate(issue_StartDate);
+//                    }
+//                }else {
+//                    start_date_issue_detail_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
+//                        @Override
+//                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//                        }
+//
+//                        @Override
+//                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                            if (s.length() == 0){
+//                                start_date_issue_detail_text_input_layout.setError("Please choose day!!!");
+//                                start_date_issue_detail_text_input_layout.setErrorEnabled(true);
+//                            }else{
+//                                start_date_issue_detail_text_input_layout.setErrorEnabled(false);
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void afterTextChanged(Editable s) {
+//                        }
+//                    });
+//                }
+//            }
+//        });
 
         //Todo: Xử lý sự kiện lấy Issue Detail Issue Type và hiển thị hình ảnh theo Issue Type
         spinner_issue_type_detail.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -639,18 +662,19 @@ public class IssueDetailFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 // Todo: Check permission
-                if (start_date_issue_detail_text_input_layout.getEditText().getText().length() == 0) {
-                    start_date_issue_detail_text_input_layout.setError("Please choose day!!!");
-                    start_date_issue_detail_text_input_layout.setErrorEnabled(true);
-                } else {
-                    start_date_issue_detail_text_input_layout.setErrorEnabled(false);
-                    checkDate(issue_StartDate);
-                }
+//                if (start_date_issue_detail_text_input_layout.getEditText().getText().length() == 0) {
+//                    start_date_issue_detail_text_input_layout.setError("Please choose day!!!");
+//                    start_date_issue_detail_text_input_layout.setErrorEnabled(true);
+//                } else {
+//                    start_date_issue_detail_text_input_layout.setErrorEnabled(false);
+//                    checkDate(issue_StartDate);
+//                }
                 if (estimate_date_finish_issue_detail_text_input_layout.getEditText().getText().length() > 0){
-                    checkRightDate(estimate_date_finish_issue_detail_text_input_layout);
+                    checkDate(estimate_date_finish_issue_detail_text_input_layout);
+                    checkRightDate(estimate_date_finish_issue_detail_text_input_layout, start_date_issue_detail_text_input_layout);
                 }
 
-                if (start_date_issue_detail_text_input_layout.isErrorEnabled() || estimate_date_finish_issue_detail_text_input_layout.isErrorEnabled()) {
+                if (estimate_date_finish_issue_detail_text_input_layout.isErrorEnabled()) {
                     Toast.makeText(getContext(), "Please check the error!!!", Toast.LENGTH_SHORT).show();
                 } else {
                     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
@@ -674,7 +698,7 @@ public class IssueDetailFragment extends DialogFragment {
                                     hashMap.put("issue_StartDate", issue_StartDate);
                                     hashMap.put("issue_Priority", issue_Priority);
                                     hashMap.put("issue_Assignee", issue_Assignee);
-                                    hashMap.put("issue_EstimateTime", issue_EstimateFinishDate);
+                                    hashMap.put("issue_EstimateFinishDate", issue_EstimateFinishDate);
 
                                     DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Issues").child(project_ID).child(issue_ID);
                                     AppCompatActivity activity = (AppCompatActivity) getContext();
@@ -763,48 +787,64 @@ public class IssueDetailFragment extends DialogFragment {
         return view;
     }
 
-    public void checkDate(String date){
-        if (dateFormat.isValidDate(date)){
+//    public void checkDate(String date){
+//        if (dateFormat.isValidDate(date)){
+//            try {
+//                Date rightDate = dateFormat.sdf.parse(date);
+//                //        Toast.makeText(getContext(), "" + rightDate, Toast.LENGTH_SHORT).show();
+//                if (rightDate != null){
+//                    start_date_issue_detail_text_input_layout.setErrorEnabled(false);
+////                    Toast.makeText(getContext(), "" + process_type, Toast.LENGTH_SHORT).show();
+//                    if (issue_ProcessType.equals("ToDo")){
+//                        boolean isCheck = dateFormat.checkDate(rightDate);
+//                        if (isCheck){
+//                            start_date_issue_detail_text_input_layout.setErrorEnabled(false);
+//                        }else {
+//                            start_date_issue_detail_text_input_layout.setError("Wrong day!!!");
+//                            start_date_issue_detail_text_input_layout.setErrorEnabled(true);
+//                        }
+//                    }
+//                }else {
+//                    start_date_issue_detail_text_input_layout.setError("Wrong format!!! Ex: dd/MM/yyyy");
+//                    start_date_issue_detail_text_input_layout.setErrorEnabled(true);
+//                }
+//            } catch (ParseException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+
+    public void checkDate(TextInputLayout textInputLayout){
+        String date = textInputLayout.getEditText().getText().toString();
+        if (!dateFormat.isValidDate(date)){
+            textInputLayout.setError("Wrong format. Ex: dd/MM/yyy");
+            textInputLayout.setErrorEnabled(true);
+        }else{
             try {
-                Date rightDate = dateFormat.sdf.parse(date);
-                //        Toast.makeText(getContext(), "" + rightDate, Toast.LENGTH_SHORT).show();
-                if (rightDate != null){
-                    start_date_issue_detail_text_input_layout.setErrorEnabled(false);
-//                    Toast.makeText(getContext(), "" + process_type, Toast.LENGTH_SHORT).show();
-                    if (issue_ProcessType.equals("ToDo")){
-                        boolean isCheck = dateFormat.checkDate(rightDate);
-                        if (isCheck){
-                            start_date_issue_detail_text_input_layout.setErrorEnabled(false);
-                        }else {
-                            start_date_issue_detail_text_input_layout.setError("Wrong day!!!");
-                            start_date_issue_detail_text_input_layout.setErrorEnabled(true);
-                        }
-                    }
-                }else {
-                    start_date_issue_detail_text_input_layout.setError("Wrong format!!! Ex: dd/MM/yyyy");
-                    start_date_issue_detail_text_input_layout.setErrorEnabled(true);
-                }
+                date1 = dateFormat.sdf.parse(date);
+                if (date1.getTime() < Calendar.getInstance().getTime().getTime()){
+                    textInputLayout.setError("Wrong day!!!");
+                    textInputLayout.setErrorEnabled(true);
+                }else textInputLayout.setErrorEnabled(false);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void checkRightDate(TextInputLayout textInputLayout){
-        String date = textInputLayout.getEditText().getText().toString();
-        if (!dateFormat.isValidDate(date)){
-            start_date_issue_detail_text_input_layout.setError("Wrong format. Ex: dd/MM/yyy");
-            start_date_issue_detail_text_input_layout.setErrorEnabled(true);
-        }else{
-            try {
-                date1 = dateFormat.sdf.parse(date);
-                if (date1.getTime() < Calendar.getInstance().getTime().getTime()){
-                    start_date_issue_detail_text_input_layout.setError("Wrong start day!!!");
-                    start_date_issue_detail_text_input_layout.setErrorEnabled(true);
-                }else start_date_issue_detail_text_input_layout.setErrorEnabled(false);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+    public void checkRightDate(TextInputLayout textInputLayout1, TextInputLayout textInputLayout2){
+        try {
+            Date day1 = dateFormat.sdf.
+                    parse(textInputLayout1.getEditText().getText().toString());
+
+            Date day2 = dateFormat.sdf.
+                    parse(textInputLayout2.getEditText().getText().toString());
+            if (day2.getTime() > day1.getTime()){
+                estimate_date_finish_issue_detail_text_input_layout.setError("Wrong day!!!");
+                estimate_date_finish_issue_detail_text_input_layout.setErrorEnabled(true);
+            }else estimate_date_finish_issue_detail_text_input_layout.setErrorEnabled(false);
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
     }
 }
