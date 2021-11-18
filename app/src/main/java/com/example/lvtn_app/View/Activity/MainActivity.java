@@ -25,6 +25,7 @@ import com.example.lvtn_app.Model.GroupChat;
 import com.example.lvtn_app.Model.Issue;
 import com.example.lvtn_app.Model.Joining_Group_Chat;
 import com.example.lvtn_app.Model.Joining_Project;
+import com.example.lvtn_app.Model.NotificationIssueToday;
 import com.example.lvtn_app.Model.Project;
 import com.example.lvtn_app.Model.Project_Issue_Request;
 import com.example.lvtn_app.Model.User_Issue_List;
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences.Editor editor;
     private NotificationManagerCompat notificationManagerCompat;
     DateFormat dateFormat;
+    Date currentDate;
 
     private final int ID_PROJECTS = 1;
     private final int ID_MY_TASKS = 2;
@@ -188,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
         editor = sharedPreferences.edit();
 
         dateFormat = new DateFormat();
+        currentDate = Calendar.getInstance().getTime();
 
         getNotificationJoiningGroupChat();
         getNotificationProject();
@@ -196,9 +199,6 @@ public class MainActivity extends AppCompatActivity {
         getJoiningGroupChatID();
         getJoiningProjectID();
         getIssueProjectID();
-
-        Date currentDate = Calendar.getInstance().getTime();
-        getIssueIDToDay(currentDate);
 
         String object_ID = getIntent().getStringExtra("group_ID");
         if (object_ID != null) {
@@ -243,97 +243,6 @@ public class MainActivity extends AppCompatActivity {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Tokens");
         Token token1 = new Token(token);
         reference.child(firebaseUser.getUid()).setValue(token1);
-    }
-
-    public void getIssueIDToDay(Date currentDate){
-        ArrayList<Issue> issues = new ArrayList<>();
-        final int[] i = {0};
-        referenceIssueToDay = FirebaseDatabase.getInstance().getReference("Issue_List_By_User").child(firebaseUser.getUid());
-        valueEventListenerIssueToDay = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-                    i[0]++;
-                    User_Issue_List issue = dataSnapshot.getValue(User_Issue_List.class);
-                    getIssueToDay(currentDate, issue.getProject_ID(), issue.getIssue_ID(), issues, i[0], (int) snapshot.getChildrenCount());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        };
-        referenceIssueToDay.addValueEventListener(valueEventListenerIssueToDay);
-    }
-
-    public void getIssueToDay(Date currentDate, String projectID, String issueID, ArrayList<Issue> issues, int count, int end){
-        referenceNotificationToday = FirebaseDatabase.getInstance().getReference("Issues").child(projectID).child(issueID);
-        valueEventListenerNotificationToday = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Issue issue = snapshot.getValue(Issue.class);
-                String date = dateFormat.formatDate(currentDate);
-                if (date.equals(issue.getIssue_StartDate())){
-                    issues.add(issue);
-                }
-                if (count == end){
-//                    Toast.makeText(MainActivity.this, count + "-" + end + "\n Size: " + issues.size(), Toast.LENGTH_SHORT).show();
-                    sendNotificationIssueToDay(date, issues.size());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        };
-
-        referenceNotificationToday.addValueEventListener(valueEventListenerNotificationToday);
-    }
-
-    public void sendNotificationIssueToDay(String date, int size){
-        String channelId = getString(R.string.default_notification_channel_id);
-        int j = 123456789;
-        String s = "You have Issue today";
-        if (size > 1){
-            s = "You have some Issues today";
-        }
-        Intent intent = new Intent(this, MainActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("currentDateIssues", date);
-        intent.putExtras(bundle);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, j, intent, PendingIntent.FLAG_ONE_SHOT);
-
-        Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        Notification notification = new NotificationCompat.Builder(this, Notifications.CHANNEL_1_ID)
-                .setSmallIcon(R.drawable.logo)
-                .setContentTitle("Issue Today")
-                .setContentText(s)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setCategory(NotificationCompat.CATEGORY_PROMO) // Promotion.
-                .setAutoCancel(true)
-                .setSound(defaultSound)
-                .setContentIntent(pendingIntent)
-                .build();
-
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        // Since android Oreo notification channel is needed.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(channelId,
-                    "Channel human readable title",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            notificationManager.createNotificationChannel(channel);
-        }
-
-        int i = 0;
-        if (j > i){
-            i = j;
-        }
-        notificationManagerCompat.notify(i, notification);
     }
 
     public void getNotificationJoiningGroupChat(){
@@ -769,6 +678,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        getIssueIDToDay(currentDate);
     }
 
     public void updateStatusProjectIssueRequest(ArrayList<String> projectID){
@@ -804,6 +714,172 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    public void getIssueIDToDay(Date currentDate){
+        ArrayList<Issue> issues = new ArrayList<>();
+        final int[] i = {0};
+        referenceIssueToDay = FirebaseDatabase.getInstance().getReference("Issue_List_By_User").child(firebaseUser.getUid());
+        valueEventListenerIssueToDay = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    i[0]++;
+                    User_Issue_List issue = dataSnapshot.getValue(User_Issue_List.class);
+                    getIssueToDay(currentDate, issue.getProject_ID(), issue.getIssue_ID(), issues, i[0], (int) snapshot.getChildrenCount());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        referenceIssueToDay.addValueEventListener(valueEventListenerIssueToDay);
+    }
+
+    public void getIssueToDay(Date currentDate, String projectID, String issueID, ArrayList<Issue> issues, int count, int end){
+        referenceNotificationToday = FirebaseDatabase.getInstance().getReference("Issues").child(projectID).child(issueID);
+        valueEventListenerNotificationToday = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Issue issue = snapshot.getValue(Issue.class);
+                String date = dateFormat.formatDate(currentDate);
+                if (date.equals(issue.getIssue_StartDate())){
+                    issues.add(issue);
+                }
+                if (count == end){
+//                    Toast.makeText(MainActivity.this, count + "-" + end + "\n Size: " + issues.size(), Toast.LENGTH_SHORT).show();
+                    getNotificationIssueToday(date, issues.size());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        referenceNotificationToday.addValueEventListener(valueEventListenerNotificationToday);
+    }
+
+    public void getNotificationIssueToday(String date, int size){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notifications").child("Issue_Today");
+        reference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                NotificationIssueToday notificationIssueToday = snapshot.getValue(NotificationIssueToday.class);
+                if (notificationIssueToday != null){
+                    if (notificationIssueToday.getToday().equals(date)){
+                        if (notificationIssueToday.getStatus().equals("sent")){
+                            sendNotificationIssueToDay(date, size);
+                            updateStatusIssueToday();
+                        }
+                    }else {
+                        updateDateIssueToday(date);
+                    }
+                }else {
+                    createNotificationIssueToday(date, size);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void createNotificationIssueToday(String date, int size){
+        String s = "You have Issue today";
+        if (size > 1){
+            s = "You have some Issues today";
+        }
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notifications").child("Issue_Today");
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("message", s);
+        hashMap.put("today", date);
+        hashMap.put("status", "sent");
+        reference.child(firebaseUser.getUid()).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    Toast.makeText(MainActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                    getNotificationIssueToday(date, size);
+                }
+            }
+        });
+    }
+
+    public void updateStatusIssueToday(){
+        DatabaseReference reference =  FirebaseDatabase.getInstance().getReference("Notifications").child("Issue_Today");
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("status", "received");
+        reference.child(firebaseUser.getUid()).updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    Toast.makeText(MainActivity.this, "update status Issue today success", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    public void updateDateIssueToday(String date){
+        DatabaseReference reference =  FirebaseDatabase.getInstance().getReference("Notifications").child("Issue_Today");
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("today", date);
+        reference.child(firebaseUser.getUid()).updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    Toast.makeText(MainActivity.this, "update date Issue today success", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    public void sendNotificationIssueToDay(String date, int size){
+        String channelId = getString(R.string.default_notification_channel_id);
+        int j = 123456789;
+        String s = "You have Issue today";
+        if (size > 1){
+            s = "You have some Issues today";
+        }
+        Intent intent = new Intent(this, MainActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("currentDateIssues", date);
+        intent.putExtras(bundle);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, j, intent, PendingIntent.FLAG_ONE_SHOT);
+
+        Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Notification notification = new NotificationCompat.Builder(this, Notifications.CHANNEL_1_ID)
+                .setSmallIcon(R.drawable.logo)
+                .setContentTitle("Issue Today")
+                .setContentText(s)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setCategory(NotificationCompat.CATEGORY_PROMO) // Promotion.
+                .setAutoCancel(true)
+                .setSound(defaultSound)
+                .setContentIntent(pendingIntent)
+                .build();
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Since android Oreo notification channel is needed.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(channelId,
+                    "Channel human readable title",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        int i = 0;
+        if (j > i){
+            i = j;
+        }
+        notificationManagerCompat.notify(i, notification);
     }
 
     @Override
