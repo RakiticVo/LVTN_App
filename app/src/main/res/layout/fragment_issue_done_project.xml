@@ -5,7 +5,7 @@
     android:layout_width="400dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    tools:context=".View.Fragment.IssueCompletedTableFragment">
+    tools:context=".View.Fragment.IssueDoneProjectFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -14,8 +14,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="430dp"
-            android:orientation="vertical"
             android:background="@android:color/transparent"
+            android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -36,7 +36,7 @@
                 android:background="@android:color/transparent">
 
                 <TableLayout
-                    android:id="@+id/tableLayout2"
+                    android:id="@+id/tableLayout3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/custom_background_white_cross"

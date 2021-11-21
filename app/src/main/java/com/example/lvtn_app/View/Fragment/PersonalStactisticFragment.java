@@ -83,6 +83,12 @@ public class PersonalStactisticFragment extends Fragment {
 
     AppCompatActivity activity;
 
+    static PersonalStactisticFragment instance;
+
+    public static PersonalStactisticFragment getInstance() {
+        return instance;
+    }
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -129,6 +135,8 @@ public class PersonalStactisticFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_personal_stactistic, container, false);
 
+        instance = this;
+
         tv_name_bar_chart_personal = view.findViewById(R.id.tv_name_bar_chart_personal);
         tv_name_pie_chart_personal = view.findViewById(R.id.tv_name_pie_chart_personal);
         textView_number_3 = view.findViewById(R.id.textView_number_3);
@@ -170,10 +178,10 @@ public class PersonalStactisticFragment extends Fragment {
         project_ID = sharedPreferences.getString("project_ID", "token");
 
         processType_list = new ArrayList<>();
-        processType_list.add(new ProcessType(R.drawable.all_issues, "All Issues"));
-        processType_list.add(new ProcessType(R.drawable.todo, "ToDo"));
-        processType_list.add(new ProcessType(R.drawable.inprogress, "InProgress"));
-        processType_list.add(new ProcessType(R.drawable.done, "Done"));
+        processType_list.add(new ProcessType(R.drawable.all_issues, getString(R.string.all_issues)));
+        processType_list.add(new ProcessType(R.drawable.todo, getString(R.string.todo)));
+        processType_list.add(new ProcessType(R.drawable.inprogress, getString(R.string.inprogress)));
+        processType_list.add(new ProcessType(R.drawable.done, getString(R.string.done)));
 
         processTypeAdapter = new ProcessTypeAdapter(getContext(), processType_list);
         spinner_issue_process_personal.setAdapter(processTypeAdapter);
@@ -210,25 +218,25 @@ public class PersonalStactisticFragment extends Fragment {
 //                        Toast.makeText(getContext(), "" + processType_list.get(0).getName(), Toast.LENGTH_SHORT).show();
 //                        Toast.makeText(getContext(), "All issues: " + issue_list.size(), Toast.LENGTH_SHORT).show();
                         showBarChartByIssueType(issue_list);
-                        tv_name_bar_chart_personal.setText("All Issues");
+                        tv_name_bar_chart_personal.setText(R.string.all_issues);
                         break;
                     case 1:
 //                        Toast.makeText(getContext(), "" + processType_list.get(1).getName(), Toast.LENGTH_SHORT).show();
 //                        Toast.makeText(getContext(), "Todo List: " + toDo_list.size(), Toast.LENGTH_SHORT).show();
                         showBarChartByIssueType(toDo_list);
-                        tv_name_bar_chart_personal.setText("Issues in Todo Process");
+                        tv_name_bar_chart_personal.setText(R.string.issues_in_todo);
                         break;
                     case 2:
 //                        Toast.makeText(getContext(), "" + processType_list.get(2).getName(), Toast.LENGTH_SHORT).show();
 //                        Toast.makeText(getContext(), "InProgress List: " + inProgress_list.size(), Toast.LENGTH_SHORT).show();
                         showBarChartByIssueType(inProgress_list);
-                        tv_name_bar_chart_personal.setText("Issues in InProgress Process");
+                        tv_name_bar_chart_personal.setText(R.string.issues_in_inprogress);
                         break;
                     case 3:
 //                        Toast.makeText(getContext(), "" + processType_list.get(3).getName(), Toast.LENGTH_SHORT).show();
 //                        Toast.makeText(getContext(), "Done List: " + done_list.size(), Toast.LENGTH_SHORT).show();
                         showBarChartByIssueType(done_list);
-                        tv_name_bar_chart_personal.setText("Issues in Done Process");
+                        tv_name_bar_chart_personal.setText(R.string.issues_in_done);
                         break;
                 }
             }
@@ -399,17 +407,17 @@ public class PersonalStactisticFragment extends Fragment {
         issues2.add(new BarEntry(3, bug_list.size()));
         issues3.add(new BarEntry(5, story_list.size()));
 
-        BarDataSet barDataSet1 = new BarDataSet(issues1, "Task");
+        BarDataSet barDataSet1 = new BarDataSet(issues1, getString(R.string.task));
         barDataSet1.setHighlightEnabled(false);
         barDataSet1.setColors(Color.argb(255, 139,195,74));
         barDataSet1.setValueTextColor(Color.BLACK);
         barDataSet1.setValueTextSize(14f);
-        BarDataSet barDataSet2 = new BarDataSet(issues2, "Bug");
+        BarDataSet barDataSet2 = new BarDataSet(issues2, getString(R.string.bug));
         barDataSet2.setHighlightEnabled(false);
         barDataSet2.setColors(Color.argb(255, 243,209,107));
         barDataSet2.setValueTextColor(Color.BLACK);
         barDataSet2.setValueTextSize(14f);
-        BarDataSet barDataSet3 = new BarDataSet(issues3, "Story");
+        BarDataSet barDataSet3 = new BarDataSet(issues3, getString(R.string.story));
         barDataSet3.setHighlightEnabled(false);
         barDataSet3.setColors(Color.argb(255, 105,42,117));
         barDataSet3.setValueTextColor(Color.BLACK);
@@ -436,7 +444,7 @@ public class PersonalStactisticFragment extends Fragment {
     }
 
     public void showPieChartByIssueDoneList(ArrayList<Issue> done_list){
-        tv_name_pie_chart_personal.setText("Issues Complete Performance");
+        tv_name_pie_chart_personal.setText(R.string.issues_complete_perfromance);
         ArrayList<Issue> perfect_issue, delay_issue;
         perfect_issue = new ArrayList<>();
         delay_issue = new ArrayList<>();
@@ -455,8 +463,8 @@ public class PersonalStactisticFragment extends Fragment {
 //        Toast.makeText(activity, "" + perfect_issue.size(), Toast.LENGTH_SHORT).show();
 //        Toast.makeText(activity, "" + delay_issue.size(), Toast.LENGTH_SHORT).show();
         ArrayList<PieEntry> issues = new ArrayList<>();
-        issues.add(new PieEntry(perfect_issue.size(), "Perfect Issues"));
-        issues.add(new PieEntry(delay_issue.size(), "Delay Issues"));
+        issues.add(new PieEntry(perfect_issue.size(), getString(R.string.perfectissues)));
+        issues.add(new PieEntry(delay_issue.size(), getString(R.string.delayissues)));
 
         PieDataSet pieDataSet = new PieDataSet(issues, " ");
         pieDataSet.setColors(ColorTemplate.MATERIAL_COLORS);

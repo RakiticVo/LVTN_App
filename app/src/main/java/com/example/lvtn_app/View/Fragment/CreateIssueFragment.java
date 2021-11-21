@@ -137,19 +137,19 @@ public class CreateIssueFragment extends DialogFragment {
         spinner_detail_priority_issue_create = view.findViewById(R.id.spinner_detail_priority_issue_create);
 
         issueType_list = new ArrayList<>();
-        issueType_list.add(new IssueType(R.drawable.task, "Task"));
-        issueType_list.add(new IssueType(R.drawable.bug, "Bug"));
-        issueType_list.add(new IssueType(R.drawable.user_story, "Story"));
+        issueType_list.add(new IssueType(R.drawable.task, getString(R.string.task)));
+        issueType_list.add(new IssueType(R.drawable.bug, getString(R.string.bug)));
+        issueType_list.add(new IssueType(R.drawable.user_story, getString(R.string.story)));
 
         processType_list = new ArrayList<>();
-        processType_list.add(new ProcessType(R.drawable.todo, "ToDo"));
-        processType_list.add(new ProcessType(R.drawable.inprogress, "InProgress"));
-        processType_list.add(new ProcessType(R.drawable.done, "Done"));
+        processType_list.add(new ProcessType(R.drawable.todo, getString(R.string.todo)));
+        processType_list.add(new ProcessType(R.drawable.inprogress, getString(R.string.inprogress)));
+        processType_list.add(new ProcessType(R.drawable.done, getString(R.string.done)));
 
         priority_list = new ArrayList<>();
-        priority_list.add(new Priority(R.drawable.high, "High"));
-        priority_list.add(new Priority(R.drawable.medium, "Medium"));
-        priority_list.add(new Priority(R.drawable.low, "Low"));
+        priority_list.add(new Priority(R.drawable.high, getString(R.string.high)));
+        priority_list.add(new Priority(R.drawable.medium, getString(R.string.medium)));
+        priority_list.add(new Priority(R.drawable.low, getString(R.string.low)));
 
         member_list = new ArrayList<>();
         member_list.add(new User("1", "Chí Thiện", "chithien@gmail.com",
@@ -423,7 +423,17 @@ public class CreateIssueFragment extends DialogFragment {
         spinner_issue_type_create.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                issue_Type = issueType_list.get(position).getName();
+                switch (position){
+                    case 0:
+                        issue_Type = "Task";
+                        break;
+                    case 1:
+                        issue_Type = "Bug";
+                        break;
+                    case 2:
+                        issue_Type = "Story";
+                        break;
+                }
             }
 
             @Override
@@ -436,7 +446,17 @@ public class CreateIssueFragment extends DialogFragment {
         spinner_detail_process_create.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                issue_ProcessType = processType_list.get(position).getName();
+                switch (position){
+                    case 0:
+                        issue_ProcessType = "ToDo";
+                        break;
+                    case 1:
+                        issue_ProcessType = "InProgress";
+                        break;
+                    case 2:
+                        issue_ProcessType = "Done";
+                        break;
+                }
                 if (issue_ProcessType.toLowerCase().equals("done")){
                     linearLayout_finish_date.setVisibility(View.VISIBLE);
                 }else {
@@ -454,7 +474,17 @@ public class CreateIssueFragment extends DialogFragment {
         spinner_detail_priority_issue_create.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                issue_Priority = priority_list.get(position).getName();
+                switch (position){
+                    case 0:
+                        issue_Priority = "High";
+                        break;
+                    case 1:
+                        issue_Priority = "Medium";
+                        break;
+                    case 2:
+                        issue_Priority = "Low";
+                        break;
+                }
             }
 
             @Override

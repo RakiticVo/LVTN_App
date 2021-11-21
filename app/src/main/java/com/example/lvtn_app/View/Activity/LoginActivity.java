@@ -13,6 +13,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -39,6 +40,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -77,6 +79,31 @@ public class LoginActivity extends AppCompatActivity {
         instance = this;
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+
+        sharedPreferences = this.getSharedPreferences("Config_language", Context.MODE_PRIVATE);
+        String lang = sharedPreferences.getString("Current_Lang", "abcdef");
+        String current_lang = this.getResources().getConfiguration().locale.toString();
+        if (!current_lang.equals(lang)){
+            loadLocale(lang);
+        }
+    }
+
+    private void setLocate(String language) {
+        Locale locale = new Locale(language);
+        Locale.setDefault(locale);
+        Configuration configuration = new Configuration();
+        configuration.locale = locale;
+        getBaseContext().getResources().
+                updateConfiguration(configuration, getBaseContext().getResources().getDisplayMetrics());
+        editor = sharedPreferences.edit();
+        editor.putString("Current_Lang", language);
+        editor.commit();
+    }
+
+    public void loadLocale(String language){
+        if (!language.equals("abcdef")){
+            setLocate(language);
+        }
     }
 
     @Override

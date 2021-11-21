@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -20,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.lvtn_app.Controller.Method.DateFormat;
 import com.example.lvtn_app.Model.Issue;
@@ -40,15 +40,15 @@ import java.util.Date;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link IssueCompletedTableFragment#newInstance} factory method to
+ * Use the {@link IssueDoneProjectFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class IssueCompletedTableFragment extends DialogFragment{
-    private TableLayout mTableLayout;
+public class IssueDoneProjectFragment extends DialogFragment {
+    private TableLayout tableLayout3;
     ArrayList<User_Issue_List> final_list;
     ArrayList<Issue> perfect_issue, delay_issue;
     DateFormat dateFormat;
-    String type;
+    String type, projectID;
 
     AppCompatActivity activity;
 
@@ -63,7 +63,7 @@ public class IssueCompletedTableFragment extends DialogFragment{
     private String mParam1;
     private String mParam2;
 
-    public IssueCompletedTableFragment() {
+    public IssueDoneProjectFragment() {
         // Required empty public constructor
     }
 
@@ -73,11 +73,11 @@ public class IssueCompletedTableFragment extends DialogFragment{
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment IssueCompletedTableFragment.
+     * @return A new instance of fragment IssueDoneProjectFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static IssueCompletedTableFragment newInstance(String param1, String param2) {
-        IssueCompletedTableFragment fragment = new IssueCompletedTableFragment();
+    public static IssueDoneProjectFragment newInstance(String param1, String param2) {
+        IssueDoneProjectFragment fragment = new IssueDoneProjectFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -97,12 +97,12 @@ public class IssueCompletedTableFragment extends DialogFragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_issue_completed_table, container, false);
+        View view = inflater.inflate(R.layout.fragment_issue_done_project, container, false);
         if (getDialog() != null && getDialog().getWindow() != null) {
             getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
-        mTableLayout = view.findViewById(R.id.tableLayout2);
+        tableLayout3 = view.findViewById(R.id.tableLayout3);
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -114,18 +114,24 @@ public class IssueCompletedTableFragment extends DialogFragment{
 
         Bundle bundle = getArguments();
         type = bundle.getString("type");
-        mTableLayout.setStretchAllColumns(true);
+        projectID = bundle.getString("projectID");
 
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Issue_List_By_User");
-        reference.child(firebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Issues").child(projectID);
+        reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                ArrayList<User_Issue_List> user_issue_lists = new ArrayList<>();
+                ArrayList<User_Issue_List> list = new ArrayList<>();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-                    User_Issue_List userIssueList = dataSnapshot.getValue(User_Issue_List.class);
-                    user_issue_lists.add(userIssueList);
+                    Issue issue = dataSnapshot.getValue(Issue.class);
+                    list.add(new User_Issue_List(
+                            issue.getIssue_ID(),
+                            issue.getIssue_Name(),
+                            issue.getIssue_ProcessType(),
+                            issue.getIssue_Type(),
+                            issue.getIssue_project_ID(),
+                            issue.getIssue_Assignee()));
                 }
-                getIssues(user_issue_lists);
+                getIssues(list);
             }
 
             @Override
@@ -137,16 +143,16 @@ public class IssueCompletedTableFragment extends DialogFragment{
         return view;
     }
 
-    public void getIssues(ArrayList<User_Issue_List> user_issue_lists){
+    public void getIssues(ArrayList<User_Issue_List> list){
         ArrayList<Issue> temp = new ArrayList<>();
         DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Issues");
-        for (User_Issue_List list : user_issue_lists){
-            reference1.child(list.getProject_ID()).child(list.getIssue_ID()).addListenerForSingleValueEvent(new ValueEventListener() {
+        for (User_Issue_List userIssueList : list){
+            reference1.child(userIssueList.getProject_ID()).child(userIssueList.getIssue_ID()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     Issue issueList = snapshot.getValue(Issue.class);
                     temp.add(issueList);
-                    if (temp.size() == user_issue_lists.size()){
+                    if (temp.size() == list.size()){
 //                        Toast.makeText(activity, "" + temp.size(), Toast.LENGTH_SHORT).show();
                         getIssuesByType(temp, type);
                     }
@@ -217,7 +223,7 @@ public class IssueCompletedTableFragment extends DialogFragment{
         row0.setWeightSum(12f);
         TextView tv0 = new TextView(activity);
         TableRow.LayoutParams layoutParams1 = new TableRow.LayoutParams(50, TableRow.LayoutParams.MATCH_PARENT, 3);
-        tv0.setText(getString(R.string.issueType));
+        tv0.setText("Issue Type");
         tv0.setTextColor(Color.BLACK);
         tv0.setTextSize(16f);
         tv0.setTypeface(tv0.getTypeface(), Typeface.BOLD);
@@ -228,7 +234,7 @@ public class IssueCompletedTableFragment extends DialogFragment{
         TextView tv1 = new TextView(activity);
         TableRow.LayoutParams layoutParams2 = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.MATCH_PARENT, 4);
         layoutParams2.setMargins(-3,0,0,0);
-        tv1.setText(getString(R.string.issueName));
+        tv1.setText("Issue Name");
         tv1.setTextColor(Color.BLACK);
         tv1.setTextSize(16f);
         tv1.setTypeface(tv0.getTypeface(), Typeface.BOLD);
@@ -239,7 +245,7 @@ public class IssueCompletedTableFragment extends DialogFragment{
         TextView tv2 = new TextView(activity);
         TableRow.LayoutParams layoutParams3 = new TableRow.LayoutParams(50, TableRow.LayoutParams.MATCH_PARENT, 2);
         layoutParams3.setMargins(-3,0,0,0);
-        tv2.setText(getString(R.string.project));
+        tv2.setText("Project");
         tv2.setTextColor(Color.BLACK);
         tv2.setTextSize(16f);
         tv2.setTypeface(tv0.getTypeface(), Typeface.BOLD);
@@ -250,7 +256,7 @@ public class IssueCompletedTableFragment extends DialogFragment{
         TextView tv3 = new TextView(activity);
         TableRow.LayoutParams layoutParams4 = new TableRow.LayoutParams(100, TableRow.LayoutParams.MATCH_PARENT, 3);
         layoutParams4.setMargins(-3,0,0,0);
-        tv3.setText(getString(R.string.process2));
+        tv3.setText("Process");
         tv3.setTextColor(Color.BLACK);
         tv3.setTextSize(16f);
         tv3.setTypeface(tv0.getTypeface(), Typeface.BOLD);
@@ -258,7 +264,7 @@ public class IssueCompletedTableFragment extends DialogFragment{
         tv3.setBackgroundResource(R.drawable.custom_heading_gridview);
         row0.addView(tv3, 3, layoutParams4);
         row0.setBackgroundResource(R.drawable.custom_heading_gridview);
-        mTableLayout.addView(row0);
+        tableLayout3.addView(row0);
     }
 
     public void addRowIntoTable(User_Issue_List issue_list){
@@ -337,13 +343,13 @@ public class IssueCompletedTableFragment extends DialogFragment{
         }
         imageView1.setBackgroundResource(R.drawable.custome_data_gridview);
         row.addView(imageView1, 3, layoutParams4);
-        mTableLayout.addView(row);
+        tableLayout3.addView(row);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        PersonalStactisticFragment.instance.pieChart_personal_working_efficiency.getOnTouchListener().setLastHighlighted(null);
-        PersonalStactisticFragment.instance.pieChart_personal_working_efficiency.highlightValue(null);
+        StatisticFragment.instance.pieChart_working_efficiency.getOnTouchListener().setLastHighlighted(null);
+        StatisticFragment.instance.pieChart_working_efficiency.highlightValue(null);
     }
 }

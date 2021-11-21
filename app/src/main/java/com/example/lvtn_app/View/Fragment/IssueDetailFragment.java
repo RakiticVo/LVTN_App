@@ -186,19 +186,19 @@ public class IssueDetailFragment extends DialogFragment {
         start_date_issue_detail_text_input_layout.setEnabled(false);
 
         issueType_list = new ArrayList<>();
-        issueType_list.add(new IssueType(R.drawable.task, "Task"));
-        issueType_list.add(new IssueType(R.drawable.bug, "Bug"));
-        issueType_list.add(new IssueType(R.drawable.user_story, "Story"));
+        issueType_list.add(new IssueType(R.drawable.task, getString(R.string.task)));
+        issueType_list.add(new IssueType(R.drawable.bug, getString(R.string.bug)));
+        issueType_list.add(new IssueType(R.drawable.user_story, getString(R.string.story)));
 
         processType_list = new ArrayList<>();
-        processType_list.add(new ProcessType(R.drawable.todo, "ToDo"));
-        processType_list.add(new ProcessType(R.drawable.inprogress, "InProgress"));
-        processType_list.add(new ProcessType(R.drawable.done, "Done"));
+        processType_list.add(new ProcessType(R.drawable.todo, getString(R.string.todo)));
+        processType_list.add(new ProcessType(R.drawable.inprogress, getString(R.string.inprogress)));
+        processType_list.add(new ProcessType(R.drawable.done, getString(R.string.done)));
 
         priority_list = new ArrayList<>();
-        priority_list.add(new Priority(R.drawable.high, "High"));
-        priority_list.add(new Priority(R.drawable.medium, "Medium"));
-        priority_list.add(new Priority(R.drawable.low, "Low"));
+        priority_list.add(new Priority(R.drawable.high, getString(R.string.high)));
+        priority_list.add(new Priority(R.drawable.medium, getString(R.string.medium)));
+        priority_list.add(new Priority(R.drawable.low, getString(R.string.low)));
 
         member_list = new ArrayList<>();
         member_list.add(new User("1", "Chí Thiện", "chithien@gmail.com",
@@ -279,7 +279,6 @@ public class IssueDetailFragment extends DialogFragment {
                     spinner_assignee_issue_detail.setEnabled(false);
                     spinner_issue_type_detail.setEnabled(false);
                     spinner_priority_issue_detail.setEnabled(false);
-                    spinner_process_issue_detail.setEnabled(false);
                 }else {
 //                    Toast.makeText(activity, "Leader is here", Toast.LENGTH_SHORT).show();
                 }
@@ -292,17 +291,6 @@ public class IssueDetailFragment extends DialogFragment {
         });
 
         start_date_issue_detail_text_input_layout.getEditText().setText(dateFormat.sdf.format(Calendar.getInstance().getTime()));
-
-//        DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
-//            @Override
-//            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-//                myCalendar.set(Calendar.YEAR, year);
-//                myCalendar.set(Calendar.MONTH, month);
-//                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-//                start_date_issue_detail_text_input_layout.getEditText().setText(dateFormat.sdf.format(myCalendar.getTime()));
-//                checkRightDate(start_date_issue_detail_text_input_layout);
-//            }
-//        };
 
         DatePickerDialog.OnDateSetListener date2 = new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -357,7 +345,7 @@ public class IssueDetailFragment extends DialogFragment {
                     estimate_date_finish_issue_detail_text_input_layout.getEditText().setText(issue_EstimateFinishDate);
                     tv_issue_finish_date.setText(issue_FinishDate);
 
-                    switch (issue_ProcessType){
+                    switch (issue.getIssue_ProcessType()){
                         case "Todo":
                             spinner_process_issue_detail.setSelection(0);
                             processTypeAdapter.notifyDataSetChanged();
@@ -372,7 +360,7 @@ public class IssueDetailFragment extends DialogFragment {
                             break;
                     }
 
-                    switch (issue_Type){
+                    switch (issue.getIssue_Type()){
                         case "Task":
                             img_issue_type_detail.setImageResource(R.drawable.task);
                             spinner_issue_type_detail.setSelection(0);
@@ -390,7 +378,7 @@ public class IssueDetailFragment extends DialogFragment {
                             break;
                     }
 
-                    switch (issue_Priority){
+                    switch (issue.getIssue_Priority()){
                         case "High":
                             spinner_priority_issue_detail.setSelection(0);
                             priorityAdapter.notifyDataSetChanged();
@@ -410,6 +398,7 @@ public class IssueDetailFragment extends DialogFragment {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             ArrayList<String> list = new ArrayList();
+                            member_list.clear();
                             for (DataSnapshot dataSnapshot : snapshot.getChildren()){
                                 Project_Users user = dataSnapshot.getValue(Project_Users.class);
                                 list.add(user.getUser_ID());
@@ -447,6 +436,7 @@ public class IssueDetailFragment extends DialogFragment {
                         }
                     });
                     assigneeAdapter.notifyDataSetChanged();
+                    spinner_assignee_issue_detail.setEnabled(false);
 
                     if (issue.getIssue_ProcessType().toLowerCase().equals("inprogress")){
                         ibtn_confirm_done_issue.setVisibility(View.VISIBLE);
@@ -458,7 +448,6 @@ public class IssueDetailFragment extends DialogFragment {
                         spinner_process_issue_detail.setEnabled(false);
                         spinner_issue_type_detail.setEnabled(false);
                         spinner_priority_issue_detail.setEnabled(false);
-                        spinner_assignee_issue_detail.setEnabled(false);
                         description_issue_detail_text_input_layout.setEnabled(false);
                         start_date_issue_detail_text_input_layout.setEnabled(false);
                         estimate_date_finish_issue_detail_text_input_layout.setEnabled(false);
@@ -468,9 +457,7 @@ public class IssueDetailFragment extends DialogFragment {
                         spinner_process_issue_detail.setEnabled(true);
                         spinner_issue_type_detail.setEnabled(true);
                         spinner_priority_issue_detail.setEnabled(true);
-                        spinner_assignee_issue_detail.setEnabled(true);
                         description_issue_detail_text_input_layout.setEnabled(true);
-                        start_date_issue_detail_text_input_layout.setEnabled(true);
                         estimate_date_finish_issue_detail_text_input_layout.setEnabled(true);
                         btn_update_issue_detail.setVisibility(View.VISIBLE);
                         btn_cancel_issue_detail.setVisibility(View.VISIBLE);
@@ -500,16 +487,6 @@ public class IssueDetailFragment extends DialogFragment {
                 dismiss();
             }
         });
-
-//        //Todo: Xử lý sự kiện chọn ngày từ Calendar View
-//        calendar_start_date_issue_detail.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                new DatePickerDialog(getContext(), date, myCalendar
-//                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-//                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-//            }
-//        });
 
         calendar_estimate_date_finish_issue_detail.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -558,51 +535,23 @@ public class IssueDetailFragment extends DialogFragment {
             }
         });
 
-//        //Todo: Xử lý sự kiện nhập và kiểm tra rỗng Issue Detail Start Date
-//        start_date_issue_detail_text_input_layout.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                if (!hasFocus){
-//                    issue_StartDate = start_date_issue_detail_text_input_layout.getEditText().getText().toString();
-//                    if (issue_StartDate.length() == 0){
-//                        start_date_issue_detail_text_input_layout.setError("Please choose day!!!");
-//                        start_date_issue_detail_text_input_layout.setErrorEnabled(true);
-//                    }else {
-//                        start_date_issue_detail_text_input_layout.setErrorEnabled(false);
-////                        checkDate(issue_StartDate);
-//                    }
-//                }else {
-//                    start_date_issue_detail_text_input_layout.getEditText().addTextChangedListener(new TextWatcher() {
-//                        @Override
-//                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//                        }
-//
-//                        @Override
-//                        public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                            if (s.length() == 0){
-//                                start_date_issue_detail_text_input_layout.setError("Please choose day!!!");
-//                                start_date_issue_detail_text_input_layout.setErrorEnabled(true);
-//                            }else{
-//                                start_date_issue_detail_text_input_layout.setErrorEnabled(false);
-//                            }
-//                        }
-//
-//                        @Override
-//                        public void afterTextChanged(Editable s) {
-//                        }
-//                    });
-//                }
-//            }
-//        });
-
         //Todo: Xử lý sự kiện lấy Issue Detail Issue Type và hiển thị hình ảnh theo Issue Type
         spinner_issue_type_detail.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 //                Toast.makeText(getContext(), "" + issueType_list.get(position).getName(), Toast.LENGTH_SHORT).show();
                 img_issue_type_detail.setImageResource(issueType_list.get(position).getImage());
-                issue_Type = issueType_list.get(position).getName();
+                switch (position){
+                    case 0:
+                        issue_Type = "Task";
+                        break;
+                    case 1:
+                        issue_Type = "Bug";
+                        break;
+                    case 2:
+                        issue_Type = "Story";
+                        break;
+                }
             }
 
             @Override
@@ -616,7 +565,17 @@ public class IssueDetailFragment extends DialogFragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 //                Toast.makeText(getContext(), "" + processType_list.get(position).getName(), Toast.LENGTH_SHORT).show();
-                issue_ProcessType = processType_list.get(position).getName();
+                switch (position){
+                    case 0:
+                        issue_ProcessType = "ToDo";
+                        break;
+                    case 1:
+                        issue_ProcessType = "InProgress";
+                        break;
+                    case 2:
+                        issue_ProcessType = "Done";
+                        break;
+                }
             }
 
             @Override
@@ -630,7 +589,17 @@ public class IssueDetailFragment extends DialogFragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 //                Toast.makeText(getContext(), "" + priority_list.get(position).getName(), Toast.LENGTH_SHORT).show();
-                issue_Priority = priority_list.get(position).getName();
+                switch (position){
+                    case 0:
+                        issue_Priority = "High";
+                        break;
+                    case 1:
+                        issue_Priority = "Medium";
+                        break;
+                    case 2:
+                        issue_Priority = "Low";
+                        break;
+                }
             }
 
             @Override
@@ -743,30 +712,36 @@ public class IssueDetailFragment extends DialogFragment {
                         switch (which){
                             case DialogInterface.BUTTON_POSITIVE:
                                 //Yes button clicked
-                                for (int i = 0; i < processType_list.size(); i++) {
-                                    if (processType_list.get(i).getName().equals("Done")){
-                                        spinner_process_issue_detail.setSelection(i);
-                                        issue_ProcessType = processType_list.get(i).getName().toString();
-                                        DateFormat dateFormat = new DateFormat();
-                                        String currentDate = dateFormat.formatDate(Calendar.getInstance().getTime());
-                                        processTypeAdapter.notifyDataSetChanged();
-                                        HashMap<String, Object> hashMap = new HashMap<>();
-                                        hashMap.put("issue_ProcessType", issue_ProcessType);
-                                        hashMap.put("issue_FinishDate", currentDate);
+                                spinner_process_issue_detail.setSelection(2);
+                                issue_ProcessType = "Done";
+                                DateFormat dateFormat = new DateFormat();
+                                String currentDate = dateFormat.formatDate(Calendar.getInstance().getTime());
+                                processTypeAdapter.notifyDataSetChanged();
+                                HashMap<String, Object> hashMap = new HashMap<>();
+                                hashMap.put("issue_ProcessType", issue_ProcessType);
+                                hashMap.put("issue_FinishDate", currentDate);
 
-                                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Issues").child(project_ID).child(issue_ID);
-                                        AppCompatActivity activity = (AppCompatActivity) getContext();
-                                        reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if (task.isSuccessful()){
-//                                                    Toast.makeText(activity, "This task is "+issue_ProcessType+"!!!" , Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(activity, project_ID + "\n" + issue_ID, Toast.LENGTH_LONG).show();
+
+                                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Issues").child(project_ID).child(issue_ID);
+                                reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()){
+//                                            Toast.makeText(activity, "Update Issue is done success!!!" , Toast.LENGTH_SHORT).show();
+//                                            Toast.makeText(activity, "This task is "+issue_ProcessType+"!!!" , Toast.LENGTH_SHORT).show();
+                                            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Issue_List_By_User");
+                                            HashMap<String, Object> hashMap2 = new HashMap<>();
+                                            hashMap2.put("issue_ProcessType", issue_ProcessType);
+                                            databaseReference.child(firebaseUser.getUid()).child(issue_ID).updateChildren(hashMap2).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    Toast.makeText(activity, "Update Issue is done success!!!" , Toast.LENGTH_SHORT).show();
                                                 }
-                                            }
-                                        });
-                                        break;
+                                            });
+                                        }
                                     }
-                                }
+                                });
                                 dismiss();
                                 break;
 

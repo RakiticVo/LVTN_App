@@ -1,6 +1,8 @@
 package com.example.lvtn_app.View.Fragment;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -41,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -125,10 +128,10 @@ public class MyDashBoardFragment extends Fragment {
 
         //For spinner use
         processType_list = new ArrayList<>();
-        processType_list.add(new ProcessType(R.drawable.all_issues, "My All Issues"));
-        processType_list.add(new ProcessType(R.drawable.todo, "ToDo"));
-        processType_list.add(new ProcessType(R.drawable.inprogress, "InProgress"));
-        processType_list.add(new ProcessType(R.drawable.done, "Done"));
+        processType_list.add(new ProcessType(R.drawable.all_issues, getString(R.string.myallissues)));
+        processType_list.add(new ProcessType(R.drawable.todo, getString(R.string.todo)));
+        processType_list.add(new ProcessType(R.drawable.inprogress, getString(R.string.inprogress)));
+        processType_list.add(new ProcessType(R.drawable.done, getString(R.string.done)));
 
         processTypeAdapter = new ProcessTypeAdapter(getContext(), processType_list);
         spinner_issue_process_personal_dashoard.setAdapter(processTypeAdapter);
@@ -155,25 +158,25 @@ public class MyDashBoardFragment extends Fragment {
 //                        Toast.makeText(getContext(), "" + processType_list.get(0).getName(), Toast.LENGTH_SHORT).show();
 //                        Toast.makeText(getContext(), "All issues: " + issue_list.size(), Toast.LENGTH_SHORT).show();
                         final_list.clear();
-                        showIssuesByProcessType(temp_list, processType_list.get(0).getName());
+                        showIssuesByProcessType(temp_list, "My All Issues");
                         break;
                     case 1:
 //                        Toast.makeText(getContext(), "" + processType_list.get(1).getName(), Toast.LENGTH_SHORT).show();
 //                        Toast.makeText(getContext(), "Todo List: " + toDo_list.size(), Toast.LENGTH_SHORT).show();
                         final_list.clear();
-                        showIssuesByProcessType(temp_list, processType_list.get(1).getName());
+                        showIssuesByProcessType(temp_list, "ToDo");
                         break;
                     case 2:
 //                        Toast.makeText(getContext(), "" + processType_list.get(2).getName(), Toast.LENGTH_SHORT).show();
 //                        Toast.makeText(getContext(), "InProgress List: " + inProgress_list.size(), Toast.LENGTH_SHORT).show();
                         final_list.clear();
-                        showIssuesByProcessType(temp_list, processType_list.get(2).getName());
+                        showIssuesByProcessType(temp_list, "InProgress");
                         break;
                     case 3:
 //                        Toast.makeText(getContext(), "" + processType_list.get(3).getName(), Toast.LENGTH_SHORT).show();
 //                        Toast.makeText(getContext(), "Done List: " + done_list.size(), Toast.LENGTH_SHORT).show();
                         final_list.clear();
-                        showIssuesByProcessType(temp_list, processType_list.get(3).getName());
+                        showIssuesByProcessType(temp_list, "Done");
                         break;
                 }
             }
@@ -298,7 +301,7 @@ public class MyDashBoardFragment extends Fragment {
         row0.setWeightSum(12f);
         TextView tv0 = new TextView(activity);
         TableRow.LayoutParams layoutParams1 = new TableRow.LayoutParams(50, TableRow.LayoutParams.WRAP_CONTENT, 3);
-        tv0.setText("Issue Type");
+        tv0.setText(getString(R.string.issueType));
         tv0.setTextColor(Color.BLACK);
         tv0.setTextSize(16f);
         tv0.setTypeface(tv0.getTypeface(), Typeface.BOLD);
@@ -309,7 +312,7 @@ public class MyDashBoardFragment extends Fragment {
         TextView tv1 = new TextView(activity);
         TableRow.LayoutParams layoutParams2 = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.MATCH_PARENT, 4);
         layoutParams2.setMargins(-3,0,0,0);
-        tv1.setText("Issue Name");
+        tv1.setText(getString(R.string.issueName));
         tv1.setTextColor(Color.BLACK);
         tv1.setTextSize(16f);
         tv1.setTypeface(tv0.getTypeface(), Typeface.BOLD);
@@ -320,7 +323,7 @@ public class MyDashBoardFragment extends Fragment {
         TextView tv2 = new TextView(activity);
         TableRow.LayoutParams layoutParams3 = new TableRow.LayoutParams(50, TableRow.LayoutParams.MATCH_PARENT, 2);
         layoutParams3.setMargins(-3,0,0,0);
-        tv2.setText("Project Name");
+        tv2.setText(getString(R.string.project));
         tv2.setTextColor(Color.BLACK);
         tv2.setTextSize(16f);
         tv2.setTypeface(tv0.getTypeface(), Typeface.BOLD);
@@ -331,7 +334,7 @@ public class MyDashBoardFragment extends Fragment {
         TextView tv3 = new TextView(activity);
         TableRow.LayoutParams layoutParams4 = new TableRow.LayoutParams(50, TableRow.LayoutParams.MATCH_PARENT, 3);
         layoutParams4.setMargins(-3,0,0,0);
-        tv3.setText("Process");
+        tv3.setText(getString(R.string.process2));
         tv3.setTextColor(Color.BLACK);
         tv3.setTextSize(16f);
         tv3.setTypeface(tv0.getTypeface(), Typeface.BOLD);
@@ -417,6 +420,34 @@ public class MyDashBoardFragment extends Fragment {
                 break;
         }
         imageView1.setBackgroundResource(R.drawable.custome_data_gridview);
+        row.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences sharedPreferences = activity.getSharedPreferences("Task", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Issues").child(issue_list.getProject_ID());
+                databaseReference.child(issue_list.getIssue_ID()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Issue issue = snapshot.getValue(Issue.class);
+                        editor.putString("task_id", issue.getIssue_ID());
+                        editor.putString("task_name", issue.getIssue_Name());
+                        editor.putString("task_type", issue.getIssue_Type());
+                        editor.putString("task_projectID", issue.getIssue_project_ID());
+                        editor.putString("task_description", issue.getIssue_Description());
+                        editor.putString("task_start_date", issue.getIssue_StartDate());
+                        editor.commit();
+                        TaskDetailFragment dialog = new TaskDetailFragment();
+                        dialog.show(activity.getSupportFragmentManager(), "TaskDetailFragment");
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+            }
+        });
         row.addView(imageView1, 3, layoutParams4);
         mTableLayout.addView(row);
     }

@@ -44,6 +44,17 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <Spinner
+                android:id="@+id/spinner_language"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:background="@android:color/transparent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:listitem="@layout/item_language" />
+
             <ImageButton
                 android:id="@+id/ibtn_choose_avatar_profile"
                 android:layout_width="40dp"
@@ -103,125 +114,145 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/email_profile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="60dp"
                 android:padding="5dp"
-                android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/avatar_profile">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/textView14"
+                    android:layout_width="90dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
+                    android:layout_marginStart="8dp"
                     android:maxLines="1"
-                    android:text="Email: "
+                    android:text="@string/email_profile"
                     android:textColor="@color/black"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/tv_email_profile"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="39dp"
                     android:layout_gravity="top"
-                    android:singleLine="true"
+                    android:layout_marginStart="8dp"
                     android:padding="5dp"
+                    android:singleLine="true"
                     android:textColor="@color/grey"
                     android:textSize="16sp"
-                    android:visibility="visible" />
+                    android:visibility="visible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/textView14"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/email_profile_text_input_layout"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="40dp"
-                    android:visibility="gone"
+                    android:layout_marginStart="8dp"
                     android:gravity="center"
-                    app:hintEnabled="true">
+                    android:visibility="gone"
+                    app:errorEnabled="false"
+                    app:hintEnabled="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/textView14"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <EditText
                         android:id="@+id/edt_email_profile"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:padding="8dp"
-                        android:text="abc@gmail.com"
-                        android:inputType="textEmailAddress"
                         android:background="@drawable/custom_edt"
+                        android:inputType="textEmailAddress"
+                        android:padding="8dp"
+                        android:singleLine="true"
+                        android:text="abc@gmail.com"
                         android:textSize="16sp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/gender_profile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:orientation="horizontal"
                 android:gravity="center_vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/email_profile">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/textView15"
+                    android:layout_width="90dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
+                    android:layout_marginStart="8dp"
                     android:maxLines="1"
-                    android:text="Gender: "
-                    android:textStyle="bold"
+                    android:text="@string/gender_profile"
                     android:textColor="@color/black"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/tv_gender_profile"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="27dp"
-                    android:singleLine="true"
+                    android:layout_marginStart="8dp"
                     android:padding="5dp"
-                    android:visibility="visible"
+                    android:singleLine="true"
                     android:textColor="@color/grey"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:visibility="visible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/textView15"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <RadioGroup
+                    android:id="@+id/rg_gender"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/rg_gender"
+                    android:layout_marginStart="8dp"
+                    android:orientation="horizontal"
                     android:padding="5dp"
-                    android:layout_marginLeft="27dp"
                     android:visibility="gone"
-                    android:orientation="horizontal">
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/textView15"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <RadioButton
+                        android:id="@+id/rbtn_male"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/rbtn_male"
                         android:layout_marginRight="8dp"
                         android:checked="true"
-                        android:textSize="16sp"
-                        android:text="Male"/>
+                        android:text="Male"
+                        android:textSize="16sp" />
 
                     <RadioButton
+                        android:id="@+id/rbtn_female"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/rbtn_female"
-                        android:textSize="16sp"
-                        android:text="Female"/>
+                        android:text="Female"
+                        android:textSize="16sp" />
 
                 </RadioGroup>
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/phoneNumber_profile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -232,49 +263,61 @@
                 app:layout_constraintTop_toBottomOf="@+id/gender_profile">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/textView16"
+                    android:layout_width="90dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:text="Phone: "
-                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/phone_profile"
                     android:textColor="@color/black"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/tv_phoneNumber_profile"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="33dp"
-                    android:singleLine="true"
+                    android:layout_marginStart="8dp"
                     android:padding="5dp"
+                    android:singleLine="true"
                     android:textColor="@color/grey"
                     android:textSize="16sp"
-                    android:visibility="visible"/>
+                    android:visibility="visible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/textView16"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/phoneNumber_profile_text_input_layout"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="6dp"
                     android:gravity="center"
                     android:visibility="gone"
-                    android:layout_marginLeft="33dp"
+                    app:errorEnabled="false"
                     app:hintEnabled="false"
-                    app:errorEnabled="false">
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/textView16"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <EditText
                         android:id="@+id/edt_phoneNumber_profile"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/custom_edt"
-                        android:singleLine="true"
                         android:inputType="phone"
-                        android:text="0942738183"
                         android:padding="8dp"
+                        android:singleLine="true"
+                        android:text="0942738183"
                         android:textSize="16sp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/DOB_profile"
@@ -287,11 +330,11 @@
 
                 <TextView
                     android:id="@+id/textView"
-                    android:layout_width="wrap_content"
+                    android:layout_width="90dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
+                    android:layout_marginStart="8dp"
                     android:gravity="center_vertical"
-                    android:text="Day of birth:"
+                    android:text="@string/day_of_birth_profile"
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="bold"
@@ -301,15 +344,16 @@
 
                 <TextView
                     android:id="@+id/tv_DOB_profile"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:padding="5dp"
+                    android:layout_marginStart="8dp"
                     android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:singleLine="true"
                     android:textColor="@color/grey"
                     android:textSize="16sp"
                     android:visibility="visible"
-                    app:layout_constraintEnd_toStartOf="@+id/ibtn_calendar_dob"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/textView"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -351,49 +395,59 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/address_profile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/DOB_profile">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/textView19"
+                    android:layout_width="90dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
+                    android:layout_marginStart="8dp"
                     android:gravity="top"
-                    android:text="Address: "
+                    android:text="@string/address_profile"
                     android:textColor="@color/black"
+                    android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textSize="16sp" />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/tv_address_profile"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:gravity="top"
                     android:maxHeight="100dp"
-                    android:layout_marginLeft="19dp"
                     android:maxLines="4"
                     android:padding="5dp"
                     android:scrollbars="vertical"
-                    android:gravity="top"
                     android:textColor="@color/grey"
+                    android:textSize="16sp"
                     android:visibility="visible"
-                    android:textSize="16sp" />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/textView19"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/address_profile_text_input_layout"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
                     android:gravity="center"
-                    android:layout_marginLeft="19dp"
                     android:visibility="gone"
-                    app:hintEnabled="true"
-                    app:errorEnabled="false">
+                    app:errorEnabled="false"
+                    app:hintEnabled="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/textView19"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <EditText
                         android:id="@+id/edt_address_profile"
@@ -408,7 +462,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
                 android:id="@+id/linearLayout"
@@ -444,7 +498,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Account"
+                        android:text="@string/account_profile"
                         android:textColor="@color/black"
                         android:textSize="16sp" />
 
@@ -473,7 +527,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Privacy"
+                        android:text="@string/privacy_profile"
                         android:textColor="@color/black"
                         android:textSize="16sp" />
 
@@ -501,7 +555,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Help center"
+                        android:text="@string/help_center_profile"
                         android:textColor="@color/black"
                         android:textSize="16sp" />
 
@@ -529,7 +583,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="About us"
+                        android:text="@string/about_us_profile"
                         android:textColor="@color/black"
                         android:textSize="16sp" />
 
@@ -546,7 +600,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="128dp"
                 android:background="@drawable/custom_btn"
-                android:text="Log out"
+                android:text="@string/log_out_profile"
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -562,7 +616,7 @@
                 android:layout_marginTop="32dp"
                 android:layout_marginEnd="128dp"
                 android:background="@drawable/custom_btn"
-                android:text="Confirm"
+                android:text="@string/confirm_profile"
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="bold"

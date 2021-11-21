@@ -803,7 +803,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-                    Toast.makeText(MainActivity.this, "Success", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(MainActivity.this, "Success", Toast.LENGTH_SHORT).show();
                     getNotificationIssueToday(date, size);
                 }
             }
@@ -818,7 +818,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-                    Toast.makeText(MainActivity.this, "update status Issue today success", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(MainActivity.this, "update status Issue today success", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -832,7 +832,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-                    Toast.makeText(MainActivity.this, "update date Issue today success", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(MainActivity.this, "update date Issue today success", Toast.LENGTH_SHORT).show();
                 }
             }
         });

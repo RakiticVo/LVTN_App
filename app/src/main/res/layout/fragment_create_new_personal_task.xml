@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
                 android:layout_marginTop="8dp"
-                android:text="Create Task"
+                android:text="@string/create_task"
                 android:textColor="@color/black"
                 android:textSize="24sp"
                 android:textStyle="bold"
@@ -68,7 +68,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="5"
                     android:gravity="center"
-                    app:errorEnabled="true"
+                    app:errorEnabled="false"
                     app:hintEnabled="false">
 
                     <EditText
@@ -77,7 +77,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:background="@drawable/custom_edt"
-                        android:hint="Enter task name"
+                        android:hint="@string/enter_task_name"
                         android:padding="10dp"
                         android:textColor="@color/black"
                         android:textSize="18sp" />
@@ -121,7 +121,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/custom_edt"
-                        android:hint="Enter decription"
+                        android:hint="@string/enter_decription"
                         android:padding="10dp"
                         android:textSize="18sp" />
 
@@ -171,7 +171,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="5"
                         android:gravity="center"
-                        app:errorEnabled="true"
+                        app:errorEnabled="false"
                         app:hintEnabled="false">
 
                         <EditText
@@ -208,7 +208,7 @@
                 android:layout_marginStart="32dp"
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/custom_btn"
-                android:text="Create"
+                android:text="@string/create"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -221,7 +221,7 @@
                 android:layout_marginEnd="32dp"
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/custom_btn"
-                android:text="Cancel"
+                android:text="@string/cancel"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -17,6 +18,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
 import android.text.Editable;
@@ -28,16 +30,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.lvtn_app.Adapter.LanguageAdapter;
 import com.example.lvtn_app.Controller.Method.DateFormat;
+import com.example.lvtn_app.Model.IssueType;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 import com.example.lvtn_app.View.Activity.LoginActivity;
@@ -59,9 +66,11 @@ import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -79,6 +88,9 @@ public class ProfileFragment extends Fragment {
     ImageButton ibtn_choose_avatar_profile, ibtn_calendar_dob, ibtn_edit_profile, ibtn_privacy_profile, ibtn_help_center_profile, ibtn_about_us_profile, ibtn_back_profile;
     Button btn_logout, btn_confirm_update_profile;
     CircleImageView avatar_profile;
+    Spinner spinner_language;
+    LanguageAdapter languageAdapter;
+    ArrayList<String> languages;
 
     FirebaseAuth auth;
     FirebaseUser firebaseUser;
@@ -105,8 +117,8 @@ public class ProfileFragment extends Fragment {
     Calendar myCalendar = Calendar.getInstance();
     DateFormat dateFormat = new DateFormat();
 
-    SharedPreferences mSharedPreferences;
-    SharedPreferences.Editor editor;
+    SharedPreferences mSharedPreferences, sharedPreferences_language;
+    SharedPreferences.Editor editor, editor_language;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -187,6 +199,61 @@ public class ProfileFragment extends Fragment {
         avatar_profile = view.findViewById(R.id.avatar_profile);
 
         activity = (AppCompatActivity) getContext();
+
+        sharedPreferences_language = requireActivity().getSharedPreferences("Config_language", Context.MODE_PRIVATE);
+
+        spinner_language = view.findViewById(R.id.spinner_language);
+        languages = new ArrayList<>();
+        languages.add("en");
+        languages.add("vi");
+        languageAdapter = new LanguageAdapter(activity, languages);
+        spinner_language.setAdapter(languageAdapter);
+        String lang = sharedPreferences_language.getString("Current_Lang", "abcdef");
+        String current_lang = requireContext().getResources().getConfiguration().locale.toString();
+        if (!current_lang.equals(lang)){
+            loadLocale(lang);
+        }
+        if (!lang.equals("abcdef")){
+//            Toast.makeText(activity, "" + lang, Toast.LENGTH_SHORT).show();
+            for (int i = 0; i < languages.size(); i++) {
+                if (lang.equals(languages.get(i))){
+                    spinner_language.setSelection(i);
+                }
+            }
+        }else {
+            Locale locale = Locale.getDefault();
+            lang = locale.toString();
+//            Toast.makeText(activity, "" + lang, Toast.LENGTH_SHORT).show();
+            for (int i = 0; i < languages.size(); i++) {
+                if (locale.toString().equals(languages.get(i))){
+                    spinner_language.setSelection(i);
+                }
+            }
+        }
+        spinner_language.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position){
+                    case 0:
+                        setLocate(languages.get(0).toString());
+                        if (!current_lang.equals(languages.get(0).toString())){
+                            refreshFragment();
+                        }
+                        break;
+                    case 1:
+                        setLocate(languages.get(1).toString());
+                        if (!current_lang.equals(languages.get(1).toString())){
+                            refreshFragment();
+                        }
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -679,6 +746,29 @@ public class ProfileFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void setLocate(String language) {
+        Locale locale = new Locale(language);
+        Locale.setDefault(locale);
+        Configuration configuration = new Configuration();
+        configuration.locale = locale;
+        requireContext().getResources().
+                updateConfiguration(configuration, requireContext().getResources().getDisplayMetrics());
+        editor_language = sharedPreferences_language.edit();
+        editor_language.putString("Current_Lang", language);
+        editor_language.commit();
+    }
+
+    public void refreshFragment(){
+        ProfileFragment profileFragment = new ProfileFragment();
+        activity.getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, profileFragment).commit();
+    }
+
+    public void loadLocale(String language){
+        if (!language.equals("abcdef")){
+            setLocate(language);
+        }
     }
 
     private String getFileExtension(Uri uri){

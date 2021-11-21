@@ -25,7 +25,9 @@ import com.example.lvtn_app.Model.Issue;
 import com.example.lvtn_app.Model.IssueType;
 import com.example.lvtn_app.Model.Process;
 import com.example.lvtn_app.Model.ProcessType;
+import com.example.lvtn_app.Model.User_Issue_List;
 import com.example.lvtn_app.R;
+import com.example.lvtn_app.View.Activity.MainActivity;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
@@ -34,12 +36,15 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -78,6 +83,12 @@ public class StatisticFragment extends Fragment {
     String project_ID;
 
     AppCompatActivity activity;
+
+    static StatisticFragment instance;
+
+    public static StatisticFragment getInstance() {
+        return instance;
+    }
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -125,6 +136,8 @@ public class StatisticFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_statistic, container, false);
 
+        instance = this;
+
         tv_name_bar_chart = view.findViewById(R.id.tv_name_bar_chart);
         tv_name_bar_chart_2 = view.findViewById(R.id.tv_name_bar_chart_2);
         tv_name_pie_chart = view.findViewById(R.id.tv_name_pie_chart);
@@ -135,6 +148,8 @@ public class StatisticFragment extends Fragment {
         barChart_issues = view.findViewById(R.id.barChart_issues);
         barChart_issue_by_type = view.findViewById(R.id.barChart_issue_by_type);
         pieChart_working_efficiency = view.findViewById(R.id.pieChart_working_efficiency);
+
+        pieChart_working_efficiency.setHighlightPerTapEnabled(true);
 
         barChart_issues.setEnabled(false);
         barChart_issues.setDrawValueAboveBar(true);
@@ -180,10 +195,10 @@ public class StatisticFragment extends Fragment {
         project_ID = sharedPreferences.getString("project_ID", "token");
 
         processType_list = new ArrayList<>();
-        processType_list.add(new ProcessType(R.drawable.all_issues, "All Issues"));
-        processType_list.add(new ProcessType(R.drawable.todo, "ToDo"));
-        processType_list.add(new ProcessType(R.drawable.inprogress, "InProgress"));
-        processType_list.add(new ProcessType(R.drawable.done, "Done"));
+        processType_list.add(new ProcessType(R.drawable.all_issues, getString(R.string.all_issues)));
+        processType_list.add(new ProcessType(R.drawable.todo, getString(R.string.todo)));
+        processType_list.add(new ProcessType(R.drawable.inprogress, getString(R.string.inprogress)));
+        processType_list.add(new ProcessType(R.drawable.done, getString(R.string.done)));
 
         processTypeAdapter = new ProcessTypeAdapter(getContext(), processType_list);
         spinner_issue_process.setAdapter(processTypeAdapter);
@@ -220,25 +235,25 @@ public class StatisticFragment extends Fragment {
 //                        Toast.makeText(getContext(), "" + processType_list.get(0).getName(), Toast.LENGTH_SHORT).show();
 //                        Toast.makeText(getContext(), "All issues: " + issue_list.size(), Toast.LENGTH_SHORT).show();
                         showBarChartByIssueType(issue_list);
-                        tv_name_bar_chart.setText("All Issues");
+                        tv_name_bar_chart.setText(R.string.all_issues);
                         break;
                     case 1:
 //                        Toast.makeText(getContext(), "" + processType_list.get(1).getName(), Toast.LENGTH_SHORT).show();
 //                        Toast.makeText(getContext(), "Todo List: " + toDo_list.size(), Toast.LENGTH_SHORT).show();
                         showBarChartByIssueType(toDo_list);
-                        tv_name_bar_chart.setText("Issues in Todo Process");
+                        tv_name_bar_chart.setText(R.string.issues_in_todo);
                         break;
                     case 2:
 //                        Toast.makeText(getContext(), "" + processType_list.get(2).getName(), Toast.LENGTH_SHORT).show();
 //                        Toast.makeText(getContext(), "InProgress List: " + inProgress_list.size(), Toast.LENGTH_SHORT).show();
                         showBarChartByIssueType(inProgress_list);
-                        tv_name_bar_chart.setText("Issues in InProgress Process");
+                        tv_name_bar_chart.setText(R.string.issues_in_inprogress);
                         break;
                     case 3:
 //                        Toast.makeText(getContext(), "" + processType_list.get(3).getName(), Toast.LENGTH_SHORT).show();
 //                        Toast.makeText(getContext(), "Done List: " + done_list.size(), Toast.LENGTH_SHORT).show();
                         showBarChartByIssueType(done_list);
-                        tv_name_bar_chart.setText("Issues in Done Process");
+                        tv_name_bar_chart.setText(R.string.issues_in_done);
                         break;
                 }
             }
@@ -359,6 +374,24 @@ public class StatisticFragment extends Fragment {
             tv_name_pie_chart.setVisibility(View.VISIBLE);
             pieChart_working_efficiency.setVisibility(View.VISIBLE);
             showPieChartByIssueDoneList(done_list);
+            pieChart_working_efficiency.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+                @Override
+                public void onValueSelected(Entry e, Highlight h) {
+                    PieEntry pieEntry = (PieEntry) e;
+//                    Toast.makeText(activity, "" + pieEntry.getLabel(), Toast.LENGTH_SHORT).show();
+                    IssueDoneProjectFragment dialog = new IssueDoneProjectFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("type", pieEntry.getLabel().toString());
+                    bundle.putString("projectID", project_ID);
+                    dialog.setArguments(bundle);
+                    dialog.show(activity.getSupportFragmentManager(), "IssueDoneProjectFragment");
+                }
+
+                @Override
+                public void onNothingSelected() {
+
+                }
+            });
         }else {
             tv_name_pie_chart.setVisibility(View.GONE);
             pieChart_working_efficiency.setVisibility(View.GONE);
@@ -395,17 +428,17 @@ public class StatisticFragment extends Fragment {
         issues2.add(new BarEntry(3, bug_list.size()));
         issues3.add(new BarEntry(5, story_list.size()));
 
-        BarDataSet barDataSet1 = new BarDataSet(issues1, "Task");
+        BarDataSet barDataSet1 = new BarDataSet(issues1, getString(R.string.task));
         barDataSet1.setHighlightEnabled(false);
         barDataSet1.setColors(Color.argb(255, 139,195,74));
         barDataSet1.setValueTextColor(Color.BLACK);
         barDataSet1.setValueTextSize(14f);
-        BarDataSet barDataSet2 = new BarDataSet(issues2, "Bug");
+        BarDataSet barDataSet2 = new BarDataSet(issues2, getString(R.string.bug));
         barDataSet2.setHighlightEnabled(false);
         barDataSet2.setColors(Color.argb(255, 243,209,107));
         barDataSet2.setValueTextColor(Color.BLACK);
         barDataSet2.setValueTextSize(14f);
-        BarDataSet barDataSet3 = new BarDataSet(issues3, "Story");
+        BarDataSet barDataSet3 = new BarDataSet(issues3, getString(R.string.story));
         barDataSet3.setHighlightEnabled(false);
         barDataSet3.setColors(Color.argb(255, 105,42,117));
         barDataSet3.setValueTextColor(Color.BLACK);
@@ -432,7 +465,7 @@ public class StatisticFragment extends Fragment {
     }
 
     public void showBarChartByIssueProcessType(ArrayList<Issue> issues){
-        tv_name_bar_chart_2.setText("All Issues By Process Type");
+        tv_name_bar_chart_2.setText(R.string.allissuesbyprocess);
         toDo_list.clear();
         inProgress_list.clear();
         done_list.clear();
@@ -459,17 +492,17 @@ public class StatisticFragment extends Fragment {
         issues2.add(new BarEntry(3, inProgress_list.size()));
         issues3.add(new BarEntry(5, done_list.size()));
 
-        BarDataSet barDataSet1 = new BarDataSet(issues1, "ToDo");
+        BarDataSet barDataSet1 = new BarDataSet(issues1, getString(R.string.todo));
         barDataSet1.setHighlightEnabled(false);
         barDataSet1.setColors(Color.argb(255, 139,195,74));
         barDataSet1.setValueTextColor(Color.BLACK);
         barDataSet1.setValueTextSize(14f);
-        BarDataSet barDataSet2 = new BarDataSet(issues2, "InProgress");
+        BarDataSet barDataSet2 = new BarDataSet(issues2,  getString(R.string.inprogress));
         barDataSet2.setHighlightEnabled(false);
         barDataSet2.setColors(Color.argb(255, 243,209,107));
         barDataSet2.setValueTextColor(Color.BLACK);
         barDataSet2.setValueTextSize(14f);
-        BarDataSet barDataSet3 = new BarDataSet(issues3, "Done");
+        BarDataSet barDataSet3 = new BarDataSet(issues3,  getString(R.string.done));
         barDataSet3.setHighlightEnabled(false);
         barDataSet3.setColors(Color.argb(255, 105,42,117));
         barDataSet3.setValueTextColor(Color.BLACK);
@@ -496,7 +529,7 @@ public class StatisticFragment extends Fragment {
     }
 
     public void showPieChartByIssueDoneList(ArrayList<Issue> done_list){
-        tv_name_pie_chart.setText("Issues Complete Performance");
+        tv_name_pie_chart.setText(getString(R.string.issues_complete_perfromance));
         ArrayList<Issue> perfect_issue, delay_issue;
         perfect_issue = new ArrayList<>();
         delay_issue = new ArrayList<>();
@@ -515,8 +548,8 @@ public class StatisticFragment extends Fragment {
 //        Toast.makeText(activity, "" + perfect_issue.size(), Toast.LENGTH_SHORT).show();
 //        Toast.makeText(activity, "" + delay_issue.size(), Toast.LENGTH_SHORT).show();
         ArrayList<PieEntry> issues = new ArrayList<>();
-        issues.add(new PieEntry(perfect_issue.size(), "Perfect Issues"));
-        issues.add(new PieEntry(delay_issue.size(), "Delay Issues"));
+        issues.add(new PieEntry(perfect_issue.size(), getString(R.string.perfectissues)));
+        issues.add(new PieEntry(delay_issue.size(), getString(R.string.delayissues)));
 
         PieDataSet pieDataSet = new PieDataSet(issues, " ");
         pieDataSet.setColors(ColorTemplate.MATERIAL_COLORS);
