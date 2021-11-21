@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
+import com.example.lvtn_app.R;
 import com.example.lvtn_app.View.Fragment.MyDashBoardFragment;
 import com.example.lvtn_app.View.Fragment.PersonalStactisticFragment;
 import com.example.lvtn_app.View.Fragment.ScheduleFragment;
@@ -15,16 +16,17 @@ import com.example.lvtn_app.View.Fragment.ScheduleFragment;
 public class MyTasksAdapter extends FragmentPagerAdapter {
     private Context context;
     int totalTab;
-    String[] titles = new String[]
-            {
-                    "My Dashboard",
-                    "Schedule",
-                    "Statistic"
-            };
+    String[] titles;
     public MyTasksAdapter(@NonNull FragmentManager fm, Context context, int totalTab) {
         super(fm);
         this.context = context;
         this.totalTab = totalTab;
+        titles = new String[]
+                {
+                        this.context.getString(R.string.mydashboard),
+                        this.context.getString(R.string.schedule),
+                        this.context.getString(R.string.statistic)
+                };
     }
 
     @NonNull

@@ -76,7 +76,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:backgroundTint="@color/black"
-                    android:hint="Search Project"
+                    android:hint="@string/search_project"
                     android:padding="10dp"
                     android:singleLine="true"
                     android:textColor="@color/black"

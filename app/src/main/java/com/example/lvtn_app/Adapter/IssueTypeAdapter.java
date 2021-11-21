@@ -28,7 +28,9 @@ public class IssueTypeAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return issueType_list.size();
+        if (issueType_list.size() > 0){
+            return issueType_list.size();
+        }else return 0;
     }
 
     @Override

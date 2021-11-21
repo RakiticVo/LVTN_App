@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Add Member"
+                android:text="@string/add_member"
                 android:textColor="@color/black"
                 android:textSize="24sp"
                 android:textStyle="bold"
@@ -67,7 +67,7 @@
                         android:maxLines="1"
                         android:inputType="textEmailAddress"
                         android:background="@drawable/custom_edt"
-                        android:hint="Enter Member's email"
+                        android:hint="@string/enter_member_email"
                         android:textSize="18sp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -111,7 +111,7 @@
                         android:inputType="textEmailAddress"
                         android:maxLines="1"
                         android:padding="12dp"
-                        android:text="Participant"
+                        android:text="@string/participant"
                         android:textColor="@color/black"
                         android:textSize="18sp" />
 
@@ -125,7 +125,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:background="@drawable/custom_btn"
-                android:text="Invite"
+                android:text="@string/invite"
                 android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
@@ -136,7 +136,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="32dp"
                 android:background="@drawable/custom_btn"
-                android:text="Cancel"
+                android:text="@string/cancel"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />

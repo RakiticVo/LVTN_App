@@ -8,22 +8,24 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
+import com.example.lvtn_app.R;
 import com.example.lvtn_app.View.Fragment.LoginTabFragment;
 import com.example.lvtn_app.View.Fragment.SignUpTabFragment;
 
 public class LoginAdapter extends FragmentPagerAdapter {
     private Context context;
     int totalTab;
-    String[] titles = new String[]
-            {
-                    "Login",
-                    "Register"
-            };
+    String[] titles;
 
     public LoginAdapter(@NonNull FragmentManager fm, Context context, int totalTab) {
         super(fm);
         this.context = context;
         this.totalTab = totalTab;
+        titles = new String[]
+                {
+                        this.context.getString(R.string.login),
+                        this.context.getString(R.string.register)
+                };
     }
 
     @NonNull

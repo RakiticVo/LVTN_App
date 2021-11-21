@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Create Project"
+                android:text="@string/create_project"
                 android:textColor="@color/black"
                 android:textSize="24sp"
                 android:textStyle="bold"
@@ -58,7 +58,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="5"
                     android:gravity="center"
-                    app:errorEnabled="true"
+                    app:errorEnabled="false"
                     app:hintEnabled="false">
 
                     <EditText
@@ -141,7 +141,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="5"
                     android:gravity="center"
-                    app:errorEnabled="true"
+                    app:errorEnabled="false"
                     app:hintEnabled="false">
 
                     <EditText
@@ -149,7 +149,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/custom_edt"
-                        android:hint="Enter Project's description"
+                        android:hint="@string/enter_project_description"
                         android:maxLines="5"
                         android:layout_marginLeft="5dp"
                         android:layout_marginRight="5dp"
@@ -198,7 +198,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="5"
                         android:gravity="center"
-                        app:errorEnabled="true"
+                        app:errorEnabled="false"
                         app:hintEnabled="false"
                         app:layout_constraintEnd_toStartOf="@+id/ibtn_calendar_create_project"
                         app:layout_constraintStart_toStartOf="parent"
@@ -212,7 +212,7 @@
                             android:layout_marginTop="5dp"
                             android:layout_marginEnd="5dp"
                             android:background="@drawable/custom_edt"
-                            android:hint="Enter Project's finish date"
+                            android:hint="@string/enter_project_finish_date"
                             android:inputType="date"
                             android:maxLines="1"
                             android:padding="10dp"
@@ -239,7 +239,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
-                android:text="Create"
+                android:text="@string/create"
                 android:background="@drawable/custom_btn"
                 android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -251,7 +251,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="32dp"
                 android:background="@drawable/custom_btn"
-                android:text="Cancel"
+                android:text="@string/cancel"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout8" />

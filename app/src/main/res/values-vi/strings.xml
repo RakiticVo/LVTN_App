@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Pezry</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="projects">Các dự án</string>
+    <string name="mytasks">Công việc của tôi</string>
+    <string name="chat">Chat</string>
+    <string name="notification">Thông báo</string>
+    <string name="profile">Hồ sơ cá nhân</string>
+    <string name="enter_password">Nhập mật khẩu</string>
+    <string name="enter_new_password">Nhập mật khẩu mới</string>
+    <string name="please_enter_new_password">Vui lòng nhập mật khẩu mới</string>
+    <string name="please_enter_password">Vui lòng nhập mật khẩu</string>
+    <string name="users">Thành viên</string>
+    <string name="project_name"><u>Tên dự án</u><font color='#FF0000'>*</font></string>
+    <string name="email"><u>Email</u><font color='#FF0000'>*</font></string>
+    <string name="task_name">Tên công việc<font color='#FF0000'>*</font></string>
+    <string name="start_date"><u>Ngày bắt đầu</u><font color='#FF0000'>*</font></string>
+    <string name="group_chat_name">Tên nhóm chat<font color='#FF0000'>*</font></string>
+    <string name="process"><u>Tiến trình</u><font color='#FF0000'>*</font></string>
+    <string name="description"><u>Mô tả</u></string>
+    <string name="issue_type"><u>Loại vấn đề</u><font color='#FF0000'>*</font></string>
+    <string name="priority"><u>Độ ưu tiên</u><font color='#FF0000'>*</font></string>
+    <string name="assignee"><u>Người đảm nhận</u><font color='#FF0000'>*</font></string>
+    <string name="issue_name"><u>Tên vấn đề</u><font color='#FF0000'>*</font></string>
+    <string name="cancel">Hủy bỏ</string>
+    <string name="update">Cập nhật</string>
+    <string name="estimate_execution_time"><u>Thời gian ước tính thực hiện</u></string>
+    <string name="finish_date"><u>Ngày hoàn thành</u></string>
+    <string name="project_estimated_finsish_date"><u>Ngày ước tính hoàn thành dự án</u><font color='#FF0000'>*</font></string>
+    <string name="project_description"><u>Mô tả dự án</u></string>
+    <string name="project_type"><u>Loại dự án</u><font color='#FF0000'>*</font></string>
+    <string name="no_result_found">Không tìm thấy kết quả nào</string>
+    <string name="start_date_2"><u>Ngày bắt đầu</u></string>
+    <string name="estimate_finish_date"><u>Ngày ước tính hoàn thành</u></string>
+    <string name="estimate_finish_date_2"><u>Ngày ước tính hoàn thành</u><font color='#FF0000'>*</font></string>
+    <string name="username"><u>Tên người dùng</u><font color='#FF0000'>*</font></string>
+    <string name="password"><u>Mật khẩu</u><font color='#FF0000'>*</font></string>
+    <string name="confirm_password"><u>Xác nhận mật khẩu</u><font color='#FF0000'>*</font></string>
+    <string name="default_notification_channel_id">abc</string>
+    <string name="position"><u>Vai trò</u><font color='#FF0000'>*</font></string>
+    <string name="project_leader"><u>Trưởng dự ản</u><font color='#FF0000'>*</font></string>
+    <string name="total_issue">Tổng số vấn đề:</string>
+    <string name="project">Dự án</string>
+    <string name="issueName">Tên vấn đề</string>
+    <string name="priorities">Độ ưu tiên</string>
+    <string name="issueType">Loại vấn đề</string>
+    <string name="personal_working_efficiency">Hiệu suất làm việc cá nhân</string>
+    <string name="project_issues">Các vấn đề của dự án</string>
+    <string name="personal_issues">Các vấn đề của cá nhân</string>
+    <string name="email_profile">Email:</string>
+    <string name="gender_profile">Giới tính:</string>
+    <string name="phone_profile">Điện thoại:</string>
+    <string name="day_of_birth_profile">Ngày sinh:</string>
+    <string name="address_profile">Địa chỉ:</string>
+    <string name="account_profile">Tài khoản</string>
+    <string name="privacy_profile">Bảo mật</string>
+    <string name="help_center_profile">Trợ giúp</string>
+    <string name="about_us_profile">Về chúng tôi</string>
+    <string name="log_out_profile">Đăng xuất</string>
+    <string name="confirm_profile">Xác nhận</string>
+    <string name="enter_your_message">Nhập tin nhắn</string>
+    <string name="setting">Cài đặt</string>
+    <string name="delete_group">Xóa nhóm</string>
+    <string name="add_member">Thêm thành viên</string>
+    <string name="enter_member_email">nhập email của thành viên</string>
+    <string name="participant">Người tham gia</string>
+    <string name="invite">Gửi lời mời</string>
+    <string name="create_group_chat">Tạo nhóm chat</string>
+    <string name="enter_group_chat_name">nhập tên nhóm chat</string>
+    <string name="create">Tạo</string>
+    <string name="create_issue">Tạo vấn đề</string>
+    <string name="create_new_password">Tạo mật khẩu mới</string>
+    <string name="enter_password_create">Nhập mật khẩu:</string>
+    <string name="enter_new_password_create">Nhập mật khẩu mới:</string>
+    <string name="create_task">Tạo công việc</string>
+    <string name="enter_task_name">Nhập tên công việc</string>
+    <string name="enter_decription">Nhập mô tả</string>
+    <string name="create_project">Tạo dự án</string>
+    <string name="enter_project_description">Nhập mô tả dự án</string>
+    <string name="enter_project_finish_date">Nhập ngày hoàn thành dự án</string>
+    <string name="search_groupchat">Tìm nhóm chat</string>
+    <string name="enter_email">Nhập email</string>
+    <string name="login">Đăng nhập</string>
+    <string name="search_member">Tìm thành viên</string>
+    <string name="position_user">Vai trò:</string>
+    <string name="search_project">Tìm dự án</string>
+    <string name="enter_username">Nhập tên người dùng</string>
+    <string name="signup">Đăng ký</string>
+    <string name="working_efficiency">Hiệu suất làm việc</string>
+    <string name="accept">Chấp nhận</string>
+    <string name="denied">Từ chối</string>
+    <string name="seen">Đã nhận</string>
+    <string name="number">Số vấn đề</string>
+    <string name="register">Đăng ký</string>
+    <string name="dashboard">Tổng quan</string>
+    <string name="statistic">Thống kê</string>
+    <string name="todo_title">Tiến trình chuẩn bị</string>
+    <string name="inprogress_title">Tiến trình làm việc</string>
+    <string name="done_title">Tiến trình hoàn thành</string>
+    <string name="todo">Chuẩn bị</string>
+    <string name="inprogress">Làm việc</string>
+    <string name="done">Hoàn thành</string>
+    <string name="task">Công việc</string>
+    <string name="bug">Lỗi</string>
+    <string name="story">Kịch bản</string>
+    <string name="high">Cao</string>
+    <string name="medium">Trung bình</string>
+    <string name="low">Thấp</string>
+    <string name="mydashboard">Tổng quan</string>
+    <string name="schedule">Lịch trình</string>
+    <string name="myallissues">Các vấn đề cá nhân</string>
+    <string name="process2">Tiến trình</string>
+    <string name="all_issues">Tất cả các vấn đề</string>
+    <string name="issues_in_todo">Các vấn đề ở tiến trình Chuẩn bị</string>
+    <string name="issues_in_inprogress">Các vấn đề ở tiến trình Làm việc</string>
+    <string name="issues_in_done">Các vấn đề ở tiến trình Hoàn thành</string>
+    <string name="issues_complete_perfromance">Hiệu suất hoàn thành</string>
+    <string name="perfectissues">Hoàn thành tốt</string>
+    <string name="delayissues">Hoàn thành trễ</string>
+    <string name="allissuesbyprocess">Các về đề theo tiến trình</string>
+    <string name="issues_list">Danh sách các vấn đề</string>
+</resources>

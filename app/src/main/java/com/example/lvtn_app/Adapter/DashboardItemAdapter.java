@@ -57,7 +57,17 @@ public class DashboardItemAdapter  extends RecyclerView.Adapter<DashboardItemAda
     public void onBindViewHolder(@NonNull DashboardItemAdapter.ViewHolder holder, int position) {
         String processName = process_list.get(position).getName().toString();
         holder.list.clear();
-        holder.tv_process.setText(process_list.get(position).getName());
+        switch (process_list.get(position).getName()){
+            case "ToDo":
+                holder.tv_process.setText(R.string.todo_title);
+                break;
+            case "InProgress":
+                holder.tv_process.setText(R.string.inprogress_title);
+                break;
+            case "Done":
+                holder.tv_process.setText(R.string.done_title);
+                break;
+        }
         holder.reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -77,13 +87,13 @@ public class DashboardItemAdapter  extends RecyclerView.Adapter<DashboardItemAda
 
             }
         });
-        if (holder.tv_process.getText().equals("ToDo")){
+        if (process_list.get(position).getName().equals("ToDo")){
             holder.list.addAll(process_list.get(0).getList());
         }
-        if (holder.tv_process.getText().equals("InProgress")){
+        if (process_list.get(position).getName().equals("InProgress")){
             holder.list.addAll(process_list.get(1).getList());
         }
-        if(holder.tv_process.getText().equals("Done")){
+        if(process_list.get(position).getName().equals("Done")){
             holder.list.addAll(process_list.get(2).getList());
         }
         holder.recyclerView_Task_Process.setLayoutManager(new LinearLayoutManager(context));
