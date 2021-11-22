@@ -120,4 +120,5 @@
     <string name="delayissues">Hoàn thành trễ</string>
     <string name="allissuesbyprocess">Các về đề theo tiến trình</string>
     <string name="issues_list">Danh sách các vấn đề</string>
+    <string name="pezry_app_name">PEZRY</string>
 </resources>

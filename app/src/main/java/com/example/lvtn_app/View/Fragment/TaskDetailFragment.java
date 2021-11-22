@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.example.lvtn_app.Controller.Method.DateFormat;
 import com.example.lvtn_app.R;
+import com.example.lvtn_app.View.Activity.MainActivity;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.ParseException;
@@ -277,6 +278,7 @@ public class TaskDetailFragment extends DialogFragment {
                     editor.commit();
                     dismiss();
                     activity.getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, new ProjectDetailFragment()).commit();
+                    MainActivity.getInstance().meowBottomNavigation.show(1, true);
                 }
             }
         });

@@ -2,6 +2,7 @@ package com.example.lvtn_app.View.Fragment;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -69,7 +70,8 @@ public class IssueDetailFragment extends DialogFragment {
     Spinner spinner_process_issue_detail, spinner_issue_type_detail, spinner_priority_issue_detail, spinner_assignee_issue_detail;
     ImageView img_issue_type_detail;
     TextView tv_name_issue_detail, tv_issue_finish_date;
-    ImageButton ibtn_back_issue_detail, ibtn_confirm_done_issue, calendar_start_date_issue_detail, calendar_estimate_date_finish_issue_detail;
+    ImageButton ibtn_back_issue_detail, ibtn_confirm_done_issue, ibtn_delete_issue_detail,
+            calendar_start_date_issue_detail, calendar_estimate_date_finish_issue_detail;
     TextInputLayout description_issue_detail_text_input_layout, start_date_issue_detail_text_input_layout,
             estimate_date_finish_issue_detail_text_input_layout;
     Button btn_update_issue_detail, btn_cancel_issue_detail;
@@ -95,6 +97,7 @@ public class IssueDetailFragment extends DialogFragment {
     SharedPreferences sharedPreferences_user, sharedPreferences_project, sharedPreferences_issue;
     String user_ID, project_ID;
     AppCompatActivity activity;
+    ProgressDialog progressDialog;
 
     FirebaseAuth auth;
     FirebaseUser firebaseUser;
@@ -173,6 +176,7 @@ public class IssueDetailFragment extends DialogFragment {
         tv_issue_finish_date = view.findViewById(R.id.tv_issue_finish_date);
         ibtn_back_issue_detail = view.findViewById(R.id.ibtn_back_issue_detail);
         ibtn_confirm_done_issue = view.findViewById(R.id.ibtn_confirm_done_issue);
+        ibtn_delete_issue_detail = view.findViewById(R.id.ibtn_delete_issue_detail);
         calendar_start_date_issue_detail = view.findViewById(R.id.calendar_start_date_issue_detail);
         calendar_estimate_date_finish_issue_detail = view.findViewById(R.id.calendar_estimate_date_finish_issue_detail);
 
@@ -273,13 +277,17 @@ public class IssueDetailFragment extends DialogFragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Project project = snapshot.getValue(Project.class);
                 if (!project.getProject_Leader().equals(firebaseUser.getUid())){
-                    if (!processType_list.get(spinner_process_issue_detail.getSelectedItemPosition()).equals("ToDo")){
+                    if (!processType_list.get(spinner_process_issue_detail.getSelectedItemPosition()).equals(activity.getString(R.string.todo))){
                         start_date_issue_detail_text_input_layout.setEnabled(false);
                     }
                     spinner_assignee_issue_detail.setEnabled(false);
                     spinner_issue_type_detail.setEnabled(false);
                     spinner_priority_issue_detail.setEnabled(false);
                 }else {
+                    if (!processType_list.get(spinner_process_issue_detail.getSelectedItemPosition()).equals(activity.getString(R.string.done))){
+                        ibtn_delete_issue_detail.setVisibility(View.VISIBLE);
+                        ibtn_delete_issue_detail.setEnabled(true);
+                    }
 //                    Toast.makeText(activity, "Leader is here", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -310,157 +318,159 @@ public class IssueDetailFragment extends DialogFragment {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     Issue issue = snapshot.getValue(Issue.class);
-                    DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
-                    reference1.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            User user = snapshot.getValue(User.class);
-                            if (!issue.getIssue_Assignee().equals(user.getUser_Name())){
-                                ibtn_confirm_done_issue.setVisibility(View.GONE);
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-
-                    issue_ID = issue.getIssue_ID();
-                    issue_Name = issue.getIssue_Name();
-                    issue_ProcessType = issue.getIssue_ProcessType();
-                    issue_Description = issue.getIssue_Description();
-                    issue_Type = issue.getIssue_Type();
-                    issue_StartDate = issue.getIssue_StartDate();
-                    issue_Priority = issue.getIssue_Priority();
-                    issue_Assignee = issue.getIssue_Assignee();
-                    issue_EstimateFinishDate = issue.getIssue_EstimateFinishDate();
-                    issue_Creator = issue.getIssue_Creator();
-                    issue_project_ID = issue.getIssue_project_ID();
-                    issue_FinishDate = issue.getIssue_FinishDate();
-
-                    tv_name_issue_detail.setText(issue_Name);
-                    description_issue_detail_text_input_layout.getEditText().setText(issue_Description);
-                    start_date_issue_detail_text_input_layout.getEditText().setText(issue_StartDate);
-                    estimate_date_finish_issue_detail_text_input_layout.getEditText().setText(issue_EstimateFinishDate);
-                    tv_issue_finish_date.setText(issue_FinishDate);
-
-                    switch (issue.getIssue_ProcessType()){
-                        case "Todo":
-                            spinner_process_issue_detail.setSelection(0);
-                            processTypeAdapter.notifyDataSetChanged();
-                            break;
-                        case "InProgress":
-                            spinner_process_issue_detail.setSelection(1);
-                            processTypeAdapter.notifyDataSetChanged();
-                            break;
-                        case "Done":
-                            spinner_process_issue_detail.setSelection(2);
-                            processTypeAdapter.notifyDataSetChanged();
-                            break;
-                    }
-
-                    switch (issue.getIssue_Type()){
-                        case "Task":
-                            img_issue_type_detail.setImageResource(R.drawable.task);
-                            spinner_issue_type_detail.setSelection(0);
-                            issueTypeAdapter.notifyDataSetChanged();
-                            break;
-                        case "Bug":
-                            img_issue_type_detail.setImageResource(R.drawable.bug);
-                            spinner_issue_type_detail.setSelection(1);
-                            issueTypeAdapter.notifyDataSetChanged();
-                            break;
-                        case "Story":
-                            img_issue_type_detail.setImageResource(R.drawable.user_story);
-                            spinner_issue_type_detail.setSelection(2);
-                            issueTypeAdapter.notifyDataSetChanged();
-                            break;
-                    }
-
-                    switch (issue.getIssue_Priority()){
-                        case "High":
-                            spinner_priority_issue_detail.setSelection(0);
-                            priorityAdapter.notifyDataSetChanged();
-                            break;
-                        case "Medium":
-                            spinner_priority_issue_detail.setSelection(1);
-                            priorityAdapter.notifyDataSetChanged();
-                            break;
-                        case "Low":
-                            spinner_priority_issue_detail.setSelection(2);
-                            priorityAdapter.notifyDataSetChanged();
-                            break;
-                    }
-
-                    databaseReference1 = FirebaseDatabase.getInstance().getReference("User_List_By_Project").child(project_ID);
-                    databaseReference1.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            ArrayList<String> list = new ArrayList();
-                            member_list.clear();
-                            for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-                                Project_Users user = dataSnapshot.getValue(Project_Users.class);
-                                list.add(user.getUser_ID());
-                            }
-                            if (list.size() > 0){
-                                member_list.clear();
-                                databaseReference2 = FirebaseDatabase.getInstance().getReference("Users");
-                                for (int i = 0; i < list.size(); i++) {
-                                    int finalI = i;
-                                    databaseReference2.child(list.get(i)).addValueEventListener(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                            User user = snapshot.getValue(User.class);
-                                            member_list.add(user);
-                                            if(issue_Assignee.equals(user.getUser_Name())){
-                                                spinner_assignee_issue_detail.setSelection(finalI);
-                                                assigneeAdapter.notifyDataSetChanged();
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError error) {
-
-                                        }
-                                    });
-                                    assigneeAdapter.notifyDataSetChanged();
+                    if (issue != null){
+                        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+                        reference1.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                User user = snapshot.getValue(User.class);
+                                if (!issue.getIssue_Assignee().equals(user.getUser_Name())){
+                                    ibtn_confirm_done_issue.setVisibility(View.GONE);
                                 }
                             }
-                            assigneeAdapter.notifyDataSetChanged();
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+
+                        issue_ID = issue.getIssue_ID();
+                        issue_Name = issue.getIssue_Name();
+                        issue_ProcessType = issue.getIssue_ProcessType();
+                        issue_Description = issue.getIssue_Description();
+                        issue_Type = issue.getIssue_Type();
+                        issue_StartDate = issue.getIssue_StartDate();
+                        issue_Priority = issue.getIssue_Priority();
+                        issue_Assignee = issue.getIssue_Assignee();
+                        issue_EstimateFinishDate = issue.getIssue_EstimateFinishDate();
+                        issue_Creator = issue.getIssue_Creator();
+                        issue_project_ID = issue.getIssue_project_ID();
+                        issue_FinishDate = issue.getIssue_FinishDate();
+
+                        tv_name_issue_detail.setText(issue_Name);
+                        description_issue_detail_text_input_layout.getEditText().setText(issue_Description);
+                        start_date_issue_detail_text_input_layout.getEditText().setText(issue_StartDate);
+                        estimate_date_finish_issue_detail_text_input_layout.getEditText().setText(issue_EstimateFinishDate);
+                        tv_issue_finish_date.setText(issue_FinishDate);
+
+                        switch (issue.getIssue_ProcessType()){
+                            case "Todo":
+                                spinner_process_issue_detail.setSelection(0);
+                                processTypeAdapter.notifyDataSetChanged();
+                                break;
+                            case "InProgress":
+                                spinner_process_issue_detail.setSelection(1);
+                                processTypeAdapter.notifyDataSetChanged();
+                                break;
+                            case "Done":
+                                spinner_process_issue_detail.setSelection(2);
+                                processTypeAdapter.notifyDataSetChanged();
+                                break;
                         }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
+                        switch (issue.getIssue_Type()){
+                            case "Task":
+                                img_issue_type_detail.setImageResource(R.drawable.task);
+                                spinner_issue_type_detail.setSelection(0);
+                                issueTypeAdapter.notifyDataSetChanged();
+                                break;
+                            case "Bug":
+                                img_issue_type_detail.setImageResource(R.drawable.bug);
+                                spinner_issue_type_detail.setSelection(1);
+                                issueTypeAdapter.notifyDataSetChanged();
+                                break;
+                            case "Story":
+                                img_issue_type_detail.setImageResource(R.drawable.user_story);
+                                spinner_issue_type_detail.setSelection(2);
+                                issueTypeAdapter.notifyDataSetChanged();
+                                break;
                         }
-                    });
-                    assigneeAdapter.notifyDataSetChanged();
-                    spinner_assignee_issue_detail.setEnabled(false);
 
-                    if (issue.getIssue_ProcessType().toLowerCase().equals("inprogress")){
-                        ibtn_confirm_done_issue.setVisibility(View.VISIBLE);
-                    }else {
-                        ibtn_confirm_done_issue.setVisibility(View.GONE);
-                    }
+                        switch (issue.getIssue_Priority()){
+                            case "High":
+                                spinner_priority_issue_detail.setSelection(0);
+                                priorityAdapter.notifyDataSetChanged();
+                                break;
+                            case "Medium":
+                                spinner_priority_issue_detail.setSelection(1);
+                                priorityAdapter.notifyDataSetChanged();
+                                break;
+                            case "Low":
+                                spinner_priority_issue_detail.setSelection(2);
+                                priorityAdapter.notifyDataSetChanged();
+                                break;
+                        }
 
-                    if (issue.getIssue_ProcessType().toLowerCase().equals("done")){
-                        spinner_process_issue_detail.setEnabled(false);
-                        spinner_issue_type_detail.setEnabled(false);
-                        spinner_priority_issue_detail.setEnabled(false);
-                        description_issue_detail_text_input_layout.setEnabled(false);
-                        start_date_issue_detail_text_input_layout.setEnabled(false);
-                        estimate_date_finish_issue_detail_text_input_layout.setEnabled(false);
-                        btn_update_issue_detail.setVisibility(View.GONE);
-                        btn_cancel_issue_detail.setVisibility(View.GONE);
-                    }else {
-                        spinner_process_issue_detail.setEnabled(true);
-                        spinner_issue_type_detail.setEnabled(true);
-                        spinner_priority_issue_detail.setEnabled(true);
-                        description_issue_detail_text_input_layout.setEnabled(true);
-                        estimate_date_finish_issue_detail_text_input_layout.setEnabled(true);
-                        btn_update_issue_detail.setVisibility(View.VISIBLE);
-                        btn_cancel_issue_detail.setVisibility(View.VISIBLE);
+                        databaseReference1 = FirebaseDatabase.getInstance().getReference("User_List_By_Project").child(project_ID);
+                        databaseReference1.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                ArrayList<String> list = new ArrayList();
+                                member_list.clear();
+                                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                                    Project_Users user = dataSnapshot.getValue(Project_Users.class);
+                                    list.add(user.getUser_ID());
+                                }
+                                if (list.size() > 0){
+                                    member_list.clear();
+                                    databaseReference2 = FirebaseDatabase.getInstance().getReference("Users");
+                                    for (int i = 0; i < list.size(); i++) {
+                                        int finalI = i;
+                                        databaseReference2.child(list.get(i)).addValueEventListener(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                User user = snapshot.getValue(User.class);
+                                                member_list.add(user);
+                                                if(issue_Assignee.equals(user.getUser_Name())){
+                                                    spinner_assignee_issue_detail.setSelection(finalI);
+                                                    assigneeAdapter.notifyDataSetChanged();
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError error) {
+
+                                            }
+                                        });
+                                        assigneeAdapter.notifyDataSetChanged();
+                                    }
+                                }
+                                assigneeAdapter.notifyDataSetChanged();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+                        assigneeAdapter.notifyDataSetChanged();
+                        spinner_assignee_issue_detail.setEnabled(false);
+
+                        if (issue.getIssue_ProcessType().toLowerCase().equals("inprogress")){
+                            ibtn_confirm_done_issue.setVisibility(View.VISIBLE);
+                        }else {
+                            ibtn_confirm_done_issue.setVisibility(View.GONE);
+                        }
+
+                        if (issue.getIssue_ProcessType().toLowerCase().equals("done")){
+                            spinner_process_issue_detail.setEnabled(false);
+                            spinner_issue_type_detail.setEnabled(false);
+                            spinner_priority_issue_detail.setEnabled(false);
+                            description_issue_detail_text_input_layout.setEnabled(false);
+                            start_date_issue_detail_text_input_layout.setEnabled(false);
+                            estimate_date_finish_issue_detail_text_input_layout.setEnabled(false);
+                            btn_update_issue_detail.setVisibility(View.GONE);
+                            btn_cancel_issue_detail.setVisibility(View.GONE);
+                        }else {
+                            spinner_process_issue_detail.setEnabled(true);
+                            spinner_issue_type_detail.setEnabled(true);
+                            spinner_priority_issue_detail.setEnabled(true);
+                            description_issue_detail_text_input_layout.setEnabled(true);
+                            estimate_date_finish_issue_detail_text_input_layout.setEnabled(true);
+                            btn_update_issue_detail.setVisibility(View.VISIBLE);
+                            btn_cancel_issue_detail.setVisibility(View.VISIBLE);
+                        }
                     }
                 }
 
@@ -759,35 +769,88 @@ public class IssueDetailFragment extends DialogFragment {
             }
         });
 
+        ibtn_delete_issue_detail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case DialogInterface.BUTTON_POSITIVE:
+                                //Yes button clicked
+                                deleteIssueAll(issue_ID, project_ID);
+                                dismiss();
+                                break;
+
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //No button clicked
+                                break;
+                        }
+                    }
+                };
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setMessage("Would you like to confirm this issue is complete?").setPositiveButton("Confirm", dialogClickListener)
+                        .setNegativeButton("Cancel", dialogClickListener).show();
+            }
+        });
+
         return view;
     }
 
-//    public void checkDate(String date){
-//        if (dateFormat.isValidDate(date)){
-//            try {
-//                Date rightDate = dateFormat.sdf.parse(date);
-//                //        Toast.makeText(getContext(), "" + rightDate, Toast.LENGTH_SHORT).show();
-//                if (rightDate != null){
-//                    start_date_issue_detail_text_input_layout.setErrorEnabled(false);
-////                    Toast.makeText(getContext(), "" + process_type, Toast.LENGTH_SHORT).show();
-//                    if (issue_ProcessType.equals("ToDo")){
-//                        boolean isCheck = dateFormat.checkDate(rightDate);
-//                        if (isCheck){
-//                            start_date_issue_detail_text_input_layout.setErrorEnabled(false);
-//                        }else {
-//                            start_date_issue_detail_text_input_layout.setError("Wrong day!!!");
-//                            start_date_issue_detail_text_input_layout.setErrorEnabled(true);
-//                        }
-//                    }
-//                }else {
-//                    start_date_issue_detail_text_input_layout.setError("Wrong format!!! Ex: dd/MM/yyyy");
-//                    start_date_issue_detail_text_input_layout.setErrorEnabled(true);
-//                }
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
+    public void deleteIssueAll(String issue_ID, String project_ID){
+        progressDialog = new ProgressDialog(activity);
+        progressDialog.setMessage("Deleting...");
+        progressDialog.show();
+        deleteIssueInIssueUserList(issue_ID, project_ID);
+    }
+
+    private void deleteIssueInIssueUserList(String issue_ID, String project_ID) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Issue_List_By_User").child(firebaseUser.getUid());
+        databaseReference.child(issue_ID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+//                    Toast.makeText(SettingChatActivity.this, "Delete chat list success", Toast.LENGTH_SHORT).show();
+                    deleteIssueNotification(issue_ID, project_ID);
+                }else {
+//                    Toast.makeText(SettingChatActivity.this, "Delete chat list failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void deleteIssueNotification(String issue_ID, String project_ID) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Notifications").child("Project_Issue_Request");
+        databaseReference.child(project_ID).child(firebaseUser.getUid()).child(issue_ID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+//                    Toast.makeText(SettingChatActivity.this, "Delete chat list success", Toast.LENGTH_SHORT).show();
+                    deleteIssueInIssues(issue_ID, project_ID);
+                }else {
+//                    Toast.makeText(SettingChatActivity.this, "Delete chat list failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void deleteIssueInIssues(String issue_ID, String project_ID) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Issues").child(project_ID);
+        databaseReference.child(issue_ID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+//                    Toast.makeText(SettingChatActivity.this, "Delete chat list success", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "Delete Issue success" , Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                    dismiss();
+                }else {
+//                    Toast.makeText(SettingChatActivity.this, "Delete chat list failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
 
     public void checkDate(TextInputLayout textInputLayout){
         String date = textInputLayout.getEditText().getText().toString();

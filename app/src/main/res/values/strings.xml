@@ -120,4 +120,5 @@
     <string name="delayissues">Delay Issues</string>
     <string name="allissuesbyprocess">All Issues By Process Type</string>
     <string name="issues_list">Issues List</string>
+    <string name="pezry_app_name">PEZRY</string>
 </resources>

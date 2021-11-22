@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
 
         meowBottomNavigation = findViewById(R.id.meowBottomNavigation);
 
-
         meowBottomNavigation.add(new MeowBottomNavigation.Model(1, R.drawable.projects_1));
         meowBottomNavigation.add(new MeowBottomNavigation.Model(2, R.drawable.my_tasks_1));
         meowBottomNavigation.add(new MeowBottomNavigation.Model(3, R.drawable.chat_1));
@@ -230,8 +229,14 @@ public class MainActivity extends AppCompatActivity {
                             myTasksFragment.setArguments(bundle);
                             getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, myTasksFragment).commit();
                         }else {
-                            meowBottomNavigation.show(ID_PROJECTS, true);
-                            getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, new ProjectsFragment()).commit();
+                            object_ID = getIntent().getStringExtra("groupchat");
+                            if (object_ID != null){
+                                meowBottomNavigation.show(ID_CHAT, true);
+                                getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, new GroupChatFragment()).commit();
+                            }else {
+                                meowBottomNavigation.show(ID_PROJECTS, true);
+                                getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, new ProjectsFragment()).commit();
+                            }
                         }
                     }
                 }
@@ -744,13 +749,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Issue issue = snapshot.getValue(Issue.class);
-                String date = dateFormat.formatDate(currentDate);
-                if (date.equals(issue.getIssue_StartDate())){
-                    issues.add(issue);
-                }
-                if (count == end){
+                if (issue != null){
+                    String date = dateFormat.formatDate(currentDate);
+                    if (date.equals(issue.getIssue_StartDate())){
+                        issues.add(issue);
+                    }
+                    if (count == end){
 //                    Toast.makeText(MainActivity.this, count + "-" + end + "\n Size: " + issues.size(), Toast.LENGTH_SHORT).show();
-                    getNotificationIssueToday(date, issues.size());
+                        getNotificationIssueToday(date, issues.size());
+                    }
                 }
             }
 
