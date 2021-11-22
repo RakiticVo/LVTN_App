@@ -428,17 +428,17 @@ public class StatisticFragment extends Fragment {
         issues2.add(new BarEntry(3, bug_list.size()));
         issues3.add(new BarEntry(5, story_list.size()));
 
-        BarDataSet barDataSet1 = new BarDataSet(issues1, getString(R.string.task));
+        BarDataSet barDataSet1 = new BarDataSet(issues1, activity.getString(R.string.task));
         barDataSet1.setHighlightEnabled(false);
         barDataSet1.setColors(Color.argb(255, 139,195,74));
         barDataSet1.setValueTextColor(Color.BLACK);
         barDataSet1.setValueTextSize(14f);
-        BarDataSet barDataSet2 = new BarDataSet(issues2, getString(R.string.bug));
+        BarDataSet barDataSet2 = new BarDataSet(issues2, activity.getString(R.string.bug));
         barDataSet2.setHighlightEnabled(false);
         barDataSet2.setColors(Color.argb(255, 243,209,107));
         barDataSet2.setValueTextColor(Color.BLACK);
         barDataSet2.setValueTextSize(14f);
-        BarDataSet barDataSet3 = new BarDataSet(issues3, getString(R.string.story));
+        BarDataSet barDataSet3 = new BarDataSet(issues3, activity.getString(R.string.story));
         barDataSet3.setHighlightEnabled(false);
         barDataSet3.setColors(Color.argb(255, 105,42,117));
         barDataSet3.setValueTextColor(Color.BLACK);
@@ -492,17 +492,17 @@ public class StatisticFragment extends Fragment {
         issues2.add(new BarEntry(3, inProgress_list.size()));
         issues3.add(new BarEntry(5, done_list.size()));
 
-        BarDataSet barDataSet1 = new BarDataSet(issues1, getString(R.string.todo));
+        BarDataSet barDataSet1 = new BarDataSet(issues1, activity.getString(R.string.todo));
         barDataSet1.setHighlightEnabled(false);
         barDataSet1.setColors(Color.argb(255, 139,195,74));
         barDataSet1.setValueTextColor(Color.BLACK);
         barDataSet1.setValueTextSize(14f);
-        BarDataSet barDataSet2 = new BarDataSet(issues2,  getString(R.string.inprogress));
+        BarDataSet barDataSet2 = new BarDataSet(issues2, activity.getString(R.string.inprogress));
         barDataSet2.setHighlightEnabled(false);
         barDataSet2.setColors(Color.argb(255, 243,209,107));
         barDataSet2.setValueTextColor(Color.BLACK);
         barDataSet2.setValueTextSize(14f);
-        BarDataSet barDataSet3 = new BarDataSet(issues3,  getString(R.string.done));
+        BarDataSet barDataSet3 = new BarDataSet(issues3, activity.getString(R.string.done));
         barDataSet3.setHighlightEnabled(false);
         barDataSet3.setColors(Color.argb(255, 105,42,117));
         barDataSet3.setValueTextColor(Color.BLACK);
@@ -529,7 +529,7 @@ public class StatisticFragment extends Fragment {
     }
 
     public void showPieChartByIssueDoneList(ArrayList<Issue> done_list){
-        tv_name_pie_chart.setText(getString(R.string.issues_complete_perfromance));
+        tv_name_pie_chart.setText(activity.getString(R.string.issues_complete_perfromance));
         ArrayList<Issue> perfect_issue, delay_issue;
         perfect_issue = new ArrayList<>();
         delay_issue = new ArrayList<>();
@@ -548,8 +548,8 @@ public class StatisticFragment extends Fragment {
 //        Toast.makeText(activity, "" + perfect_issue.size(), Toast.LENGTH_SHORT).show();
 //        Toast.makeText(activity, "" + delay_issue.size(), Toast.LENGTH_SHORT).show();
         ArrayList<PieEntry> issues = new ArrayList<>();
-        issues.add(new PieEntry(perfect_issue.size(), getString(R.string.perfectissues)));
-        issues.add(new PieEntry(delay_issue.size(), getString(R.string.delayissues)));
+        issues.add(new PieEntry(perfect_issue.size(), activity.getString(R.string.perfectissues)));
+        issues.add(new PieEntry(delay_issue.size(),  activity.getString(R.string.delayissues)));
 
         PieDataSet pieDataSet = new PieDataSet(issues, " ");
         pieDataSet.setColors(ColorTemplate.MATERIAL_COLORS);

@@ -33,21 +33,19 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-<!--            <Button-->
-<!--                android:id="@+id/ibtn_confirm_done_issue_detail"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginTop="8dp"-->
-<!--                android:layout_marginEnd="8dp"-->
-<!--                android:layout_marginBottom="8dp"-->
-<!--                android:background="@drawable/custom_btn"-->
-<!--                android:padding="5dp"-->
-<!--                android:text="Comfirm Done"-->
-<!--                android:textSize="18sp"-->
-<!--                android:visibility="visible"-->
-<!--                app:layout_constraintBottom_toTopOf="@+id/linearLayout2"-->
-<!--                app:layout_constraintEnd_toEndOf="parent"-->
-<!--                app:layout_constraintTop_toTopOf="parent" />-->
+            <ImageButton
+                android:id="@+id/ibtn_delete_issue_detail"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/delete_issue"
+                android:textSize="18sp"
+                android:layout_marginRight="8dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toStartOf="@+id/ibtn_confirm_done_issue"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/linearLayout1"/>
 
             <ImageButton
                 android:id="@+id/ibtn_confirm_done_issue"

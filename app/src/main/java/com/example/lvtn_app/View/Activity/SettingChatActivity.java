@@ -106,13 +106,13 @@ public class SettingChatActivity extends AppCompatActivity {
         });
     }
     public void deleteGroupChatAll(String id_group){
-        progressDialog.setMessage("Deleting");
+        progressDialog.setMessage("Deleting...");
         progressDialog.show();
-        deleteChatList(id_group);
+        deleteMessageList(id_group);
     }
 
-    private void deleteChatList(String id_group) {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Chats").child(id_group);
+    private void deleteMessageList(String id_group) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Messages").child(id_group);
         databaseReference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -150,6 +150,9 @@ public class SettingChatActivity extends AppCompatActivity {
 //                    Toast.makeText(SettingChatActivity.this, "Delete group chat success", Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                     Intent intent = new Intent(SettingChatActivity.this, MainActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("groupchat", "groupchat");
+                    intent.putExtras(bundle);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                     finish();

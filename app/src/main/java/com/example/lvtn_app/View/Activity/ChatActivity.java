@@ -132,14 +132,16 @@ public class ChatActivity extends AppCompatActivity {
             changeLayout();
         }
 
-        auth =FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         firebaseUser = auth.getCurrentUser();
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("GroupChats").child(id_group);
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 GroupChat groupChat = snapshot.getValue(GroupChat.class);
-                tvGroupChatName.setText(groupChat.getGroup_Name());
+                if (groupChat != null){
+                    tvGroupChatName.setText(groupChat.getGroup_Name());
+                }
             }
 
             @Override
@@ -253,6 +255,7 @@ public class ChatActivity extends AppCompatActivity {
                 if (task.isSuccessful()){
 //                    Toast.makeText(ChatActivity.this, "Success", Toast.LENGTH_SHORT).show();
                     readMessage(message_group_ID);
+                    GroupChatFragment groupChatFragment = new GroupChatFragment();
 //                    GroupChatFragment.getInstance().readMessage();
                 }
             }
@@ -319,6 +322,7 @@ public class ChatActivity extends AppCompatActivity {
                                 if (response.code() == 200){
                                     if (response.body().success != 1){
 //                                        Toast.makeText(ChatActivity.this, "Failed!!!", Toast.LENGTH_SHORT).show();
+                                        GroupChatFragment groupChatFragment = new GroupChatFragment();
                                     }
                                 }
                             }
