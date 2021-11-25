@@ -248,21 +248,22 @@ public class TaskDetailFragment extends DialogFragment {
                                     taskDescription = description_task_detail_text_input_layout.getEditText().getText().toString();
                                     task_start_date = start_date_task_detail_text_input_layout.getEditText().getText().toString();
 
-                                    Toast.makeText(getContext(), "Update success!!!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(activity, activity.getString(R.string.update_success), Toast.LENGTH_SHORT).show();
                                     dismiss();
                                     break;
 
                                 case DialogInterface.BUTTON_NEGATIVE:
                                     //No button clicked
-                                    Toast.makeText(getContext(), "Update error!!!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(activity, activity.getString(R.string.cancel_update), Toast.LENGTH_SHORT).show();
                                     break;
                             }
                         }
                     };
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setMessage("Do you want to save change?").setPositiveButton("Yes", dialogClickListener)
-                            .setNegativeButton("No", dialogClickListener).show();
+                    builder.setMessage(activity.getString(R.string.save_changes_question))
+                            .setPositiveButton(activity.getString(R.string.yes), dialogClickListener)
+                            .setNegativeButton(activity.getString(R.string.no), dialogClickListener).show();
                 }
             }
         });
@@ -288,13 +289,13 @@ public class TaskDetailFragment extends DialogFragment {
 
     public void checkRightStartDate(String date){
         if (!dateFormat.isValidDate(date)){
-            start_date_task_detail_text_input_layout.setError("Wrong format. Ex: dd/MM/yyy");
+            start_date_task_detail_text_input_layout.setError(activity.getString(R.string.wrongFormat2));
             start_date_task_detail_text_input_layout.setErrorEnabled(true);
         }else{
             try {
                 date1 = dateFormat.sdf.parse(date);
                 if (date1.getTime() < Calendar.getInstance().getTime().getTime()){
-                    start_date_task_detail_text_input_layout.setError("Wrong start day!!!");
+                    start_date_task_detail_text_input_layout.setError(activity.getString(R.string.wrong_start_date));
                     start_date_task_detail_text_input_layout.setErrorEnabled(true);
                 }else start_date_task_detail_text_input_layout.setErrorEnabled(false);
             } catch (ParseException e) {

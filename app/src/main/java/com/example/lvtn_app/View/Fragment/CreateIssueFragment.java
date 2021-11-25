@@ -302,7 +302,7 @@ public class CreateIssueFragment extends DialogFragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     if (issue_name_create_text_input_layout.getEditText().getText().length() == 0){
-                        issue_name_create_text_input_layout.setError("Please enter issue name!!!");
+                        issue_name_create_text_input_layout.setError(activity.getString(R.string.enterIssueName));
                         issue_name_create_text_input_layout.setErrorEnabled(true);
                     }else issue_name_create_text_input_layout.setErrorEnabled(false);
                 }else {
@@ -315,7 +315,7 @@ public class CreateIssueFragment extends DialogFragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length()==0){
-                                issue_name_create_text_input_layout.setError("Please Enter Issue name!!!");
+                                issue_name_create_text_input_layout.setError(activity.getString(R.string.enterIssueName));
                                 issue_name_create_text_input_layout.setErrorEnabled(true);
                             }else issue_name_create_text_input_layout.setErrorEnabled(false);
                         }
@@ -335,7 +335,7 @@ public class CreateIssueFragment extends DialogFragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     if (estimate_date_finish_create_text_input_layout.getEditText().getText().length() == 0){
-                        estimate_date_finish_create_text_input_layout.setError("Please enter estimate finish date!!!");
+                        estimate_date_finish_create_text_input_layout.setError(activity.getString(R.string.enterEstimateFinishDate));
                         estimate_date_finish_create_text_input_layout.setErrorEnabled(true);
                     }else {
                         estimate_date_finish_create_text_input_layout.setErrorEnabled(false);
@@ -347,7 +347,7 @@ public class CreateIssueFragment extends DialogFragment {
                                 if (date2.getTime() < date1.getTime()
                                         || start_date_create_text_input_layout.getEditText().getText().toString()
                                         .equals(estimate_date_finish_create_text_input_layout.getEditText().getText().toString())){
-                                    estimate_date_finish_create_text_input_layout.setError("Wrong finish day!!!");
+                                    estimate_date_finish_create_text_input_layout.setError(activity.getString(R.string.wrong_finish_day));
                                     estimate_date_finish_create_text_input_layout.setErrorEnabled(true);
                                 }else estimate_date_finish_create_text_input_layout.setErrorEnabled(false);
                             } catch (ParseException e) {
@@ -365,7 +365,7 @@ public class CreateIssueFragment extends DialogFragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (estimate_date_finish_create_text_input_layout.getEditText().getText().length() == 0){
-                                estimate_date_finish_create_text_input_layout.setError("Please enter estimate finish date!!!");
+                                estimate_date_finish_create_text_input_layout.setError(activity.getString(R.string.enterEstimateFinishDate));
                                 estimate_date_finish_create_text_input_layout.setErrorEnabled(true);
                             }else {
                                 estimate_date_finish_create_text_input_layout.setErrorEnabled(false);
@@ -387,7 +387,7 @@ public class CreateIssueFragment extends DialogFragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     if (start_date_create_text_input_layout.getEditText().getText().length() == 0){
-                        start_date_create_text_input_layout.setError("Please enter start date!!!");
+                        start_date_create_text_input_layout.setError(activity.getString(R.string.enterStartDate));
                         start_date_create_text_input_layout.setErrorEnabled(true);
                     }else {
                         start_date_create_text_input_layout.setErrorEnabled(false);
@@ -403,7 +403,7 @@ public class CreateIssueFragment extends DialogFragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (start_date_create_text_input_layout.getEditText().getText().length() == 0){
-                                start_date_create_text_input_layout.setError("Please enter start date!!!");
+                                start_date_create_text_input_layout.setError(activity.getString(R.string.enterStartDate));
                                 start_date_create_text_input_layout.setErrorEnabled(true);
                             }else {
                                 start_date_create_text_input_layout.setErrorEnabled(false);
@@ -515,12 +515,12 @@ public class CreateIssueFragment extends DialogFragment {
             public void onClick(View v) {
                 // Todo: Check permission
                 if (issue_name_create_text_input_layout.getEditText().getText().length() == 0){
-                    issue_name_create_text_input_layout.setError("Please enter issue name!!!");
+                    issue_name_create_text_input_layout.setError(activity.getString(R.string.enterIssueName));
                     issue_name_create_text_input_layout.setErrorEnabled(true);
                 }else issue_name_create_text_input_layout.setErrorEnabled(false);
 
                 if (start_date_create_text_input_layout.getEditText().getText().length() == 0){
-                    start_date_create_text_input_layout.setError("Please enter start date!!!");
+                    start_date_create_text_input_layout.setError(activity.getString(R.string.enterStartDate));
                     start_date_create_text_input_layout.setErrorEnabled(true);
                 }else {
                     start_date_create_text_input_layout.setErrorEnabled(false);
@@ -528,7 +528,7 @@ public class CreateIssueFragment extends DialogFragment {
                 }
 
                 if (estimate_date_finish_create_text_input_layout.getEditText().getText().length() == 0){
-                    estimate_date_finish_create_text_input_layout.setError("Please enter estimate finish date!!!");
+                    estimate_date_finish_create_text_input_layout.setError(activity.getString(R.string.enterEstimateFinishDate));
                     estimate_date_finish_create_text_input_layout.setErrorEnabled(true);
                 }else {
                     estimate_date_finish_create_text_input_layout.setErrorEnabled(false);
@@ -542,7 +542,7 @@ public class CreateIssueFragment extends DialogFragment {
                         if (date2.getTime() < date1.getTime()
                             || start_date_create_text_input_layout.getEditText().getText().toString()
                                 .equals(estimate_date_finish_create_text_input_layout.getEditText().getText().toString())){
-                            estimate_date_finish_create_text_input_layout.setError("Wrong finish day!!!");
+                            estimate_date_finish_create_text_input_layout.setError(activity.getString(R.string.wrong_finish_day));
                             estimate_date_finish_create_text_input_layout.setErrorEnabled(true);
                         }else estimate_date_finish_create_text_input_layout.setErrorEnabled(false);
                     } catch (ParseException e) {
@@ -561,7 +561,7 @@ public class CreateIssueFragment extends DialogFragment {
                                 if (date2.getTime() < date1.getTime()
                                         || start_date_create_text_input_layout.getEditText().getText().toString()
                                         .equals(finish_date_issue_create_text_input_layout.getEditText().getText().toString())){
-                                    finish_date_issue_create_text_input_layout.setError("Wrong finish day!!!");
+                                    finish_date_issue_create_text_input_layout.setError(activity.getString(R.string.wrong_finish_day));
                                     finish_date_issue_create_text_input_layout.setErrorEnabled(true);
                                 }else finish_date_issue_create_text_input_layout.setErrorEnabled(false);
                             } catch (ParseException e) {
@@ -569,17 +569,17 @@ public class CreateIssueFragment extends DialogFragment {
                             }
                         }
                     }else {
-                        finish_date_issue_create_text_input_layout.setError("Wrong finish date!!!");
+                        finish_date_issue_create_text_input_layout.setError(activity.getString(R.string.wrong_finish_day));
                         finish_date_issue_create_text_input_layout.setErrorEnabled(true);
                     }
                 }else {
-                    finish_date_issue_create_text_input_layout.setError("Please enter finish date!!!!");
+                    finish_date_issue_create_text_input_layout.setError(activity.getString(R.string.enterFinishDate));
                     finish_date_issue_create_text_input_layout.setErrorEnabled(false);
                 }
 
                 if (issue_name_create_text_input_layout.isErrorEnabled() || estimate_date_finish_create_text_input_layout.isErrorEnabled()
                         || start_date_create_text_input_layout.isErrorEnabled() || finish_date_issue_create_text_input_layout.isErrorEnabled()){
-                    Toast.makeText(getContext(), "Please check error!!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getString(R.string.checkError), Toast.LENGTH_SHORT).show();
                 }else{
                     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                         @Override
@@ -635,7 +635,7 @@ public class CreateIssueFragment extends DialogFragment {
                                                     getUserByUserName(issue_Assignee, issue_ID);
                                                     //updateIssueListByUser(issue_ID, issue_Name, issue_ProcessType, issue_Type, project_ID, issue_Assignee);
                                                 }else {
-                                                    Toast.makeText(activity, "Create failed", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(activity, activity.getString(R.string.create_failed), Toast.LENGTH_SHORT).show();
                                                 }
                                             }
                                         });
@@ -644,15 +644,15 @@ public class CreateIssueFragment extends DialogFragment {
 
                                 case DialogInterface.BUTTON_NEGATIVE:
                                     //No button clicked
-                                    Toast.makeText(getContext(), "Create error!!!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(activity, activity.getString(R.string.create_error), Toast.LENGTH_SHORT).show();
                                     break;
                             }
                         }
                     };
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setMessage("Do you want to create this issue?").setPositiveButton("Yes", dialogClickListener)
-                            .setNegativeButton("No", dialogClickListener).show();
+                    builder.setMessage(activity.getString(R.string.create_issue_question)).setPositiveButton(activity.getString(R.string.yes), dialogClickListener)
+                            .setNegativeButton(activity.getString(R.string.no), dialogClickListener).show();
                 }
             }
         });
@@ -739,12 +739,12 @@ public class CreateIssueFragment extends DialogFragment {
                         if (isCheck){
                             start_date_create_text_input_layout.setErrorEnabled(false);
                         }else {
-                            start_date_create_text_input_layout.setError("Wrong day!!!");
+                            start_date_create_text_input_layout.setError(activity.getString(R.string.wrong_date));
                             start_date_create_text_input_layout.setErrorEnabled(true);
                         }
                     }
                 }else {
-                    start_date_create_text_input_layout.setError("Wrong format!!! Ex: dd/MM/yyyy");
+                    start_date_create_text_input_layout.setError(activity.getString(R.string.wrongFormat2));
                     start_date_create_text_input_layout.setErrorEnabled(true);
                 }
             } catch (ParseException e) {
@@ -755,13 +755,13 @@ public class CreateIssueFragment extends DialogFragment {
     public void checkRightDate(TextInputLayout textInputLayout){
         String date = textInputLayout.getEditText().getText().toString();
         if (!dateFormat.isValidDate(date)){
-            textInputLayout.setError("Wrong format. Ex: dd/MM/yyy");
+            textInputLayout.setError(activity.getString(R.string.wrongFormat2));
             textInputLayout.setErrorEnabled(true);
         }else{
             try {
                 Date date1 = dateFormat.sdf.parse(date);
                 if (date1.getTime() < Calendar.getInstance().getTime().getTime()){
-                    textInputLayout.setError("Wrong start day!!!");
+                    textInputLayout.setError(activity.getString(R.string.wrong_start_date));
                     textInputLayout.setErrorEnabled(true);
                 }else textInputLayout.setErrorEnabled(false);
             } catch (ParseException e) {

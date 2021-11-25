@@ -59,6 +59,7 @@ public class LoginTabFragment extends Fragment {
     FirebaseAuth auth;
     FirebaseUser firebaseUser;
     DatabaseReference reference;
+    AppCompatActivity activity;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -111,13 +112,15 @@ public class LoginTabFragment extends Fragment {
         forgetpass = viewGroup.findViewById(R.id.forget_pass_login);
         login = viewGroup.findViewById(R.id.btn_login);
 
+        activity = (AppCompatActivity) getContext();
+
         auth = FirebaseAuth.getInstance();
         reference = FirebaseDatabase.getInstance().getReference("Users");
 
         sharedPreferences = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
         final ProgressDialog progressDialog = new ProgressDialog(getContext());
-        progressDialog.setMessage("Waiting for login");
+        progressDialog.setMessage(activity.getString(R.string.watiing_for_login));
 
         firebaseUser = auth.getCurrentUser();
         if (firebaseUser != null){
@@ -132,7 +135,7 @@ public class LoginTabFragment extends Fragment {
                         editor.putString("user_ID", firebaseUser.getUid());
                         editor.commit();
                         progressDialog.dismiss();
-                        Toast.makeText(getContext(), "Login success", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, activity.getString(R.string.login_success), Toast.LENGTH_SHORT).show();
                         AppCompatActivity activity = (AppCompatActivity) getContext();
                         Intent intent = new Intent(activity, MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -140,7 +143,7 @@ public class LoginTabFragment extends Fragment {
                         activity.finish();
                     }else {
                         progressDialog.dismiss();
-                        Toast.makeText(getContext(), "Failed" + task.getResult(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, activity.getString(R.string.failed) + task.getResult(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -162,10 +165,10 @@ public class LoginTabFragment extends Fragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     if (email_login_text_input_layout.getEditText().getText().length() == 0){
-                        email_login_text_input_layout.setError("Please enter Email");
+                        email_login_text_input_layout.setError(activity.getString(R.string.enterEmail));
                         email_login_text_input_layout.setErrorEnabled(true);
                     }else if (!isValidEmail(email_login_text_input_layout.getEditText().getText().toString())){
-                        email_login_text_input_layout.setError("Please enter correct Email format");
+                        email_login_text_input_layout.setError(activity.getString(R.string.enterCorrectEmailFormat));
                         email_login_text_input_layout.setErrorEnabled(true);
                     } else {
                         email_login_text_input_layout.setErrorEnabled(false);
@@ -180,7 +183,7 @@ public class LoginTabFragment extends Fragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length() == 0){
-                                email_login_text_input_layout.setError("Please enter Email");
+                                email_login_text_input_layout.setError(activity.getString(R.string.enterEmail));
                                 email_login_text_input_layout.setErrorEnabled(true);
                             }else email_login_text_input_layout.setErrorEnabled(false);
                         }
@@ -199,10 +202,10 @@ public class LoginTabFragment extends Fragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     if (pass_login_text_input_layout.getEditText().getText().length() == 0){
-                        pass_login_text_input_layout.setError("Please enter Password");
+                        pass_login_text_input_layout.setError(activity.getString(R.string.enterPassword));
                         pass_login_text_input_layout.setErrorEnabled(true);
                     }else if (pass_login_text_input_layout.getEditText().getText().length() < 6){
-                        pass_login_text_input_layout.setError("Password must be more 6 characters");
+                        pass_login_text_input_layout.setError(activity.getString(R.string.pass_6_char));
                         pass_login_text_input_layout.setErrorEnabled(true);
                     } else {
                         pass_login_text_input_layout.setErrorEnabled(false);
@@ -217,10 +220,7 @@ public class LoginTabFragment extends Fragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length() == 0){
-                                pass_login_text_input_layout.setError("Please enter Password");
-                                pass_login_text_input_layout.setErrorEnabled(true);
-                            }else if (s.length() < 6) {
-                                pass_login_text_input_layout.setError("Password must be more 6 characters");
+                                pass_login_text_input_layout.setError(activity.getString(R.string.enterPassword));
                                 pass_login_text_input_layout.setErrorEnabled(true);
                             }else {
                                 pass_login_text_input_layout.setErrorEnabled(false);
@@ -243,27 +243,27 @@ public class LoginTabFragment extends Fragment {
                 txt_pass = pass_login_text_input_layout.getEditText().getText().toString().toLowerCase().trim();
 
                 if (txt_email.length() == 0){
-                    email_login_text_input_layout.setError("Please enter Email name");
+                    email_login_text_input_layout.setError(activity.getString(R.string.enterEmail));
                     email_login_text_input_layout.setErrorEnabled(true);
                 }else if (!isValidEmail(txt_email)){
-                    email_login_text_input_layout.setError("Incorrect Email format");
+                    email_login_text_input_layout.setError(activity.getString(R.string.enterCorrectEmailFormat));
                     email_login_text_input_layout.setErrorEnabled(true);
                 }else{
                     email_login_text_input_layout.setErrorEnabled(false);
                 }
 
                 if (txt_pass.length() == 0){
-                    pass_login_text_input_layout.setError("Please enter user password!!!");
+                    pass_login_text_input_layout.setError(activity.getString(R.string.enterPassword));
                     pass_login_text_input_layout.setErrorEnabled(true);
                 }else if (txt_pass.length() < 6) {
-                    pass_login_text_input_layout.setError("Password must be more 6 characters");
+                    pass_login_text_input_layout.setError(activity.getString(R.string.pass_6_char));
                     pass_login_text_input_layout.setErrorEnabled(true);
                 }else {
                     pass_login_text_input_layout.setErrorEnabled(false);
                 }
 
                 if (email_login_text_input_layout.isErrorEnabled() || pass_login_text_input_layout.isErrorEnabled()){
-                    Toast.makeText(getContext(), "Please check error!!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getString(R.string.checkError), Toast.LENGTH_SHORT).show();
                 }else {
                     auth.signInWithEmailAndPassword(txt_email, txt_pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
@@ -276,13 +276,13 @@ public class LoginTabFragment extends Fragment {
                                 reference1.updateChildren(hashMap);
                                 editor.putString("user_ID", firebaseUser.getUid());
                                 editor.commit();
-                                Toast.makeText(getContext(), "Login success", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(activity, activity.getString(R.string.login_success), Toast.LENGTH_SHORT).show();
                                 AppCompatActivity activity = (AppCompatActivity) getContext();
                                 Intent intent = new Intent(activity, MainActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                                 startActivity(intent);
                             }else {
-                                Toast.makeText(getContext(), "Login failed", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(activity, activity.getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
                             }
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -300,6 +300,5 @@ public class LoginTabFragment extends Fragment {
     public static boolean isValidEmail(CharSequence target) {
         return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
     }
-
 
 }

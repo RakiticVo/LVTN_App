@@ -74,7 +74,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     private Context context;
     private LayoutInflater mInflater;
     private ArrayList<Joining_Request> joiningRequests;
-    SharedPreferences sharedPreferences1, sharedPreferences2;
+    SharedPreferences sharedPreferences1, sharedPreferences2, sharedPreferences_language;
     SharedPreferences.Editor editor1, editor2;
     FirebaseUser firebaseUser;
     NotificationManagerCompat notificationManagerCompat;
@@ -94,6 +94,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     @Override
     public void onBindViewHolder(@NonNull NotificationAdapter.ViewHolder holder, int position) {
+        sharedPreferences_language = context.getSharedPreferences("Config_language", Context.MODE_PRIVATE);
+        String lang = sharedPreferences_language.getString("Current_Lang", "abcdef");
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         notificationManagerCompat = NotificationManagerCompat.from(context);
         if (joiningRequests != null){
@@ -112,7 +114,41 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                             GroupChat groupChat = snapshot.getValue(GroupChat.class);
                             holder.notification_name_object.setText(groupChat.getGroup_Name());
                             Glide.with(context).load(groupChat.getGroup_Image()).into(holder.avatar_object_notification);
-                            holder.notification_message.setText("You are invited to the "+ groupChat.getGroup_Name() +" group. Do you accept it?");
+
+                            if (!lang.equals("abcdef")){
+                                switch (lang){
+                                    case "en":
+                                        String noti1 = "You are invited to the "+ groupChat.getGroup_Name() +" group. Do you accept it?";
+                                        String match1 = "the ";
+                                        String match2 = " group.";
+
+                                        int i1 = noti1.indexOf(match1) + 4;
+                                        int i2 = noti1.indexOf(match2);
+
+                                        final SpannableStringBuilder sb1 = new SpannableStringBuilder(noti1);
+
+                                        final StyleSpan bss1 = new StyleSpan(Typeface.BOLD_ITALIC); // Span to make text bold
+                                        sb1.setSpan(bss1, i1, i2, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // make first 4 characters Bold
+                                        holder.notification_message.setText(sb1);
+                                        break;
+                                    case "vi":
+                                        String noti2 = "Bạn được mời vào nhóm chat " + groupChat.getGroup_Name() + ". Bạn có chấp nhận không?";
+                                        String match3 = "chat ";
+                                        String match4 = " Bạn có chấp nhận không?";
+
+                                        int i3 = noti2.indexOf(match3) + 5;
+                                        int i4 = noti2.indexOf(match4);
+
+                                        final SpannableStringBuilder sb2 = new SpannableStringBuilder(noti2);
+
+                                        final StyleSpan bss2 = new StyleSpan(Typeface.BOLD_ITALIC); // Span to make text bold
+                                        sb2.setSpan(bss2, i3, i4, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // make first 4 characters Bold
+                                        holder.notification_message.setText(sb2);
+                                        break;
+                                }
+                            }else {
+
+                            }
                         }
 
                         @Override
@@ -185,7 +221,41 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                                     holder.img_notification.setImageResource(R.drawable.project_bussiness);
                                     break;
                             }
-                            holder.notification_message.setText("You are invited to the "+ project.getProject_Name() +" project. Do you accept it?");
+
+                            if (!lang.equals("abcdef")){
+                                switch (lang){
+                                    case "en":
+                                        String noti = "You are invited to the "+ project.getProject_Name() +" project. Do you accept it?";
+                                        String match1 = "the ";
+                                        String match2 = " project.";
+
+                                        int i1 = noti.indexOf(match1) + 4;
+                                        int i2 = noti.indexOf(match2);
+
+                                        final SpannableStringBuilder sb = new SpannableStringBuilder(noti);
+
+                                        final StyleSpan bss1 = new StyleSpan(Typeface.BOLD_ITALIC); // Span to make text bold
+                                        sb.setSpan(bss1, i1, i2, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // make first 4 characters Bold
+                                        holder.notification_message.setText(sb);
+                                        break;
+                                    case "vi":
+                                        String noti2 = "Bạn được mời vào dự án " + project.getProject_Name() + ". Bạn có chấp nhận không?";
+                                        String match3 = "án ";
+                                        String match4 = " Bạn có chấp nhận không?";
+
+                                        int i3 = noti2.indexOf(match3) + 3;
+                                        int i4 = noti2.indexOf(match4);
+
+                                        final SpannableStringBuilder sb2 = new SpannableStringBuilder(noti2);
+
+                                        final StyleSpan bss2 = new StyleSpan(Typeface.BOLD_ITALIC); // Span to make text bold
+                                        sb2.setSpan(bss2, i3, i4, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // make first 4 characters Bold
+                                        holder.notification_message.setText(sb2);
+                                        break;
+                                }
+                            }else {
+
+                            }
                         }
 
                         @Override
@@ -263,24 +333,51 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                                     Issue issue = snapshot.getValue(Issue.class);
                                     if (issue != null){
-                                        String noti = "You have been assigned an issue: " + issue.getIssue_Name() + " at the " + project.getProject_Name() + " project. \n Do you accept it?";
-                                        String match1 = "issue: ";
-                                        String match2 = " at the ";
-                                        String match3 = " project";
+                                        if (!lang.equals("abcdef")){
+                                            switch (lang){
+                                                case "en":
+                                                    String noti = "You have been assigned an issue: " + issue.getIssue_Name() + " at the " + project.getProject_Name() + " project. \nDo you accept it?";
+                                                    String match1 = "issue: ";
+                                                    String match2 = " at the ";
+                                                    String match3 = " project";
 
-                                        int i1 = noti.indexOf(match1) + 7;
-                                        int i2 = noti.indexOf(match2);
-                                        int i3 = noti.indexOf(match2) + 7;
-                                        int i4 = noti.indexOf(match3);
+                                                    int i1 = noti.indexOf(match1) + 7;
+                                                    int i2 = noti.indexOf(match2);
+                                                    int i3 = noti.indexOf(match2) + 7;
+                                                    int i4 = noti.indexOf(match3);
 //                                    Toast.makeText(context, "" + noti.substring(i3, i4), Toast.LENGTH_SHORT).show();
 
-                                        final SpannableStringBuilder sb = new SpannableStringBuilder(noti);
+                                                    final SpannableStringBuilder sb = new SpannableStringBuilder(noti);
 
-                                        final StyleSpan bss1 = new StyleSpan(Typeface.BOLD_ITALIC); // Span to make text bold
-                                        final StyleSpan bss2 = new StyleSpan(Typeface.BOLD_ITALIC); // Span to make text bold
-                                        sb.setSpan(bss1, i1, i2, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // make first 4 characters Bold
-                                        sb.setSpan(bss2, i3, i4, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // make first 4 characters Bold
-                                        holder.notification_message.setText(sb);
+                                                    final StyleSpan bss1 = new StyleSpan(Typeface.BOLD_ITALIC); // Span to make text bold
+                                                    final StyleSpan bss2 = new StyleSpan(Typeface.BOLD_ITALIC); // Span to make text bold
+                                                    sb.setSpan(bss1, i1, i2, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // make first 4 characters Bold
+                                                    sb.setSpan(bss2, i3, i4, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // make first 4 characters Bold
+                                                    holder.notification_message.setText(sb);
+                                                    break;
+                                                case "vi":
+                                                    String noti2 = "Bạn đã được giao một công việc: " + issue.getIssue_Name() + " tại dự án " + project.getProject_Name() + ". Bạn có chấp nhận không?";
+                                                    String match4 = "việc: ";
+                                                    String match5 = " tại dự án ";
+                                                    String match6 = ". Bạn ";
+
+                                                    int i5 = noti2.indexOf(match4) + 6;
+                                                    int i6 = noti2.indexOf(match5);
+                                                    int i7 = noti2.indexOf(match5) + 11;
+                                                    int i8 = noti2.indexOf(match6);
+
+                                                    final SpannableStringBuilder sb2 = new SpannableStringBuilder(noti2);
+
+                                                    final StyleSpan bss3 = new StyleSpan(Typeface.BOLD_ITALIC); // Span to make text bold
+                                                    final StyleSpan bss4 = new StyleSpan(Typeface.BOLD_ITALIC); // Span to make text bold
+                                                    sb2.setSpan(bss3, i5, i6, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // make first 4 characters Bold
+                                                    sb2.setSpan(bss4, i7, i8, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // make first 4 characters Bold
+                                                    holder.notification_message.setText(sb2);
+                                                    break;
+                                            }
+                                        }else {
+
+                                        }
                                     }
                                 }
 

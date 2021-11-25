@@ -170,8 +170,9 @@ public class ProjectInfoFragment extends DialogFragment {
                 };
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setMessage("Are you sure to delete this project?").setPositiveButton("Yes", dialogClickListener)
-                        .setNegativeButton("No", dialogClickListener).show();
+                builder.setMessage(activity.getString(R.string.delete_project_question))
+                        .setPositiveButton(activity.getString(R.string.yes), dialogClickListener)
+                        .setNegativeButton(activity.getString(R.string.no), dialogClickListener).show();
             }
         });
 
@@ -228,7 +229,7 @@ public class ProjectInfoFragment extends DialogFragment {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()){
-                                                Toast.makeText(activity, "Update success", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(activity, activity.getString(R.string.update_success), Toast.LENGTH_SHORT).show();
                                                 getProjectInfo(project_ID);
                                             }
                                         }
@@ -237,7 +238,7 @@ public class ProjectInfoFragment extends DialogFragment {
 
                                 case DialogInterface.BUTTON_NEGATIVE:
                                     //No button clicked
-                                    Toast.makeText(getContext(), "Cancel update!!!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(activity, activity.getString(R.string.cancel_update), Toast.LENGTH_SHORT).show();
                                     getProjectInfo(project_ID);
                                     break;
                             }
@@ -247,8 +248,9 @@ public class ProjectInfoFragment extends DialogFragment {
                     };
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setMessage("Do you want to save changes?").setPositiveButton("Yes", dialogClickListener)
-                            .setNegativeButton("No", dialogClickListener).show();
+                    builder.setMessage(activity.getString(R.string.save_changes_question))
+                            .setPositiveButton(activity.getString(R.string.yes), dialogClickListener)
+                            .setNegativeButton(activity.getString(R.string.no), dialogClickListener).show();
                 }
             }
         });
@@ -257,7 +259,7 @@ public class ProjectInfoFragment extends DialogFragment {
     }
     //Delete Project
     public void deleteProjectAll(String project_ID){
-        progressDialog.setMessage("Deleting");
+        progressDialog.setMessage(activity.getString(R.string.deleting));
         progressDialog.show();
         deleteIssueListByUser(project_ID);
     }

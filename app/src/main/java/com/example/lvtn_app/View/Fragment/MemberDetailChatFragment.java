@@ -134,7 +134,6 @@ public class MemberDetailChatFragment extends DialogFragment {
                 tv_username_member_detail.setText(user.getUser_Name());
                 tv_email_member_detail.setText(user.getUser_Email());
                 tv_phoneNumber_member_detail.setText(user.getUser_Phone());
-
             }
 
             @Override

@@ -232,13 +232,15 @@ public class ProjectsFragment extends Fragment {
 
     public void getProjectByID(ArrayList<String> projectid){
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Projects");
+        projects.clear();
         for (String s : projectid){
             databaseReference.child(s).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     Project project = snapshot.getValue(Project.class);
                     projects.add(project);
-                    projectsAdapter.notifyDataSetChanged();
+                    projectsAdapter = new ProjectsAdapter(activity, projects);
+                    recyclerViewProjects.setAdapter(projectsAdapter);
                 }
 
                 @Override

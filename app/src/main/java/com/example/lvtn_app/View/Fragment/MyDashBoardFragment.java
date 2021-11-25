@@ -388,11 +388,13 @@ public class MyDashBoardFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Project project = snapshot.getValue(Project.class);
-                tv2.setText(project.getProject_Name());
-                tv2.setTextColor(Color.BLACK);
-                tv2.setTextSize(16f);
-                tv2.setGravity(Gravity.CENTER);
-                tv2.setBackgroundResource(R.drawable.custome_data_gridview);
+                if (project != null) {
+                    tv2.setText(project.getProject_Name());
+                    tv2.setTextColor(Color.BLACK);
+                    tv2.setTextSize(16f);
+                    tv2.setGravity(Gravity.CENTER);
+                    tv2.setBackgroundResource(R.drawable.custome_data_gridview);
+                }
             }
 
             @Override

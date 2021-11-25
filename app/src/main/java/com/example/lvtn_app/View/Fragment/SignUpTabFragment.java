@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.text.Editable;
@@ -47,6 +48,7 @@ public class SignUpTabFragment extends Fragment {
     DatabaseReference reference;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
+    AppCompatActivity activity;
 
     //New User Information
     String userName = "";
@@ -109,6 +111,7 @@ public class SignUpTabFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
         sharedPreferences = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
+        activity = (AppCompatActivity) getContext();
 
         // Xử lý sự kiện
         user_name_signup_text_input_layout.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -116,7 +119,7 @@ public class SignUpTabFragment extends Fragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     if (user_name_signup_text_input_layout.getEditText().getText().length() == 0){
-                        user_name_signup_text_input_layout.setError("Please enter User name");
+                        user_name_signup_text_input_layout.setError(activity.getString(R.string.enterNameUser));
                         user_name_signup_text_input_layout.setErrorEnabled(true);
                     }else{
                         user_name_signup_text_input_layout.setErrorEnabled(false);
@@ -131,7 +134,7 @@ public class SignUpTabFragment extends Fragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length() == 0){
-                                user_name_signup_text_input_layout.setError("Please enter User name");
+                                user_name_signup_text_input_layout.setError(activity.getString(R.string.enterNameUser));
                                 user_name_signup_text_input_layout.setErrorEnabled(true);
                             }else{
                                 user_name_signup_text_input_layout.setErrorEnabled(false);
@@ -152,10 +155,10 @@ public class SignUpTabFragment extends Fragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     if (email_signup_text_input_layout.getEditText().getText().length() == 0){
-                        email_signup_text_input_layout.setError("Please enter Email name");
+                        email_signup_text_input_layout.setError(activity.getString(R.string.enterEmail));
                         email_signup_text_input_layout.setErrorEnabled(true);
                     }else if (!isValidEmail(email_signup_text_input_layout.getEditText().getText().toString())){
-                        email_signup_text_input_layout.setError("Incorrect Email format");
+                        email_signup_text_input_layout.setError(activity.getString(R.string.enterCorrectEmailFormat));
                         email_signup_text_input_layout.setErrorEnabled(true);
                     }else{
                         email_signup_text_input_layout.setErrorEnabled(false);
@@ -170,7 +173,7 @@ public class SignUpTabFragment extends Fragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length() == 0){
-                                email_signup_text_input_layout.setError("Please enter Email name");
+                                email_signup_text_input_layout.setError(activity.getString(R.string.enterEmail));
                                 email_signup_text_input_layout.setErrorEnabled(true);
                             }else{
                                 email_signup_text_input_layout.setErrorEnabled(false);
@@ -191,10 +194,10 @@ public class SignUpTabFragment extends Fragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     if (pass_signup_text_input_layout.getEditText().getText().length() == 0){
-                        pass_signup_text_input_layout.setError("Please enter Password");
+                        pass_signup_text_input_layout.setError(activity.getString(R.string.enterPassword));
                         pass_signup_text_input_layout.setErrorEnabled(true);
                     }else if (pass_signup_text_input_layout.getEditText().getText().length() < 6){
-                        pass_signup_text_input_layout.setError("Password must be more 6 characters");
+                        pass_signup_text_input_layout.setError(activity.getString(R.string.pass_6_char));
                         pass_signup_text_input_layout.setErrorEnabled(true);
                     } else {
                         pass_signup_text_input_layout.setErrorEnabled(false);
@@ -209,7 +212,7 @@ public class SignUpTabFragment extends Fragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length() == 0){
-                                pass_signup_text_input_layout.setError("Please enter Password");
+                                pass_signup_text_input_layout.setError(activity.getString(R.string.enterPassword));
                                 pass_signup_text_input_layout.setErrorEnabled(true);
                             }else {
                                 pass_signup_text_input_layout.setErrorEnabled(false);
@@ -230,13 +233,13 @@ public class SignUpTabFragment extends Fragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     if (checkpass_signup_text_input_layout.getEditText().getText().length() == 0){
-                        checkpass_signup_text_input_layout.setError("Please enter Password");
+                        checkpass_signup_text_input_layout.setError(activity.getString(R.string.enterPassword));
                         checkpass_signup_text_input_layout.setErrorEnabled(true);
                     }else if (checkpass_signup_text_input_layout.getEditText().getText().length() < 6){
-                        checkpass_signup_text_input_layout.setError("Password must be more 6 characters");
+                        checkpass_signup_text_input_layout.setError(activity.getString(R.string.pass_6_char));
                         checkpass_signup_text_input_layout.setErrorEnabled(true);
                     }else if (!checkpass_signup_text_input_layout.getEditText().getText().toString().equals(pass_signup_text_input_layout.getEditText().getText().toString())){
-                        checkpass_signup_text_input_layout.setError("Incorrect password");
+                        checkpass_signup_text_input_layout.setError(activity.getString(R.string.incorrect_pass));
                         checkpass_signup_text_input_layout.setErrorEnabled(true);
                     }else {
                         checkpass_signup_text_input_layout.setErrorEnabled(false);
@@ -251,7 +254,7 @@ public class SignUpTabFragment extends Fragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length() == 0){
-                                checkpass_signup_text_input_layout.setError("Please enter Password");
+                                checkpass_signup_text_input_layout.setError(activity.getString(R.string.enterPassword));
                                 checkpass_signup_text_input_layout.setErrorEnabled(true);
                             }else {
                                 checkpass_signup_text_input_layout.setErrorEnabled(false);
@@ -276,38 +279,38 @@ public class SignUpTabFragment extends Fragment {
                 checkpass = checkpass_signup_text_input_layout.getEditText().getText().toString().trim();
 
                 if (userName.length() == 0){
-                    user_name_signup_text_input_layout.setError("Please enter user name!!!");
+                    user_name_signup_text_input_layout.setError(activity.getString(R.string.enterNameUser));
                     user_name_signup_text_input_layout.setErrorEnabled(true);
                 }else user_name_signup_text_input_layout.setErrorEnabled(false);
 
                 if (userEmail.length() == 0){
-                    email_signup_text_input_layout.setError("Please enter Email name");
+                    email_signup_text_input_layout.setError(activity.getString(R.string.enterEmail));
                     email_signup_text_input_layout.setErrorEnabled(true);
                 }else if (!isValidEmail(userEmail)){
-                    email_signup_text_input_layout.setError("Incorrect Email format");
+                    email_signup_text_input_layout.setError(activity.getString(R.string.enterCorrectEmailFormat));
                     email_signup_text_input_layout.setErrorEnabled(true);
                 }else{
                     email_signup_text_input_layout.setErrorEnabled(false);
                 }
 
                 if (userPass.length() == 0){
-                    pass_signup_text_input_layout.setError("Please enter user password!!!");
+                    pass_signup_text_input_layout.setError(activity.getString(R.string.enterPassword));
                     pass_signup_text_input_layout.setErrorEnabled(true);
                 }else if (userPass.length() < 6) {
-                    pass_signup_text_input_layout.setError("Password must be more 6 characters");
+                    pass_signup_text_input_layout.setError(activity.getString(R.string.pass_6_char));
                     pass_signup_text_input_layout.setErrorEnabled(true);
                 }else {
                     pass_signup_text_input_layout.setErrorEnabled(false);
                 }
 
                 if (checkpass.length() == 0){
-                    pass_signup_text_input_layout.setError("Please enter confirm password!!!");
+                    pass_signup_text_input_layout.setError(activity.getString(R.string.enterConfirmPass));
                     pass_signup_text_input_layout.setErrorEnabled(true);
                 }else if (checkpass.length() < 6) {
-                    pass_signup_text_input_layout.setError("Password must be more 6 characters");
+                    pass_signup_text_input_layout.setError(activity.getString(R.string.pass_6_char));
                     pass_signup_text_input_layout.setErrorEnabled(true);
                 }else if (!checkpass_signup_text_input_layout.getEditText().getText().toString().equals(pass_signup_text_input_layout.getEditText().getText().toString())){
-                    checkpass_signup_text_input_layout.setError("Incorrect password");
+                    checkpass_signup_text_input_layout.setError(activity.getString(R.string.incorrect_pass));
                     checkpass_signup_text_input_layout.setErrorEnabled(true);
                 }else {
                     checkpass_signup_text_input_layout.setErrorEnabled(false);
@@ -317,7 +320,7 @@ public class SignUpTabFragment extends Fragment {
                     email_signup_text_input_layout.isErrorEnabled() ||
                     pass_signup_text_input_layout.isErrorEnabled() ||
                     checkpass_signup_text_input_layout.isErrorEnabled()){
-                    Toast.makeText(getContext(), "Please check error!!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getString(R.string.checkError), Toast.LENGTH_SHORT).show();
                 }else {
                     registerUser(userName, userEmail, userPass);
                 }

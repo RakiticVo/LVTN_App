@@ -60,7 +60,7 @@ import java.util.HashMap;
 public class MainActivity extends AppCompatActivity {
     // Khai báo
     public MeowBottomNavigation meowBottomNavigation;
-    SharedPreferences sharedPreferences;
+    SharedPreferences sharedPreferences, sharedPreferences_language;
     SharedPreferences.Editor editor;
     private NotificationManagerCompat notificationManagerCompat;
     DateFormat dateFormat;
@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
     private final int ID_NOTIFICATION = 4;
     private final int ID_PROFILE = 5;
 
-    FirebaseAuth auth;
     FirebaseUser firebaseUser;
     DatabaseReference referenceIssueToDay, referenceNotificationToday;
     ValueEventListener valueEventListenerIssueToDay, valueEventListenerNotificationToday;
@@ -91,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         instance = this;
+
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         meowBottomNavigation = findViewById(R.id.meowBottomNavigation);
 
@@ -174,8 +175,6 @@ public class MainActivity extends AppCompatActivity {
 
         this.notificationManagerCompat = NotificationManagerCompat.from(this);
 
-        auth = FirebaseAuth.getInstance();
-        firebaseUser = auth.getCurrentUser();
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
             @Override
             public void onComplete(@NonNull Task<String> task) {
@@ -187,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences("User", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
+        editor.putString("userID", firebaseUser.getUid());
 
         dateFormat = new DateFormat();
         currentDate = Calendar.getInstance().getTime();
@@ -312,6 +312,19 @@ public class MainActivity extends AppCompatActivity {
         String leader_ID = joiningGroupChat.getLeader_ID();
         String group_ID = joiningGroupChat.getGroup_ID();
         String channelId = getString(R.string.default_notification_channel_id);
+        sharedPreferences_language = this.getSharedPreferences("Config_language", Context.MODE_PRIVATE);
+        String lang = sharedPreferences_language.getString("Current_Lang", "abcdef");
+        String msg = "";
+        if (!lang.equals("abcdef")){
+            switch (lang){
+                case "en":
+                    msg = "You have Invitation from " + groupName + " Group";
+                    break;
+                case "vi":
+                    msg = "Bạn có lời mời từ nhóm " + groupName;
+                    break;
+            }
+        }
         int j = Integer.parseInt(leader_ID.replaceAll("[\\D]", ""));
         Intent intent = new Intent(this, MainActivity.class);
         Bundle bundle = new Bundle();
@@ -323,8 +336,8 @@ public class MainActivity extends AppCompatActivity {
         Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Notification notification = new NotificationCompat.Builder(this, Notifications.CHANNEL_1_ID)
                 .setSmallIcon(R.drawable.logo)
-                .setContentTitle("Joining Request")
-                .setContentText("You have Invitation from " +  groupName + " Group")
+                .setContentTitle(this.getString(R.string.joining_request))
+                .setContentText(msg)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setCategory(NotificationCompat.CATEGORY_PROMO) // Promotion.
                 .setAutoCancel(true)
@@ -412,6 +425,19 @@ public class MainActivity extends AppCompatActivity {
         String leader_ID = joiningProject.getLeader_ID();
         String project_ID = joiningProject.getProject_ID();
         String channelId = getString(R.string.default_notification_channel_id);
+        sharedPreferences_language = this.getSharedPreferences("Config_language", Context.MODE_PRIVATE);
+        String lang = sharedPreferences_language.getString("Current_Lang", "abcdef");
+        String msg = "";
+        if (!lang.equals("abcdef")){
+            switch (lang){
+                case "en":
+                    msg = "You have Invitation from " + projectName + " Project";
+                    break;
+                case "vi":
+                    msg = "Bạn có lời mời từ dự án " + projectName;
+                    break;
+            }
+        }
         int j = Integer.parseInt(leader_ID.replaceAll("[\\D]", ""));
         Intent intent = new Intent(this, MainActivity.class);
         Bundle bundle = new Bundle();
@@ -423,8 +449,8 @@ public class MainActivity extends AppCompatActivity {
         Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Notification notification = new NotificationCompat.Builder(this, Notifications.CHANNEL_2_ID)
                 .setSmallIcon(R.drawable.logo)
-                .setContentTitle("Joining Request")
-                .setContentText("You have Invitation from " +  projectName + " Project")
+                .setContentTitle(this.getString(R.string.joining_request))
+                .setContentText(msg)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setCategory(NotificationCompat.CATEGORY_PROMO) // Promotion.
                 .setAutoCancel(true)
@@ -511,6 +537,19 @@ public class MainActivity extends AppCompatActivity {
     private void sendNotificationIssueByProject(Project_Issue_Request projectIssueRequest, String projectName) {
         String leader_ID = projectIssueRequest.getLeader_ID();
         String channelId = getString(R.string.default_notification_channel_id);
+        sharedPreferences_language = this.getSharedPreferences("Config_language", Context.MODE_PRIVATE);
+        String lang = sharedPreferences_language.getString("Current_Lang", "abcdef");
+        String msg = "";
+        if (!lang.equals("abcdef")){
+            switch (lang){
+                case "en":
+                    msg = "You have been assigned an issue from " +  projectName + " Project";
+                    break;
+                case "vi":
+                    msg = "Bạn đã được giao một công việc ở dự án " + projectName;
+                    break;
+            }
+        }
         int j = Integer.parseInt(leader_ID.replaceAll("[\\D]", ""));
         Intent intent = new Intent(this, MainActivity.class);
         Bundle bundle = new Bundle();
@@ -522,8 +561,8 @@ public class MainActivity extends AppCompatActivity {
         Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Notification notification = new NotificationCompat.Builder(this, Notifications.CHANNEL_1_ID)
                 .setSmallIcon(R.drawable.logo)
-                .setContentTitle("Issue Request")
-                .setContentText("You have been assigned an issue from " +  projectName + " Project")
+                .setContentTitle(this.getString(R.string.issue_request))
+                .setContentText(msg)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_PROMO) // Promotion.
                 .setAutoCancel(true)
@@ -848,9 +887,24 @@ public class MainActivity extends AppCompatActivity {
     public void sendNotificationIssueToDay(String date, int size){
         String channelId = getString(R.string.default_notification_channel_id);
         int j = 123456789;
-        String s = "You have Issue today";
-        if (size > 1){
-            s = "You have some Issues today";
+        sharedPreferences_language = this.getSharedPreferences("Config_language", Context.MODE_PRIVATE);
+        String lang = sharedPreferences_language.getString("Current_Lang", "abcdef");
+        String msg = "";
+        if (!lang.equals("abcdef")){
+            switch (lang){
+                case "en":
+                    msg = "You have Issue today";
+                    if (size > 1){
+                        msg = "You have some Issues today";
+                    }
+                    break;
+                case "vi":
+                    msg = "Bạn có công việc mới trong ngày hôm nay";
+                    if (size > 1){
+                        msg = "Bạn có một số công việc mới trong ngày hôm nay";
+                    }
+                    break;
+            }
         }
         Intent intent = new Intent(this, MainActivity.class);
         Bundle bundle = new Bundle();
@@ -862,8 +916,8 @@ public class MainActivity extends AppCompatActivity {
         Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Notification notification = new NotificationCompat.Builder(this, Notifications.CHANNEL_1_ID)
                 .setSmallIcon(R.drawable.logo)
-                .setContentTitle("Issue Today")
-                .setContentText(s)
+                .setContentTitle(this.getString(R.string.issue_today))
+                .setContentText(msg)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setCategory(NotificationCompat.CATEGORY_PROMO) // Promotion.
                 .setAutoCancel(true)
@@ -892,6 +946,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 //        Toast.makeText(MainActivity.this, "On Start", Toast.LENGTH_SHORT).show();
         stopService(new Intent(this, NotificationService.class));
     }

@@ -132,6 +132,7 @@
             android:orientation="horizontal"
             android:background="@drawable/custom_edt"
             android:padding="5dp"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/phoneNumber_member_detail">

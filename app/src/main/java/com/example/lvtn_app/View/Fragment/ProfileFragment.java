@@ -267,7 +267,7 @@ public class ProfileFragment extends Fragment {
                     if (date.getTime() < Calendar.getInstance().getTime().getTime()) {
                         DOB_profile_text_input_layout.setErrorEnabled(false);
                     } else {
-                        DOB_profile_text_input_layout.setError("Wrong day!!! Please try again");
+                        DOB_profile_text_input_layout.setError(activity.getString(R.string.wrong_day));
                         DOB_profile_text_input_layout.setErrorEnabled(true);
                     }
                 } catch (ParseException e) {
@@ -297,7 +297,6 @@ public class ProfileFragment extends Fragment {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                         User user = snapshot.getValue(User.class);
 //                        Toast.makeText(getContext(), "" + user.getUser_ID(), Toast.LENGTH_SHORT).show();
-
                         user_ID = user.getUser_ID();
                         user_Name = user.getUser_Name();
                         user_Email = user.getUser_Email();
@@ -382,7 +381,7 @@ public class ProfileFragment extends Fragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
                     if (username_profile_text_input_layout.getEditText().getText().length() < 1) {
-                        username_profile_text_input_layout.setError("Please enter username!!!");
+                        username_profile_text_input_layout.setError(activity.getString(R.string.enterUserName));
                         username_profile_text_input_layout.setErrorEnabled(true);
                     } else {
                         username_profile_text_input_layout.setErrorEnabled(false);
@@ -397,7 +396,7 @@ public class ProfileFragment extends Fragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length() == 0) {
-                                username_profile_text_input_layout.setError("Please enter username!!!");
+                                username_profile_text_input_layout.setError(activity.getString(R.string.enterUserName));
                                 username_profile_text_input_layout.setErrorEnabled(true);
                             } else username_profile_text_input_layout.setErrorEnabled(false);
                         }
@@ -416,13 +415,13 @@ public class ProfileFragment extends Fragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
                     if (email_profile_text_input_layout.getEditText().getText().length() < 1) {
-                        email_profile_text_input_layout.setError("Please enter email!!!");
+                        email_profile_text_input_layout.setError(activity.getString(R.string.enterEmail));
                         email_profile_text_input_layout.setErrorEnabled(true);
                     } else {
                         if (isValidEmail(email_profile_text_input_layout.getEditText().getText())) {
                             email_profile_text_input_layout.setErrorEnabled(false);
                         } else {
-                            email_profile_text_input_layout.setError("Wrong format!!! Please try again");
+                            email_profile_text_input_layout.setError(activity.getString(R.string.wrongFormat));
                             email_profile_text_input_layout.setErrorEnabled(true);
                         }
                     }
@@ -436,7 +435,7 @@ public class ProfileFragment extends Fragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length() == 0) {
-                                email_profile_text_input_layout.setError("Please enter email!!!");
+                                email_profile_text_input_layout.setError(activity.getString(R.string.enterEmail));
                                 email_profile_text_input_layout.setErrorEnabled(true);
                             } else email_profile_text_input_layout.setErrorEnabled(false);
                         }
@@ -455,7 +454,7 @@ public class ProfileFragment extends Fragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
                     if (phoneNumber_profile_text_input_layout.getEditText().getText().length() < 1) {
-                        phoneNumber_profile_text_input_layout.setError("Please enter phone number!!!");
+                        phoneNumber_profile_text_input_layout.setError(activity.getString(R.string.enterPhone));
                         phoneNumber_profile_text_input_layout.setErrorEnabled(true);
                     } else {
                         if (phoneNumber_profile_text_input_layout.getEditText().getText().toString().length() > 9
@@ -463,11 +462,11 @@ public class ProfileFragment extends Fragment {
                             if (phoneNumber_profile_text_input_layout.getEditText().getText().toString().subSequence(1,2).equals("0")){
                                 phoneNumber_profile_text_input_layout.setErrorEnabled(false);
                             }else {
-                                phoneNumber_profile_text_input_layout.setError("Wrong format!!! Please try again");
+                                phoneNumber_profile_text_input_layout.setError(activity.getString(R.string.wrongFormat));
                                 phoneNumber_profile_text_input_layout.setErrorEnabled(true);
                             }
                         } else {
-                            phoneNumber_profile_text_input_layout.setError("Wrong format!!! Please try again");
+                            phoneNumber_profile_text_input_layout.setError(activity.getString(R.string.wrongFormat));
                             phoneNumber_profile_text_input_layout.setErrorEnabled(true);
                         }
                     }
@@ -481,7 +480,7 @@ public class ProfileFragment extends Fragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length() == 0) {
-                                phoneNumber_profile_text_input_layout.setError("Please enter phone number!!!");
+                                phoneNumber_profile_text_input_layout.setError(activity.getString(R.string.enterPhone));
                                 phoneNumber_profile_text_input_layout.setErrorEnabled(true);
                             } else phoneNumber_profile_text_input_layout.setErrorEnabled(false);
                         }
@@ -509,7 +508,7 @@ public class ProfileFragment extends Fragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
                     if (DOB_profile_text_input_layout.getEditText().getText().length() < 1) {
-                        DOB_profile_text_input_layout.setError("Please enter day of birth!!!");
+                        DOB_profile_text_input_layout.setError(activity.getString(R.string.enterDOB));
                         DOB_profile_text_input_layout.setErrorEnabled(true);
                     } else {
                         try {
@@ -517,7 +516,7 @@ public class ProfileFragment extends Fragment {
                             if (date.getTime() < Calendar.getInstance().getTime().getTime()) {
                                 DOB_profile_text_input_layout.setErrorEnabled(false);
                             } else {
-                                DOB_profile_text_input_layout.setError("Wrong day!!! Please try again");
+                                DOB_profile_text_input_layout.setError(activity.getString(R.string.wrong_day));
                                 DOB_profile_text_input_layout.setErrorEnabled(true);
                             }
                         } catch (ParseException e) {
@@ -534,7 +533,7 @@ public class ProfileFragment extends Fragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length() == 0) {
-                                DOB_profile_text_input_layout.setError("Please enter day of birth!!!");
+                                DOB_profile_text_input_layout.setError(activity.getString(R.string.enterDOB));
                                 DOB_profile_text_input_layout.setErrorEnabled(true);
                             } else DOB_profile_text_input_layout.setErrorEnabled(false);
                         }
@@ -575,17 +574,17 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (username_profile_text_input_layout.getEditText().getText().length() == 0){
-                    username_profile_text_input_layout.setError("Wrong format!!! Please try again");
+                    username_profile_text_input_layout.setError(activity.getString(R.string.wrongFormat));
                     username_profile_text_input_layout.setErrorEnabled(true);
                 }else username_profile_text_input_layout.setErrorEnabled(false);
 
                 if (!isValidEmail(email_profile_text_input_layout.getEditText().getText())) {
-                    email_profile_text_input_layout.setError("Wrong format!!! Please try again");
+                    email_profile_text_input_layout.setError(activity.getString(R.string.wrongFormat));
                     email_profile_text_input_layout.setErrorEnabled(true);
                 }else email_profile_text_input_layout.setErrorEnabled(false);
 
                 if (phoneNumber_profile_text_input_layout.getEditText().getText().length() < 1) {
-                    phoneNumber_profile_text_input_layout.setError("Please enter phone number!!!");
+                    phoneNumber_profile_text_input_layout.setError(activity.getString(R.string.enterPhone));
                     phoneNumber_profile_text_input_layout.setErrorEnabled(true);
                 } else {
                     if (phoneNumber_profile_text_input_layout.getEditText().getText().toString().length() > 9
@@ -593,11 +592,11 @@ public class ProfileFragment extends Fragment {
                         if (phoneNumber_profile_text_input_layout.getEditText().getText().toString().subSequence(1,2).equals("0")){
                             phoneNumber_profile_text_input_layout.setErrorEnabled(false);
                         }else {
-                            phoneNumber_profile_text_input_layout.setError("Wrong format!!! Please try again");
+                            phoneNumber_profile_text_input_layout.setError(activity.getString(R.string.wrongFormat));
                             phoneNumber_profile_text_input_layout.setErrorEnabled(true);
                         }
                     } else {
-                        phoneNumber_profile_text_input_layout.setError("Wrong format!!! Please try again");
+                        phoneNumber_profile_text_input_layout.setError(activity.getString(R.string.wrongFormat));
                         phoneNumber_profile_text_input_layout.setErrorEnabled(true);
                     }
                 }
@@ -607,7 +606,7 @@ public class ProfileFragment extends Fragment {
                     if (date.getTime() < Calendar.getInstance().getTime().getTime()) {
                         DOB_profile_text_input_layout.setErrorEnabled(false);
                     } else {
-                        DOB_profile_text_input_layout.setError("Wrong day!!! Please try again");
+                        DOB_profile_text_input_layout.setError(activity.getString(R.string.wrong_day));
                         DOB_profile_text_input_layout.setErrorEnabled(true);
                     }
                 } catch (ParseException e) {
@@ -616,7 +615,7 @@ public class ProfileFragment extends Fragment {
 
                 if (username_profile_text_input_layout.isErrorEnabled() || email_profile_text_input_layout.isErrorEnabled()
                     || phoneNumber_profile_text_input_layout.isErrorEnabled() || DOB_profile_text_input_layout.isErrorEnabled()){
-                    Toast.makeText(getContext(), "Please check error", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getString(R.string.checkError), Toast.LENGTH_SHORT).show();
                 }else{
                     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                         @Override
@@ -640,7 +639,7 @@ public class ProfileFragment extends Fragment {
                                     }
 
                                     final ProgressDialog progressDialog = new ProgressDialog(getContext());
-                                    progressDialog.setMessage("Updating");
+                                    progressDialog.setMessage(activity.getString(R.string.updating));
                                     progressDialog.show();
 
                                     HashMap<String, Object> hashMap = new HashMap<>();
@@ -655,7 +654,7 @@ public class ProfileFragment extends Fragment {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()){
-                                                Toast.makeText(getContext(), "Update success", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(activity, activity.getString(R.string.update_success), Toast.LENGTH_SHORT).show();
                                                 tv_username_profile.setText(user_Name);
                                                 tv_email_profile.setText(user_Email);
                                                 tv_gender_profile.setText(user_Gender);
@@ -687,15 +686,16 @@ public class ProfileFragment extends Fragment {
                                     break;
                                 case DialogInterface.BUTTON_NEGATIVE:
                                     //No button clicked
-                                    Toast.makeText(getContext(), "Cancel update", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(activity, activity.getString(R.string.cancel_update), Toast.LENGTH_SHORT).show();
                                     break;
                             }
                         }
                     };
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setMessage("Do you want to save changes?").setPositiveButton("Yes", dialogClickListener)
-                            .setNegativeButton("No", dialogClickListener).show();
+                    builder.setMessage(activity.getString(R.string.save_changes_question))
+                            .setPositiveButton(activity.getString(R.string.yes), dialogClickListener)
+                            .setNegativeButton(activity.getString(R.string.no), dialogClickListener).show();
                 }
             }
         });
@@ -738,7 +738,7 @@ public class ProfileFragment extends Fragment {
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
                         }else {
-                            Toast.makeText(getContext(), "Failed" + task.getResult(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), activity.getString(R.string.failed) + task.getResult(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -780,7 +780,7 @@ public class ProfileFragment extends Fragment {
     // Todo: Upload Image and insert information to Database
     private void uploadImage(){
         final ProgressDialog progressDialog = new ProgressDialog(getContext());
-        progressDialog.setMessage("Uploading");
+        progressDialog.setMessage(activity.getString(R.string.uploading));
         progressDialog.show();
 
         if (imageUri != null){
@@ -807,19 +807,19 @@ public class ProfileFragment extends Fragment {
 
                         progressDialog.dismiss();
                     }else {
-                        Toast.makeText(getContext(), "Failed" + task.getException(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, activity.getString(R.string.failed) + task.getException(), Toast.LENGTH_SHORT).show();
                         progressDialog.dismiss();
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(getContext(), "Failed" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getString(R.string.failed) + e.getMessage(), Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                 }
             });
         }else {
-            Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, activity.getString(R.string.no_img_selected), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -828,7 +828,7 @@ public class ProfileFragment extends Fragment {
         if (resultCode == RESULT_OK && requestCode == IMG_REQUEST && data != null && data.getData() != null) {
             imageUri = data.getData();
             if (uploadTask != null && uploadTask.isInProgress()){
-                Toast.makeText(getContext(), "Upload into database", Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, R.string.upload_into_DB, Toast.LENGTH_SHORT).show();
             }else {
                 uploadImage();
             }

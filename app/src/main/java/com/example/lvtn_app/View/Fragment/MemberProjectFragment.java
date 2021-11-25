@@ -212,7 +212,7 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
-                                    Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(activity, activity.getString(R.string.success), Toast.LENGTH_SHORT).show();
                                     member_list.clear();
                                     delete_member_list.clear();
                                     showMember();

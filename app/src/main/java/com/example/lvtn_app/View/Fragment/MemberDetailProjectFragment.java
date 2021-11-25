@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
@@ -18,8 +20,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Objects;
 
@@ -41,6 +49,7 @@ public class MemberDetailProjectFragment extends DialogFragment {
     SharedPreferences sharedPreferences_user, sharedPreferences_project;
     String username = "";
     String leader = "";
+    AppCompatActivity activity;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -103,28 +112,36 @@ public class MemberDetailProjectFragment extends DialogFragment {
 
         sharedPreferences_user = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
         sharedPreferences_project = requireContext().getSharedPreferences("ProjectDetail", Context.MODE_PRIVATE);
+        activity = (AppCompatActivity) getContext();
 
         //Set up
         Bundle bundle = getArguments();
-        int member_id = bundle.getInt("member_id_txt", -1);
-        String member_avatar = bundle.getString("member_avatar_txt", "");
-        String member_name = bundle.getString("member_name_txt", "MemberName");
-        String member_email = bundle.getString("member_email_txt", "Email");
-        String member_phone = bundle.getString("member_phone_txt", "Phone");
-        String member_position = bundle.getString("member_position_txt", "Position");
+        String member_id = bundle.getString("member_id_txt", "abc");
 
         username = sharedPreferences_user.getString("userName_txt", "abc");
         leader = sharedPreferences_project.getString("projectLeader_txt", "abc");
 
         //Set data
-        if (member_avatar.length() >0){
-            Glide.with(getContext()).load(member_avatar).centerCrop().into(avatar_member_detail);
-        }
-        tv_username_member_detail.setText(member_name);
-        tv_email_member_detail.setText(member_email);
-        tv_phoneNumber_member_detail.setText(member_phone);
-        tv_position_member_detail.setText(member_position);
-        position_member_detail_text_input_layout.getEditText().setText(member_position);
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(member_id);
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User user = snapshot.getValue(User.class);
+                if (user != null){
+                    if (user.getUser_Avatar().length() > 2){
+                        Glide.with(activity).load(user.getUser_Avatar()).into(avatar_member_detail);
+                    }
+                    tv_email_member_detail.setText(user.getUser_Email());
+                    tv_phoneNumber_member_detail.setText(user.getUser_Phone());
+                    tv_username_member_detail.setText(user.getUser_Name());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
 //        Toast.makeText(getContext(), "" + member_name + "\n" + username +"\n" + leader, Toast.LENGTH_SHORT).show();
 

@@ -239,6 +239,7 @@ public class NotificationFragment extends Fragment {
                 if (temp.size() > 0){
                     getProjectIssueRequest(temp);
                 }else {
+                    joining_requests.clear();
                     showNotification(storage);
                 }
             }
@@ -279,6 +280,7 @@ public class NotificationFragment extends Fragment {
                         }
                     }
 //                    Toast.makeText(activity, "" + storage.size(), Toast.LENGTH_SHORT).show();
+                    joining_requests.clear();
                     showNotification(storage);
                 }
 
@@ -298,6 +300,7 @@ public class NotificationFragment extends Fragment {
         joining_requests.clear();
 //        Toast.makeText(activity, "" + requests.size(), Toast.LENGTH_SHORT).show();
         if (requests.size() > 0){
+            joining_requests.clear();
             for (Joining_Request request : requests){
                 joining_requests.add(request);
                 notificationAdapter.notifyDataSetChanged();

@@ -263,7 +263,7 @@ public class ScheduleFragment extends Fragment {
 
     public void getTaskByDate(String today){
         final ProgressDialog progressDialog = new ProgressDialog(getContext());
-        progressDialog.setMessage("Waiting!!!");
+        progressDialog.setMessage(activity.getString(R.string.waiting));
         reference = FirebaseDatabase.getInstance().getReference("Tasks").child(firebaseUser.getUid());
         reference.addValueEventListener(new ValueEventListener() {
             @Override
