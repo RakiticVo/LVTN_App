@@ -513,7 +513,7 @@ public class IssueDetailFragment extends DialogFragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     if (estimate_date_finish_issue_detail_text_input_layout.getEditText().getText().length() == 0){
-                        estimate_date_finish_issue_detail_text_input_layout.setError("Please enter estimate finish date!!!");
+                        estimate_date_finish_issue_detail_text_input_layout.setError(activity.getString(R.string.enterEstimateFinishDate));
                         estimate_date_finish_issue_detail_text_input_layout.setErrorEnabled(true);
                     }else {
                         estimate_date_finish_issue_detail_text_input_layout.setErrorEnabled(false);
@@ -529,7 +529,7 @@ public class IssueDetailFragment extends DialogFragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (estimate_date_finish_issue_detail_text_input_layout.getEditText().getText().length() == 0){
-                                estimate_date_finish_issue_detail_text_input_layout.setError("Please enter estimate finish date!!!");
+                                estimate_date_finish_issue_detail_text_input_layout.setError(activity.getString(R.string.enterEstimateFinishDate));
                                 estimate_date_finish_issue_detail_text_input_layout.setErrorEnabled(true);
                             }else {
                                 estimate_date_finish_issue_detail_text_input_layout.setErrorEnabled(false);
@@ -654,7 +654,7 @@ public class IssueDetailFragment extends DialogFragment {
                 }
 
                 if (estimate_date_finish_issue_detail_text_input_layout.isErrorEnabled()) {
-                    Toast.makeText(getContext(), "Please check the error!!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getString(R.string.checkError), Toast.LENGTH_SHORT).show();
                 } else {
                     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                         @Override
@@ -680,14 +680,13 @@ public class IssueDetailFragment extends DialogFragment {
                                     hashMap.put("issue_EstimateFinishDate", issue_EstimateFinishDate);
 
                                     DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Issues").child(project_ID).child(issue_ID);
-                                    AppCompatActivity activity = (AppCompatActivity) getContext();
                                     reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()){
-                                                Toast.makeText(activity, "Update success", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(activity, activity.getString(R.string.update_success), Toast.LENGTH_SHORT).show();
                                             }else {
-                                                Toast.makeText(activity, "Update failed", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(activity,activity.getString(R.string.update_failed), Toast.LENGTH_SHORT).show();
                                             }
                                         }
                                     });
@@ -696,7 +695,7 @@ public class IssueDetailFragment extends DialogFragment {
 
                                 case DialogInterface.BUTTON_NEGATIVE:
                                     //No button clicked
-                                    Toast.makeText(getContext(), "Update error!!!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(activity, activity.getString(R.string.update_error), Toast.LENGTH_SHORT).show();
                                     break;
                             }
                         }
@@ -746,7 +745,7 @@ public class IssueDetailFragment extends DialogFragment {
                                             databaseReference.child(firebaseUser.getUid()).child(issue_ID).updateChildren(hashMap2).addOnCompleteListener(new OnCompleteListener<Void>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
-                                                    Toast.makeText(activity, "Update Issue is done success!!!" , Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(activity, activity.getString(R.string.update_issue_done), Toast.LENGTH_SHORT).show();
                                                 }
                                             });
                                         }
@@ -764,8 +763,9 @@ public class IssueDetailFragment extends DialogFragment {
                 };
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setMessage("Would you like to confirm this issue is complete?").setPositiveButton("Confirm", dialogClickListener)
-                        .setNegativeButton("Cancel", dialogClickListener).show();
+                builder.setMessage(activity.getString(R.string.confim_issue_complete_question))
+                        .setPositiveButton(activity.getString(R.string.confirm), dialogClickListener)
+                        .setNegativeButton(activity.getString(R.string.cancel), dialogClickListener).show();
             }
         });
 
@@ -790,8 +790,9 @@ public class IssueDetailFragment extends DialogFragment {
                 };
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setMessage("Would you like to confirm this issue is complete?").setPositiveButton("Confirm", dialogClickListener)
-                        .setNegativeButton("Cancel", dialogClickListener).show();
+                builder.setMessage(activity.getString(R.string.delete_issue_question))
+                        .setPositiveButton(activity.getString(R.string.confirm), dialogClickListener)
+                        .setNegativeButton(activity.getString(R.string.cancel), dialogClickListener).show();
             }
         });
 
@@ -842,7 +843,7 @@ public class IssueDetailFragment extends DialogFragment {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
 //                    Toast.makeText(SettingChatActivity.this, "Delete chat list success", Toast.LENGTH_SHORT).show();
-                    Toast.makeText(activity, "Delete Issue success" , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getString(R.string.delete_issue_success), Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                     dismiss();
                 }else {
@@ -855,13 +856,13 @@ public class IssueDetailFragment extends DialogFragment {
     public void checkDate(TextInputLayout textInputLayout){
         String date = textInputLayout.getEditText().getText().toString();
         if (!dateFormat.isValidDate(date)){
-            textInputLayout.setError("Wrong format. Ex: dd/MM/yyy");
+            textInputLayout.setError(activity.getString(R.string.wrongFormat2));
             textInputLayout.setErrorEnabled(true);
         }else{
             try {
                 date1 = dateFormat.sdf.parse(date);
                 if (date1.getTime() < Calendar.getInstance().getTime().getTime()){
-                    textInputLayout.setError("Wrong day!!!");
+                    textInputLayout.setError(activity.getString(R.string.wrong_date));
                     textInputLayout.setErrorEnabled(true);
                 }else textInputLayout.setErrorEnabled(false);
             } catch (ParseException e) {
@@ -878,7 +879,7 @@ public class IssueDetailFragment extends DialogFragment {
             Date day2 = dateFormat.sdf.
                     parse(textInputLayout2.getEditText().getText().toString());
             if (day2.getTime() > day1.getTime()){
-                estimate_date_finish_issue_detail_text_input_layout.setError("Wrong day!!!");
+                estimate_date_finish_issue_detail_text_input_layout.setError(activity.getString(R.string.wrong_date));
                 estimate_date_finish_issue_detail_text_input_layout.setErrorEnabled(true);
             }else estimate_date_finish_issue_detail_text_input_layout.setErrorEnabled(false);
         } catch (ParseException e) {

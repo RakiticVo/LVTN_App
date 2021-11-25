@@ -130,7 +130,7 @@ public class AddMemberChatFragment extends DialogFragment {
 
         activity = (AppCompatActivity) getContext();
         progressDialog = new ProgressDialog(getContext());
-        progressDialog.setMessage("Adding member");
+        progressDialog.setMessage(activity.getString(R.string.adding_member));
 
         //Bắt sự kiện
         //Todo: Xử lý sự kiện rời khỏi fragment
@@ -157,7 +157,7 @@ public class AddMemberChatFragment extends DialogFragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length() == 0){
-                                create_email_add_member_text_input_layout.setError("Please enter Email's member!!!");
+                                create_email_add_member_text_input_layout.setError(activity.getString(R.string.enterEmailMember));
                                 create_email_add_member_text_input_layout.setErrorEnabled(true);
                             }else {
                                 create_email_add_member_text_input_layout.setErrorEnabled(false);
@@ -179,7 +179,7 @@ public class AddMemberChatFragment extends DialogFragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                    if (create_position_add_member_chat_text_input_layout.getEditText().getText().length() == 0){
-                       create_position_add_member_chat_text_input_layout.setError("Please enter position!!!!");
+                       create_position_add_member_chat_text_input_layout.setError(activity.getString(R.string.enterPosition));
                        create_position_add_member_chat_text_input_layout.setErrorEnabled(true);
                    }else create_position_add_member_chat_text_input_layout.setErrorEnabled(false);
                 }else{
@@ -192,7 +192,7 @@ public class AddMemberChatFragment extends DialogFragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length() == 0){
-                                create_position_add_member_chat_text_input_layout.setError("Please enter position!!!");
+                                create_position_add_member_chat_text_input_layout.setError(activity.getString(R.string.enterPosition));
                                 create_position_add_member_chat_text_input_layout.setErrorEnabled(true);
                             }else {
                                 create_position_add_member_chat_text_input_layout.setErrorEnabled(false);
@@ -222,7 +222,7 @@ public class AddMemberChatFragment extends DialogFragment {
                 String positon = create_position_add_member_chat_text_input_layout.getEditText().getText().toString().trim();
                 checkRightEmail(email);
                 if (positon.length() == 0){
-                    create_position_add_member_chat_text_input_layout.setError("Please enter position!!!!");
+                    create_position_add_member_chat_text_input_layout.setError(activity.getString(R.string.enterPosition));
                     create_position_add_member_chat_text_input_layout.setErrorEnabled(true);
                 }else create_position_add_member_chat_text_input_layout.setErrorEnabled(false);
 
@@ -230,7 +230,7 @@ public class AddMemberChatFragment extends DialogFragment {
                 progressDialog.show();
                 if (create_email_add_member_text_input_layout.isErrorEnabled()
                         || create_position_add_member_chat_text_input_layout.isErrorEnabled()){
-                    Toast.makeText(getContext(), "Please check error!!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getString(R.string.checkError), Toast.LENGTH_SHORT).show();
                 }else {
                     create_email_add_member_text_input_layout.setErrorEnabled(false);
                     user_ID_list.clear();
@@ -248,7 +248,7 @@ public class AddMemberChatFragment extends DialogFragment {
                             }
                             if (user_ID_list.size() == 0){
                                 progressDialog.dismiss();
-                                create_email_add_member_text_input_layout.setError("Wrong email!!!");
+                                create_email_add_member_text_input_layout.setError(activity.getString(R.string.wrongEmail));
                                 create_email_add_member_text_input_layout.setErrorEnabled(true);
                             }else if (user_ID_list.size() == 1){
 //                                    Toast.makeText(activity, "" + user_ID_list.size(), Toast.LENGTH_SHORT).show();
@@ -276,7 +276,7 @@ public class AddMemberChatFragment extends DialogFragment {
     //ToDo: Kiểm tra có phải là 1 email hay không?
     public void checkRightEmail(String email){
         if (!isValidEmail(email)){
-            create_email_add_member_text_input_layout.setError("Wrong format!!! Please try again");
+            create_email_add_member_text_input_layout.setError(activity.getString(R.string.wrongFormat));
             create_email_add_member_text_input_layout.setErrorEnabled(true);
         }else {
             create_email_add_member_text_input_layout.setErrorEnabled(false);
@@ -306,7 +306,7 @@ public class AddMemberChatFragment extends DialogFragment {
         });
         if (check[0]){
             progressDialog.dismiss();
-            create_email_add_member_text_input_layout.setError("User already in the group!!!");
+            create_email_add_member_text_input_layout.setError(activity.getString(R.string.user_already));
             create_email_add_member_text_input_layout.setErrorEnabled(true);
         }else {
             PushData(user_ID, position);

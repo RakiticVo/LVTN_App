@@ -77,6 +77,7 @@ public class CreateProjectFragment extends DialogFragment {
 
     FirebaseAuth auth;
     FirebaseUser firebaseUser;
+    AppCompatActivity activity;
 
     DateFormat dateFormat = new DateFormat();
     Calendar myCalendar = Calendar.getInstance();
@@ -118,6 +119,7 @@ public class CreateProjectFragment extends DialogFragment {
         projectType_list.add(new ProjectType(R.drawable.project_personal, "Personal"));
         projectType_list.add(new ProjectType(R.drawable.project_bussiness, "Bussiness"));
 
+        activity = (AppCompatActivity) getContext();
 
         DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -171,7 +173,7 @@ public class CreateProjectFragment extends DialogFragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     if (create_project_name_text_input_layout.getEditText().getText().length() == 0){
-                        create_project_name_text_input_layout.setError("Please enter Project's name!!!");
+                        create_project_name_text_input_layout.setError(activity.getString(R.string.enterProjectName));
                         create_project_name_text_input_layout.setErrorEnabled(true);
                     }else create_project_name_text_input_layout.setErrorEnabled(false);
                 }else{
@@ -184,7 +186,7 @@ public class CreateProjectFragment extends DialogFragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length() == 0){
-                                create_project_name_text_input_layout.setError("Please enter project's name!!!");
+                                create_project_name_text_input_layout.setError(activity.getString(R.string.enterProjectName));
                                 create_project_name_text_input_layout.setErrorEnabled(true);
                             }else create_project_name_text_input_layout.setErrorEnabled(false);
                         }
@@ -204,7 +206,7 @@ public class CreateProjectFragment extends DialogFragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     if (create_project_estimate_finish_date_text_input_layout.getEditText().getText().length() == 0){
-                        create_project_estimate_finish_date_text_input_layout.setError("Please enter finish date!!!");
+                        create_project_estimate_finish_date_text_input_layout.setError(activity.getString(R.string.enterFinishDate));
                         create_project_estimate_finish_date_text_input_layout.setErrorEnabled(true);
                     }else checkDate(create_project_estimate_finish_date_text_input_layout.getEditText().getText().toString());
                 }else{
@@ -217,7 +219,7 @@ public class CreateProjectFragment extends DialogFragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (create_project_name_text_input_layout.getEditText().getText().length() == 0){
-                                create_project_name_text_input_layout.setError("Please enter finish date!!!");
+                                create_project_name_text_input_layout.setError(activity.getString(R.string.enterFinishDate));
                                 create_project_name_text_input_layout.setErrorEnabled(true);
                             }else create_project_name_text_input_layout.setErrorEnabled(false);
                         }
@@ -242,18 +244,18 @@ public class CreateProjectFragment extends DialogFragment {
                 auth = FirebaseAuth.getInstance();
                 firebaseUser = auth.getCurrentUser();
                 if (create_project_name_text_input_layout.getEditText().getText().length()==0){
-                    create_project_name_text_input_layout.setError("Please enter project's name!!!");
+                    create_project_name_text_input_layout.setError(activity.getString(R.string.enterProjectName));
                     create_project_name_text_input_layout.setErrorEnabled(true);
                 }else {
                     create_project_name_text_input_layout.setErrorEnabled(false);
                 }
                 if (create_project_estimate_finish_date_text_input_layout.getEditText().getText().length()==0){
-                    create_project_estimate_finish_date_text_input_layout.setError("Please enter finish date!!!");
+                    create_project_estimate_finish_date_text_input_layout.setError(activity.getString(R.string.enterFinishDate));
                     create_project_estimate_finish_date_text_input_layout.setErrorEnabled(true);
                 }else checkDate(create_project_estimate_finish_date_text_input_layout.getEditText().getText().toString());
 
                 if (create_project_name_text_input_layout.isErrorEnabled() || create_project_estimate_finish_date_text_input_layout.isErrorEnabled()){
-                    Toast.makeText(getContext(), "Please check error", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getString(R.string.checkError), Toast.LENGTH_SHORT).show();
                 }else{
                     create_project_estimate_finish_date_text_input_layout.setErrorEnabled(false);
                     project_Leader = firebaseUser.getUid();
@@ -266,7 +268,7 @@ public class CreateProjectFragment extends DialogFragment {
                     }
 
                     final ProgressDialog progressDialog = new ProgressDialog(getContext());
-                    progressDialog.setMessage("Creating");
+                    progressDialog.setMessage(activity.getString(R.string.creating_project));
                     progressDialog.show();
 
                     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
@@ -291,7 +293,6 @@ public class CreateProjectFragment extends DialogFragment {
                                     hashMap.put("project_DateCreate", project_DateCreate);
                                     hashMap.put("project_Leader", project_Leader);
                                     hashMap.put("project_Background", getrandomColor()+"");
-                                    AppCompatActivity activity = (AppCompatActivity) getContext();
                                     reference1.child(project_ID).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
@@ -305,13 +306,13 @@ public class CreateProjectFragment extends DialogFragment {
                                                     @Override
                                                     public void onComplete(@NonNull Task<Void> task) {
                                                         if (task.isSuccessful()){
-                                                            ProjectsFragment.getInstance().projects.clear();
-                                                            ProjectsFragment.getInstance().showProjectList();
-                                                            Toast.makeText(activity, "Create success", Toast.LENGTH_SHORT).show();
+                                                            ProjectsFragment.instance.projects.clear();
+                                                            ProjectsFragment.instance.showProjectList();
+                                                            Toast.makeText(activity, activity.getString(R.string.create_success), Toast.LENGTH_SHORT).show();
                                                             progressDialog.dismiss();
                                                             dismiss();
                                                         }else {
-                                                            Toast.makeText(activity, "Create failed", Toast.LENGTH_SHORT).show();
+                                                            Toast.makeText(activity,  activity.getString(R.string.create_failed), Toast.LENGTH_SHORT).show();
                                                         }
                                                     }
                                                 });
@@ -322,14 +323,14 @@ public class CreateProjectFragment extends DialogFragment {
 
                                 case DialogInterface.BUTTON_NEGATIVE:
                                     //No button clicked
-                                    Toast.makeText(getContext(), "Cancel create", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(activity, activity.getString(R.string.cancel_create), Toast.LENGTH_SHORT).show();
                                     break;
                             }
                         }
                     };
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setMessage("Do you want to create project: " + project_Name + "?").setPositiveButton("Yes", dialogClickListener)
-                            .setNegativeButton("No", dialogClickListener).show();
+                    builder.setMessage(activity.getString(R.string.create_project_question) + project_Name + "?").setPositiveButton(activity.getString(R.string.yes), dialogClickListener)
+                            .setNegativeButton(activity.getString(R.string.no), dialogClickListener).show();
                 }
             }
         });
@@ -349,11 +350,11 @@ public class CreateProjectFragment extends DialogFragment {
                     if (isCheck){
                         create_project_estimate_finish_date_text_input_layout.setErrorEnabled(false);
                     }else {
-                        create_project_estimate_finish_date_text_input_layout.setError("Wrong start day!!!");
+                        create_project_estimate_finish_date_text_input_layout.setError(activity.getString(R.string.wrong_estimate_finish_date));
                         create_project_estimate_finish_date_text_input_layout.setErrorEnabled(true);
                     }
                 }else {
-                    create_project_estimate_finish_date_text_input_layout.setError("Wrong format. Ex: dd/MM/yyy");
+                    create_project_estimate_finish_date_text_input_layout.setError(activity.getString(R.string.wrongFormat2));
                     create_project_estimate_finish_date_text_input_layout.setErrorEnabled(true);
                 }
             } catch (ParseException e) {

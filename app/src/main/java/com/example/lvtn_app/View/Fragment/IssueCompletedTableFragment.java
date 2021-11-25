@@ -268,7 +268,7 @@ public class IssueCompletedTableFragment extends DialogFragment{
         row.setGravity(Gravity.CENTER);
         row.setWeightSum(12f);
         ImageView imageView = new ImageView(activity);
-        TableRow.LayoutParams layoutParams1 = new TableRow.LayoutParams(50, 150, 3);
+        TableRow.LayoutParams layoutParams1 = new TableRow.LayoutParams(50, TableRow.LayoutParams.MATCH_PARENT, 3);
         layoutParams1.setMargins(0,-3,0,0);
         imageView.setPadding(8,12,12,8);
         switch (issue_list.getIssue_Type()){

@@ -204,7 +204,7 @@ public class MemberChatFragment extends Fragment implements MemberAdapter.ItemCl
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
-                                    Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(activity, activity.getString(R.string.success), Toast.LENGTH_SHORT).show();
                                     member_list.clear();
                                     delete_member_list.clear();
                                     showMember();

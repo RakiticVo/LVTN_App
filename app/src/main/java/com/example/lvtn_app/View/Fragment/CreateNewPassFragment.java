@@ -95,13 +95,13 @@ public class CreateNewPassFragment extends DialogFragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     if (password_text_input_layout.getEditText().getText().length() == 0){
-                        password_text_input_layout.setError("Please enter password!!!");
+                        password_text_input_layout.setError(activity.getString(R.string.enterPassword));
                         password_text_input_layout.setErrorEnabled(true);
                     }else if(password_text_input_layout.getEditText().getText().length() <6){
-                        password_text_input_layout.setError("Password must be more than 6 characters!!!");
+                        password_text_input_layout.setError(activity.getString(R.string.pass_6_char));
                         password_text_input_layout.setErrorEnabled(true);
                     }else if (!password_text_input_layout.getEditText().getText().toString().equals(currentpass)){
-                        password_text_input_layout.setError("wrong password!!!");
+                        password_text_input_layout.setError(activity.getString(R.string.wrong_password));
                         password_text_input_layout.setErrorEnabled(true);
                     }else password_text_input_layout.setErrorEnabled(false);
                 }else {
@@ -114,7 +114,7 @@ public class CreateNewPassFragment extends DialogFragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length() == 0){
-                                password_text_input_layout.setError("Please enter password");
+                                password_text_input_layout.setError(activity.getString(R.string.enterPassword));
                                 password_text_input_layout.setErrorEnabled(true);
                             }else password_text_input_layout.setErrorEnabled(false);
                         }
@@ -133,7 +133,7 @@ public class CreateNewPassFragment extends DialogFragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     if (new_password_text_input_layout.getEditText().getText().length() == 0){
-                        new_password_text_input_layout.setError("Please enter new password");
+                        new_password_text_input_layout.setError(activity.getString(R.string.enterNewPass));
                         new_password_text_input_layout.setErrorEnabled(true);
                     }else CheckPassword(new_password_text_input_layout, currentpass);
                 }else{
@@ -146,7 +146,7 @@ public class CreateNewPassFragment extends DialogFragment {
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length() == 0){
-                                new_password_text_input_layout.setError("Please enter new password");
+                                new_password_text_input_layout.setError(activity.getString(R.string.enterNewPass));
                                 new_password_text_input_layout.setErrorEnabled(true);
                             }else new_password_text_input_layout.setErrorEnabled(false);
                         }
@@ -170,23 +170,23 @@ public class CreateNewPassFragment extends DialogFragment {
             public void onClick(View v) {
                 //Todo: Check permission
                 if (password_text_input_layout.getEditText().getText().length() == 0){
-                    password_text_input_layout.setError("Please enter password!!!");
+                    password_text_input_layout.setError(activity.getString(R.string.enterPassword));
                     password_text_input_layout.setErrorEnabled(true);
                 }else if(password_text_input_layout.getEditText().getText().length() <6){
-                    password_text_input_layout.setError("Password must be more than 6 characters!!!");
+                    password_text_input_layout.setError(activity.getString(R.string.pass_6_char));
                     password_text_input_layout.setErrorEnabled(true);
                 }else if (!password_text_input_layout.getEditText().getText().toString().equals(currentpass)){
-                    password_text_input_layout.setError("wrong password!!!");
+                    password_text_input_layout.setError(activity.getString(R.string.wrong_password));
                     password_text_input_layout.setErrorEnabled(true);
                 }else password_text_input_layout.setErrorEnabled(false);
 
                 if (new_password_text_input_layout.getEditText().getText().length() == 0){
-                    new_password_text_input_layout.setError("Please enter password!!!");
+                    new_password_text_input_layout.setError(activity.getString(R.string.enterNewPass));
                     new_password_text_input_layout.setErrorEnabled(true);
                 }else CheckPassword(new_password_text_input_layout, currentpass);
 
                 if (password_text_input_layout.isErrorEnabled() || new_password_text_input_layout.isErrorEnabled()) {
-                    Toast.makeText(getContext(), "Please check error!!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getString(R.string.checkError), Toast.LENGTH_SHORT).show();
                 }else {
                     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                         @Override
@@ -205,7 +205,7 @@ public class CreateNewPassFragment extends DialogFragment {
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
-                                            Toast.makeText(activity, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                                            Toast.makeText(activity, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
                                             Log.d("TAG123", e.getMessage());
                                         }
                                     });
@@ -218,7 +218,7 @@ public class CreateNewPassFragment extends DialogFragment {
                                             if (task.isSuccessful()){
                                                 editor.putString("user_Pass", userPass);
                                                 editor.commit();
-                                                Toast.makeText(activity, "Change password success", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(activity, activity.getString(R.string.change_pass_succes), Toast.LENGTH_SHORT).show();
                                                 dismiss();
                                             }
                                         }
@@ -227,14 +227,14 @@ public class CreateNewPassFragment extends DialogFragment {
 
                                 case DialogInterface.BUTTON_NEGATIVE:
                                     //No button clicked
-                                    Toast.makeText(getContext(), "Create error!!!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(activity, activity.getString(R.string.create_error), Toast.LENGTH_SHORT).show();
                                     break;
                             }
                         }
                     };
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setMessage("Do you want to create new password?").setPositiveButton("Yes", dialogClickListener)
-                            .setNegativeButton("No", dialogClickListener).show();
+                    builder.setMessage(activity.getString(R.string.create_new_pass_question)).setPositiveButton(activity.getString(R.string.yes), dialogClickListener)
+                            .setNegativeButton(activity.getString(R.string.no), dialogClickListener).show();
                 }
             }
         });
@@ -244,11 +244,11 @@ public class CreateNewPassFragment extends DialogFragment {
 
     public void CheckPassword(TextInputLayout textInputLayout, String password){
         if(textInputLayout.getEditText().getText().toString().length() <6){
-            textInputLayout.setError("Password must be more than 6 characters");
+            textInputLayout.setError(activity.getString(R.string.pass_6_char));
             textInputLayout.setErrorEnabled(true);
         }else if (textInputLayout.getEditText().getText().toString().equals(password)){
             if (textInputLayout != password_text_input_layout){
-                textInputLayout.setError("Duplicate password");
+                textInputLayout.setError(activity.getString(R.string.duplicate_pass));
                 textInputLayout.setErrorEnabled(true);
             }
         }else textInputLayout.setErrorEnabled(false);

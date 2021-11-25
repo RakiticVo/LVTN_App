@@ -77,6 +77,7 @@ public class CreateGroupChatFragment extends DialogFragment{
     private static final int IMG_REQUEST = 1234;
     private Uri imageUri;
     private StorageTask uploadTask;
+    AppCompatActivity activity;
 
     //New group chat infomation
     String group_ID;
@@ -103,6 +104,7 @@ public class CreateGroupChatFragment extends DialogFragment{
         btn_cancel_create_group_chat = view.findViewById(R.id.btn_cancel_create_group_chat);
 
         sharedPreferences = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
+        activity = (AppCompatActivity) getContext();
 
         //Bắt sự kiện
         //Todo: Xử lý sự kiện chọn hình ảnh từ thiết bị: gọi Intent để chuyển đến thư mục hình ảnh
@@ -129,7 +131,7 @@ public class CreateGroupChatFragment extends DialogFragment{
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     if (create_group_chat_name_text_input_layout.getEditText().getText().toString().length() == 0){
-                        create_group_chat_name_text_input_layout.setError("Please enter GroupChat's name!!!");
+                        create_group_chat_name_text_input_layout.setError(activity.getString(R.string.enter_GroupName));
                         create_group_chat_name_text_input_layout.setErrorEnabled(true);
                     }else  create_group_chat_name_text_input_layout.setErrorEnabled(false);
                 }else {
@@ -142,7 +144,7 @@ public class CreateGroupChatFragment extends DialogFragment{
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             if (s.length() == 0){
-                                create_group_chat_name_text_input_layout.setError("Please enter GroupChat's name!!!");
+                                create_group_chat_name_text_input_layout.setError(activity.getString(R.string.enter_GroupName));
                                 create_group_chat_name_text_input_layout.setErrorEnabled(true);
                             }else  create_group_chat_name_text_input_layout.setErrorEnabled(false);
                         }
@@ -165,7 +167,7 @@ public class CreateGroupChatFragment extends DialogFragment{
             @Override
             public void onClick(View v) {
                 if (create_group_chat_name_text_input_layout.getEditText().getText().length() == 0) {
-                    create_group_chat_name_text_input_layout.setError("Please enter GroupChat's name!!!");
+                    create_group_chat_name_text_input_layout.setError(activity.getString(R.string.enter_GroupName));
                     create_group_chat_name_text_input_layout.setErrorEnabled(true);
                 }else {
                     create_group_chat_name_text_input_layout.setErrorEnabled(false);
@@ -179,7 +181,7 @@ public class CreateGroupChatFragment extends DialogFragment{
                         group_LastMess = "This group has been created";
                         group_LastSender = " ";
                         if (uploadTask != null && uploadTask.isInProgress()){
-                            Toast.makeText(getContext(), "Upload into database", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(activity, activity.getString(R.string.upload_into_DB), Toast.LENGTH_SHORT).show();
                         }else {
                             createGroupChat(group_Name, group_Creator, group_LastMess, group_LastSender);
                         }
@@ -228,7 +230,6 @@ public class CreateGroupChatFragment extends DialogFragment{
                         hashMap.put("group_Creator", group_Creator);
                         hashMap.put("group_LastMess", group_LastMess);
                         hashMap.put("group_LastSender", group_LastSender);
-                        AppCompatActivity activity = (AppCompatActivity) getContext();
                         reference1.child(group_ID).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
@@ -244,11 +245,11 @@ public class CreateGroupChatFragment extends DialogFragment{
                                             if (task.isSuccessful()){
                                                 GroupChatFragment.getInstance().groupChat_list.clear();
                                                 GroupChatFragment.getInstance().showGroupChatList();
-                                                Toast.makeText(activity, "Create success", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(activity, activity.getString(R.string.create_success), Toast.LENGTH_SHORT).show();
                                                 progressDialog.dismiss();
                                                 dismiss();
                                             }else {
-                                                Toast.makeText(activity, "Create failed", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(activity, activity.getString(R.string.create_failed), Toast.LENGTH_SHORT).show();
                                             }
                                         }
                                     });
@@ -258,19 +259,19 @@ public class CreateGroupChatFragment extends DialogFragment{
                         progressDialog.dismiss();
                         dismiss();
                     }else {
-                        Toast.makeText(getContext(), "Failed" + task.getException(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), activity.getString(R.string.failed) + task.getException(), Toast.LENGTH_SHORT).show();
                         progressDialog.dismiss();
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(getContext(), "Failed" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getString(R.string.failed)  + e.getMessage(), Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                 }
             });
         }else {
-            Toast.makeText(getContext(), "Please select image", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), activity.getString(R.string.select_Img), Toast.LENGTH_SHORT).show();
         }
     }
 

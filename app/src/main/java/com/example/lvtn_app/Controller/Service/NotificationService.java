@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -24,6 +25,7 @@ import com.example.lvtn_app.Model.GroupChat;
 import com.example.lvtn_app.Model.Joining_Group_Chat;
 import com.example.lvtn_app.Model.Joining_Project;
 import com.example.lvtn_app.Model.Project;
+import com.example.lvtn_app.Model.Project_Issue_Request;
 import com.example.lvtn_app.R;
 import com.example.lvtn_app.View.Activity.MainActivity;
 import com.example.lvtn_app.View.Notifications;
@@ -46,6 +48,7 @@ public class NotificationService extends Service {
     int Your_X_SECS = 5;
     private NotificationManagerCompat notificationManagerCompat;
     FirebaseUser firebaseUser;
+    SharedPreferences sharedPreferences_language;
 
     @Nullable
     @Override
@@ -58,7 +61,9 @@ public class NotificationService extends Service {
         super.onStartCommand(intent, flags, startId);
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         notificationManagerCompat = NotificationManagerCompat.from(this);
-        startTimer();
+        if (firebaseUser != null) {
+            startTimer();
+        }
 
         return START_STICKY;
     }
@@ -107,6 +112,7 @@ public class NotificationService extends Service {
                         //TODO CALL NOTIFICATION FUNC
                         getNotificationGroupID();
                         getNotificationProjectID();
+                        getNotificationIssue();
                     }
                 });
             }
@@ -175,6 +181,20 @@ public class NotificationService extends Service {
         String leader_ID = joiningGroupChat.getLeader_ID();
         String group_ID = joiningGroupChat.getGroup_ID();
         String channelId = getString(R.string.default_notification_channel_id);
+        sharedPreferences_language = this.getSharedPreferences("Config_language", Context.MODE_PRIVATE);
+        String lang = sharedPreferences_language.getString("Current_Lang", "abcdef");
+        String msg = "";
+        if (!lang.equals("abcdef")){
+            switch (lang){
+                case "en":
+                    msg = "You have Invitation from " + groupName + " Group";
+                    break;
+                case "vi":
+                    msg = "Bạn có lời mời từ nhóm " + groupName;
+                    break;
+            }
+        }
+
         int j = Integer.parseInt(leader_ID.replaceAll("[\\D]", ""));
         Intent intent = new Intent(this, MainActivity.class);
         Bundle bundle = new Bundle();
@@ -186,8 +206,8 @@ public class NotificationService extends Service {
         Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Notification notification = new NotificationCompat.Builder(this, Notifications.CHANNEL_1_ID)
                 .setSmallIcon(R.drawable.logo)
-                .setContentTitle("Joining Request")
-                .setContentText("You have Invitation from " +  groupName + " Group")
+                .setContentTitle(this.getString(R.string.joining_request))
+                .setContentText(msg)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setCategory(NotificationCompat.CATEGORY_PROMO) // Promotion.
                 .setAutoCancel(true)
@@ -240,9 +260,11 @@ public class NotificationService extends Service {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()){
                         Joining_Project joiningProject = dataSnapshot.getValue(Joining_Project.class);
-                        if (dataSnapshot.getKey().equals(firebaseUser.getUid())
-                                && !joiningProject.getStatus().equals("received")){
-                            getProjectNameAndSendNoti(joiningProject);
+                        if (joiningProject != null){
+                            if (dataSnapshot.getKey().equals(firebaseUser.getUid())
+                                    && !joiningProject.getStatus().equals("received")){
+                                getProjectNameAndSendNoti(joiningProject);
+                            }
                         }
                     }
                 }
@@ -275,6 +297,19 @@ public class NotificationService extends Service {
         String leader_ID = joiningProject.getLeader_ID();
         String project_ID = joiningProject.getProject_ID();
         String channelId = getString(R.string.default_notification_channel_id);
+        sharedPreferences_language = this.getSharedPreferences("Config_language", Context.MODE_PRIVATE);
+        String lang = sharedPreferences_language.getString("Current_Lang", "abcdef");
+        String msg = "";
+        if (!lang.equals("abcdef")){
+            switch (lang){
+                case "en":
+                    msg = "You have Invitation from " + projectName + " Project";
+                    break;
+                case "vi":
+                    msg = "Bạn có lời mời từ dự án " + projectName;
+                    break;
+            }
+        }
         int j = Integer.parseInt(leader_ID.replaceAll("[\\D]", ""));
         Intent intent = new Intent(this, MainActivity.class);
         Bundle bundle = new Bundle();
@@ -286,9 +321,121 @@ public class NotificationService extends Service {
         Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Notification notification = new NotificationCompat.Builder(this, Notifications.CHANNEL_2_ID)
                 .setSmallIcon(R.drawable.logo)
-                .setContentTitle("Joining Request")
-                .setContentText("You have Invitation from " +  projectName + " Project")
+                .setContentTitle(this.getString(R.string.joining_request))
+                .setContentText(msg)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setCategory(NotificationCompat.CATEGORY_PROMO) // Promotion.
+                .setAutoCancel(true)
+                .setSound(defaultSound)
+                .setContentIntent(pendingIntent)
+                .build();
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Since android Oreo notification channel is needed.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(channelId,
+                    "Channel human readable title",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        int i = 0;
+        if (j > i){
+            i = j;
+        }
+        this.notificationManagerCompat.notify(i, notification);
+    }
+
+    public void getNotificationIssue(){
+        ArrayList<String> project_issue_id_list = new ArrayList<>();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notifications").child("Project_Issue_Request");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    project_issue_id_list.add(dataSnapshot.getKey());
+                }
+                getNotificationIssueByProjectID(project_issue_id_list);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void getNotificationIssueByProjectID(ArrayList<String> project_issue_id_list){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notifications").child("Project_Issue_Request");
+        for (String s : project_issue_id_list){
+            reference.child(s).child(firebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                        Project_Issue_Request projectIssueRequest = dataSnapshot.getValue(Project_Issue_Request.class);
+                        if (!projectIssueRequest.getStatus().equals("received")){
+//                            Toast.makeText(MainActivity.this, "Successs", Toast.LENGTH_SHORT).show();
+                            getIssueNameAndSendNotification(projectIssueRequest);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+    }
+
+    public void getIssueNameAndSendNotification(Project_Issue_Request projectIssueRequest){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Projects").child(projectIssueRequest.getProject_ID());
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Project project = snapshot.getValue(Project.class);
+                sendNotificationIssueByProject(projectIssueRequest, project.getProject_Name());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void sendNotificationIssueByProject(Project_Issue_Request projectIssueRequest, String projectName) {
+        String leader_ID = projectIssueRequest.getLeader_ID();
+        String channelId = getString(R.string.default_notification_channel_id);
+        sharedPreferences_language = this.getSharedPreferences("Config_language", Context.MODE_PRIVATE);
+        String lang = sharedPreferences_language.getString("Current_Lang", "abcdef");
+        String msg = "";
+        if (!lang.equals("abcdef")){
+            switch (lang){
+                case "en":
+                    msg = "You have been assigned an issue from " +  projectName + " Project";
+                    break;
+                case "vi":
+                    msg = "Bạn đã được giao một công việc ở dự án " + projectName;
+                    break;
+            }
+        }
+        int j = Integer.parseInt(leader_ID.replaceAll("[\\D]", ""));
+        Intent intent = new Intent(this, MainActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("project_issue_ID", projectIssueRequest.getProject_ID());
+        intent.putExtras(bundle);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, j, intent, PendingIntent.FLAG_ONE_SHOT);
+
+        Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Notification notification = new NotificationCompat.Builder(this, Notifications.CHANNEL_1_ID)
+                .setSmallIcon(R.drawable.logo)
+                .setContentTitle(this.getString(R.string.issue_request))
+                .setContentText(msg)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_PROMO) // Promotion.
                 .setAutoCancel(true)
                 .setSound(defaultSound)

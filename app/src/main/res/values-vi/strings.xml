@@ -14,15 +14,15 @@
     <string name="users">Thành viên</string>
     <string name="project_name"><u>Tên dự án</u><font color='#FF0000'>*</font></string>
     <string name="email"><u>Email</u><font color='#FF0000'>*</font></string>
-    <string name="task_name">Tên công việc<font color='#FF0000'>*</font></string>
+    <string name="task_name">Tên nhiệm vụ<font color='#FF0000'>*</font></string>
     <string name="start_date"><u>Ngày bắt đầu</u><font color='#FF0000'>*</font></string>
     <string name="group_chat_name">Tên nhóm chat<font color='#FF0000'>*</font></string>
     <string name="process"><u>Tiến trình</u><font color='#FF0000'>*</font></string>
     <string name="description"><u>Mô tả</u></string>
-    <string name="issue_type"><u>Loại vấn đề</u><font color='#FF0000'>*</font></string>
+    <string name="issue_type"><u>Loại công việc</u><font color='#FF0000'>*</font></string>
     <string name="priority"><u>Độ ưu tiên</u><font color='#FF0000'>*</font></string>
     <string name="assignee"><u>Người đảm nhận</u><font color='#FF0000'>*</font></string>
-    <string name="issue_name"><u>Tên vấn đề</u><font color='#FF0000'>*</font></string>
+    <string name="issue_name"><u>Tên công việc</u><font color='#FF0000'>*</font></string>
     <string name="cancel">Hủy bỏ</string>
     <string name="update">Cập nhật</string>
     <string name="estimate_execution_time"><u>Thời gian ước tính thực hiện</u></string>
@@ -40,14 +40,14 @@
     <string name="default_notification_channel_id">abc</string>
     <string name="position"><u>Vai trò</u><font color='#FF0000'>*</font></string>
     <string name="project_leader"><u>Trưởng dự ản</u><font color='#FF0000'>*</font></string>
-    <string name="total_issue">Tổng số vấn đề:</string>
+    <string name="total_issue">Tổng số công việc:</string>
     <string name="project">Dự án</string>
-    <string name="issueName">Tên vấn đề</string>
+    <string name="issueName">Tên công việc</string>
     <string name="priorities">Độ ưu tiên</string>
-    <string name="issueType">Loại vấn đề</string>
+    <string name="issueType">Loại công việc</string>
     <string name="personal_working_efficiency">Hiệu suất làm việc cá nhân</string>
-    <string name="project_issues">Các vấn đề của dự án</string>
-    <string name="personal_issues">Các vấn đề của cá nhân</string>
+    <string name="project_issues">Các công việc của dự án</string>
+    <string name="personal_issues">Các công việc của cá nhân</string>
     <string name="email_profile">Email:</string>
     <string name="gender_profile">Giới tính:</string>
     <string name="phone_profile">Điện thoại:</string>
@@ -69,12 +69,12 @@
     <string name="create_group_chat">Tạo nhóm chat</string>
     <string name="enter_group_chat_name">nhập tên nhóm chat</string>
     <string name="create">Tạo</string>
-    <string name="create_issue">Tạo vấn đề</string>
+    <string name="create_issue">Tạo công việc</string>
     <string name="create_new_password">Tạo mật khẩu mới</string>
     <string name="enter_password_create">Nhập mật khẩu:</string>
     <string name="enter_new_password_create">Nhập mật khẩu mới:</string>
-    <string name="create_task">Tạo công việc</string>
-    <string name="enter_task_name">Nhập tên công việc</string>
+    <string name="create_task">Tạo nhiệm vụ</string>
+    <string name="enter_task_name">Nhập tên nhiệm vụ</string>
     <string name="enter_decription">Nhập mô tả</string>
     <string name="create_project">Tạo dự án</string>
     <string name="enter_project_description">Nhập mô tả dự án</string>
@@ -91,7 +91,7 @@
     <string name="accept">Chấp nhận</string>
     <string name="denied">Từ chối</string>
     <string name="seen">Đã nhận</string>
-    <string name="number">Số vấn đề</string>
+    <string name="number">Số công việc</string>
     <string name="register">Đăng ký</string>
     <string name="dashboard">Tổng quan</string>
     <string name="statistic">Thống kê</string>
@@ -101,7 +101,7 @@
     <string name="todo">Chuẩn bị</string>
     <string name="inprogress">Làm việc</string>
     <string name="done">Hoàn thành</string>
-    <string name="task">Công việc</string>
+    <string name="task">Nhiệm vụ</string>
     <string name="bug">Lỗi</string>
     <string name="story">Kịch bản</string>
     <string name="high">Cao</string>
@@ -109,16 +109,86 @@
     <string name="low">Thấp</string>
     <string name="mydashboard">Tổng quan</string>
     <string name="schedule">Lịch trình</string>
-    <string name="myallissues">Các vấn đề cá nhân</string>
+    <string name="myallissues">Các công việc cá nhân</string>
     <string name="process2">Tiến trình</string>
-    <string name="all_issues">Tất cả các vấn đề</string>
-    <string name="issues_in_todo">Các vấn đề ở tiến trình Chuẩn bị</string>
-    <string name="issues_in_inprogress">Các vấn đề ở tiến trình Làm việc</string>
-    <string name="issues_in_done">Các vấn đề ở tiến trình Hoàn thành</string>
+    <string name="all_issues">Tất cả các công việc</string>
+    <string name="issues_in_todo">Các công việc ở tiến trình Chuẩn bị</string>
+    <string name="issues_in_inprogress">Các công việc ở tiến trình Làm việc</string>
+    <string name="issues_in_done">Các công việc ở tiến trình Hoàn thành</string>
     <string name="issues_complete_perfromance">Hiệu suất hoàn thành</string>
     <string name="perfectissues">Hoàn thành tốt</string>
     <string name="delayissues">Hoàn thành trễ</string>
     <string name="allissuesbyprocess">Các về đề theo tiến trình</string>
-    <string name="issues_list">Danh sách các vấn đề</string>
+    <string name="issues_list">Danh sách các công việc</string>
     <string name="pezry_app_name">PEZRY</string>
+    <string name="joining_request">Lời mời tham gia</string>
+    <string name="issue_request">Yêu cầu đảm nhận công việc</string>
+    <string name="issue_today">Công việc ngày hôm nay</string>
+    <string name="adding_member">Đang thêm người dùng...</string>
+    <string name="enterEmailMember">Hãy nhập email của người dùng!!!</string>
+    <string name="enterPosition">Hảy nhập vai trò!!!!</string>
+    <string name="checkError">Hãy kiểm tra lỗi!!!</string>
+    <string name="wrongEmail">Sai email!!!</string>
+    <string name="wrongFormat">Sai định dạng!!! Xin hãy thử lại</string>
+    <string name="user_already">Người dùng đã có trong group!!!</string>
+    <string name="enter_GroupName">Hãy nhập tên nhóm chat!!!</string>
+    <string name="create_success">Tạo thành công</string>
+    <string name="create_failed">Tạo thất bại</string>
+    <string name="failed">Thất bại</string>
+    <string name="select_Img">Hãy chọn hình ảnh</string>
+    <string name="enterIssueName">Hãy nhập tên công việc!!!</string>
+    <string name="enterEstimateFinishDate">Hãy nhập ngày ước tính hoàn thành!!!</string>
+    <string name="wrong_finish_day">Sai ngày hoàn thành!!!</string>
+    <string name="enterStartDate">Hãy nhập ngày bắt đầu!!!</string>
+    <string name="enterFinishDate">Hãy nhập ngày hoàn thành!!!!</string>
+    <string name="create_error">Lỗi!!!</string>
+    <string name="create_issue_question">Bạn có muốn tạo công việc này không?</string>
+    <string name="yes">Có</string>
+    <string name="no">Không</string>
+    <string name="wrong_date">Sai ngày!!!</string>
+    <string name="wrongFormat2">Sai định dạng!!! VD: dd/MM/yyyy</string>
+    <string name="wrong_start_date">Sai ngày bắt đầu!!!</string>
+    <string name="enterPassword">Hãy nhập mật khẩu!!!</string>
+    <string name="pass_6_char">Mật khẩu phải có trên 6 ký tự!!!</string>
+    <string name="wrong_password">sai mật khẩu!!!</string>
+    <string name="enterNewPass">Hãy nhập mật khẩu mới!!!</string>
+    <string name="change_pass_succes">Thay đổi mật khẩu thành công</string>
+    <string name="create_new_pass_question">Bạn có muốn thay đổi mật khẩu không?</string>
+    <string name="duplicate_pass">Mật khẩu bị trùng lặp</string>
+    <string name="enterProjectName">Hãy nhập tên dự án!!!</string>
+    <string name="creating_project">Đang tạo...</string>
+    <string name="cancel_create">Hủy bỏ</string>
+    <string name="create_project_question">\"Bạn có muốn tạo dự án: "</string>
+    <string name="update_success">Cập nhật thành công</string>
+    <string name="update_failed">Cập nhật thất bại</string>
+    <string name="update_error">Cập nhật bị lỗi!!!</string>
+    <string name="update_issue_done">Cập nhật hoàn thành công việc đã xong!!!</string>
+    <string name="confim_issue_complete_question">Bạn có muốn xác nhận công việc này đã hoàn tất không?</string>
+    <string name="confirm">Xác nhận</string>
+    <string name="delete_issue_question">Bạn có muốn xóa công việc này không?</string>
+    <string name="delete_issue_success">Xóa công việc thành công</string>
+    <string name="watiing_for_login">Đang chờ đăng nhập...</string>
+    <string name="login_success">Đăng nhập thành công</string>
+    <string name="enterEmail">Hãy nhập email!!!</string>
+    <string name="enterCorrectEmailFormat">Sai định dạng email!!!</string>
+    <string name="login_failed">Đăng nhập thật bại</string>
+    <string name="success">Thành công</string>
+    <string name="wrong_day">Sai ngày!!! Xin hãy thử lại</string>
+    <string name="enterUserName">Hãy nhập tên người dùng!!!</string>
+    <string name="enterPhone">Hãy nhập số điện thoại!!!</string>
+    <string name="enterDOB">Hãy nhập ngày sinh!!!</string>
+    <string name="updating">Đang cập nhật...</string>
+    <string name="cancel_update">Hủy bỏ cập nhật</string>
+    <string name="save_changes_question">Bạn có muốn lưu các thay đổi này không?</string>
+    <string name="uploading">Đang tải lên...</string>
+    <string name="no_img_selected">Không có hình ảnh nào được chọn</string>
+    <string name="upload_into_DB">Tải lên cơ sở dữ liệu</string>
+    <string name="delete_project_question">Bạn có chắc chắn xóa dự án này không?</string>
+    <string name="deleting">Đang xóa...</string>
+    <string name="waiting">Đang chờ...</string>
+    <string name="enterNameUser">Hãy nhập tên người dùng!!!</string>
+    <string name="incorrect_pass">Sai mật khẩu!!!</string>
+    <string name="enterConfirmPass">Vui lòng nhập mật khẩu xác nhận!!!</string>
+    <string name="wrong_estimate_finish_date">Sai ngày ước tính hoàn thành</string>
+
 </resources>

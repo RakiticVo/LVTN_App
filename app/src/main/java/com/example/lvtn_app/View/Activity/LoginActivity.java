@@ -52,8 +52,6 @@ public class LoginActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
 
-    FirebaseUser firebaseUser;
-
     static LoginActivity instance;
 
     public static LoginActivity getInstance() {
@@ -64,6 +62,12 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        sharedPreferences = this.getSharedPreferences("Config_language", Context.MODE_PRIVATE);
+        String lang = sharedPreferences.getString("Current_Lang", "abcdef");
+        String current_lang = this.getResources().getConfiguration().locale.toString();
+        if (!current_lang.equals(lang)){
+            loadLocale(lang);
+        }
         //Set up
         tabLayout = findViewById(R.id.acc_tabLayout);
         viewPager = findViewById(R.id.acc_viewPager);
@@ -79,13 +83,6 @@ public class LoginActivity extends AppCompatActivity {
         instance = this;
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-
-        sharedPreferences = this.getSharedPreferences("Config_language", Context.MODE_PRIVATE);
-        String lang = sharedPreferences.getString("Current_Lang", "abcdef");
-        String current_lang = this.getResources().getConfiguration().locale.toString();
-        if (!current_lang.equals(lang)){
-            loadLocale(lang);
-        }
     }
 
     private void setLocate(String language) {

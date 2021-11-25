@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -282,17 +283,17 @@ public class PersonalStactisticFragment extends Fragment {
         task_list = new ArrayList<>();
         bug_list = new ArrayList<>();
         story_list = new ArrayList<>();
-        ArrayList<Issue> temp = new ArrayList<>();
+        ArrayList<Issue> temp2 = new ArrayList<>();
         for (User_Issue_List userIssueList : user_issue_lists){
             reference.child(userIssueList.getProject_ID()).child(userIssueList.getIssue_ID()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     Issue issue = snapshot.getValue(Issue.class);
-                    temp.add(issue);
+                    temp2.add(issue);
 //                    Toast.makeText(activity, "" + temp.size() + "\n" + temp.get(temp.size() - 1).getIssue_ID(), Toast.LENGTH_SHORT).show();
-                    if (temp.size() == user_issue_lists.size()){
+                    if (temp2.size() == user_issue_lists.size()){
 //                        Toast.makeText(activity, "" + temp.size(), Toast.LENGTH_SHORT).show();
-                        getallIssue(temp);
+                        getallIssue(temp2);
                     }
                 }
 
@@ -328,12 +329,16 @@ public class PersonalStactisticFragment extends Fragment {
     }
 
     public void addIssueIntoProcess(ArrayList<Issue> issues){
-        issue_list.clear();
-        issue_list = issues;
+        ProgressDialog progressDialog = new ProgressDialog(activity);
+        progressDialog.setTitle(activity.getString(R.string.waiting));
+//        progressDialog.show();
         toDo_list.clear();
         inProgress_list.clear();
         done_list.clear();
-        for (Issue issue : issues){
+//        for (int i = issues.size()/2; i < issues.size(); i++){
+//            Toast.makeText(activity, i + "-" + issues.get(i).getIssue_ID(), Toast.LENGTH_SHORT).show();
+//        }
+        for (Issue issue : issues) {
             switch (issue.getIssue_ProcessType().toString()){
                 case "ToDo":
                     toDo_list.add(issue);
