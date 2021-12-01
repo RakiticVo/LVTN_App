@@ -242,6 +242,7 @@ public class MemberProjectFragment extends Fragment implements MemberAdapter.Ite
         MemberDetailProjectFragment memberDetailProjectFragment = new MemberDetailProjectFragment();
         Bundle bundle = new Bundle();
         bundle.putString("member_id_txt", member_list.get(position).getUser_ID());
+        bundle.putString("project_id_txt", id_project);
         memberDetailProjectFragment.setArguments(bundle);
         memberDetailProjectFragment.show(getFragmentManager(), "MemberDetailFragment");
     }

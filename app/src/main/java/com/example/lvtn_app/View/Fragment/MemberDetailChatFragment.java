@@ -54,6 +54,7 @@ public class MemberDetailChatFragment extends DialogFragment {
     String id_group = "";
     String id_user = "";
     DatabaseReference reference1, reference2, reference3;
+    AppCompatActivity activity;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -122,25 +123,28 @@ public class MemberDetailChatFragment extends DialogFragment {
         Bundle bundle = getArguments();
         String member_id = bundle.getString("member_id_txt", "token");
 
-        AppCompatActivity activity = (AppCompatActivity) getContext();
-        reference1 = FirebaseDatabase.getInstance().getReference("Users").child(member_id);
-        reference1.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User user = snapshot.getValue(User.class);
-                if (user.getUser_Avatar().length() > 0 && !user.getUser_Avatar().equals(" ")){
-                    Glide.with(activity).load(user.getUser_Avatar()).centerCrop().into(avatar_member_detail);
+        activity = (AppCompatActivity) getContext();
+
+        if (activity != null){
+            reference1 = FirebaseDatabase.getInstance().getReference("Users").child(member_id);
+            reference1.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    User user = snapshot.getValue(User.class);
+                    if (user.getUser_Avatar().length() > 0 && !user.getUser_Avatar().equals(" ")){
+                        Glide.with(activity).load(user.getUser_Avatar()).centerCrop().into(avatar_member_detail);
+                    }
+                    tv_username_member_detail.setText(user.getUser_Name());
+                    tv_email_member_detail.setText(user.getUser_Email());
+                    tv_phoneNumber_member_detail.setText(user.getUser_Phone());
                 }
-                tv_username_member_detail.setText(user.getUser_Name());
-                tv_email_member_detail.setText(user.getUser_Email());
-                tv_phoneNumber_member_detail.setText(user.getUser_Phone());
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
 
-            }
-        });
+                }
+            });
+        }
 
         reference2 = FirebaseDatabase.getInstance().getReference("User_List_By_Group_Chat").child(id_group);
         reference2.addValueEventListener(new ValueEventListener() {
@@ -162,31 +166,6 @@ public class MemberDetailChatFragment extends DialogFragment {
             }
         });
 
-        reference3 = FirebaseDatabase.getInstance().getReference("GroupChats").child(id_group);
-        reference3.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                GroupChat groupChat = snapshot.getValue(GroupChat.class);
-//                Toast.makeText(getContext(), "" + groupChat.getGroup_Creator(), Toast.LENGTH_SHORT).show();
-//                Toast.makeText(activity, "" + id_user.equals(firebaseUser.getUid()), Toast.LENGTH_SHORT).show();
-//                Toast.makeText(activity, "" + id_user.equals(groupChat.getGroup_Creator()), Toast.LENGTH_SHORT).show();
-                if (member_id.equals(groupChat.getGroup_Creator())){
-                    btn_confirm_update_profile.setVisibility(View.VISIBLE);
-                    tv_position_member_detail.setVisibility(View.GONE);
-                    position_member_detail_text_input_layout.setVisibility(View.VISIBLE);
-                }else {
-                    btn_confirm_update_profile.setVisibility(View.GONE);
-                    tv_position_member_detail.setVisibility(View.VISIBLE);
-                    position_member_detail_text_input_layout.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
         //Event Handling
         ibtn_back_member_detail.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -195,9 +174,9 @@ public class MemberDetailChatFragment extends DialogFragment {
             }
         });
 
-        btn_confirm_update_profile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+//        btn_confirm_update_profile.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
 //                if (member_id>0 && position_member_detail_text_input_layout.getEditText().getText().toString().length()>0){
 //                    position_member_detail_text_input_layout.setErrorEnabled(false);
 //                    MemberChatFragment.getInstance().updatePosition(member_id-1, position_member_detail_text_input_layout.getEditText().getText().toString());
@@ -206,8 +185,8 @@ public class MemberDetailChatFragment extends DialogFragment {
 //                    position_member_detail_text_input_layout.setError("Please enter Position");
 //                    position_member_detail_text_input_layout.setErrorEnabled(true);
 //                }
-            }
-        });
+//            }
+//        });
 
         return view;
     }

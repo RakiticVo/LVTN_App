@@ -277,12 +277,17 @@ public class IssueDetailFragment extends DialogFragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Project project = snapshot.getValue(Project.class);
                 if (!project.getProject_Leader().equals(firebaseUser.getUid())){
-                    if (!processType_list.get(spinner_process_issue_detail.getSelectedItemPosition()).equals(activity.getString(R.string.todo))){
-                        start_date_issue_detail_text_input_layout.setEnabled(false);
-                    }
                     spinner_assignee_issue_detail.setEnabled(false);
                     spinner_issue_type_detail.setEnabled(false);
                     spinner_priority_issue_detail.setEnabled(false);
+                    spinner_process_issue_detail.setEnabled(false);
+                    btn_update_issue_detail.setVisibility(View.GONE);
+                    btn_cancel_issue_detail.setVisibility(View.GONE);
+                    calendar_estimate_date_finish_issue_detail.setVisibility(View.GONE);
+                    estimate_date_finish_issue_detail_text_input_layout.setEnabled(false);
+                    if (!processType_list.get(spinner_process_issue_detail.getSelectedItemPosition()).equals(activity.getString(R.string.todo))){
+                        start_date_issue_detail_text_input_layout.setEnabled(false);
+                    }
                 }else {
                     if (!processType_list.get(spinner_process_issue_detail.getSelectedItemPosition()).equals(activity.getString(R.string.done))){
                         ibtn_delete_issue_detail.setVisibility(View.VISIBLE);
@@ -314,18 +319,46 @@ public class IssueDetailFragment extends DialogFragment {
 
         if (!issue_ID.equals("abc")){
             reference = FirebaseDatabase.getInstance().getReference("Issues").child(project_ID).child(issue_ID);
-            reference.addValueEventListener(new ValueEventListener() {
+            reference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     Issue issue = snapshot.getValue(Issue.class);
                     if (issue != null){
                         DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
-                        reference1.addValueEventListener(new ValueEventListener() {
+                        reference1.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                 User user = snapshot.getValue(User.class);
                                 if (!issue.getIssue_Assignee().equals(user.getUser_Name())){
                                     ibtn_confirm_done_issue.setVisibility(View.GONE);
+                                    btn_update_issue_detail.setVisibility(View.GONE);
+                                    btn_cancel_issue_detail.setVisibility(View.GONE);
+                                    spinner_issue_type_detail.setEnabled(false);
+                                    spinner_priority_issue_detail.setEnabled(false);
+                                    spinner_process_issue_detail.setEnabled(false);
+                                    calendar_estimate_date_finish_issue_detail.setVisibility(View.GONE);
+                                }else {
+                                    ibtn_confirm_done_issue.setVisibility(View.VISIBLE);
+                                    btn_update_issue_detail.setVisibility(View.VISIBLE);
+                                    btn_cancel_issue_detail.setVisibility(View.VISIBLE);
+                                    spinner_issue_type_detail.setEnabled(true);
+                                    spinner_priority_issue_detail.setEnabled(true);
+                                    spinner_process_issue_detail.setEnabled(true);
+                                    calendar_estimate_date_finish_issue_detail.setVisibility(View.VISIBLE);
+                                    estimate_date_finish_issue_detail_text_input_layout.setEnabled(true);
+                                }
+                                if (issue.getIssue_ProcessType().equals("Done")){
+                                    Toast.makeText(activity, "" + issue.getIssue_ProcessType(), Toast.LENGTH_SHORT).show();
+                                    ibtn_confirm_done_issue.setVisibility(View.GONE);
+                                    btn_update_issue_detail.setVisibility(View.GONE);
+                                    btn_cancel_issue_detail.setVisibility(View.GONE);
+                                    spinner_issue_type_detail.setEnabled(false);
+                                    spinner_priority_issue_detail.setEnabled(false);
+                                    spinner_process_issue_detail.setEnabled(false);
+                                    calendar_estimate_date_finish_issue_detail.setVisibility(View.GONE);
+                                    description_issue_detail_text_input_layout.setEnabled(false);
+                                    start_date_issue_detail_text_input_layout.setEnabled(false);
+                                    estimate_date_finish_issue_detail_text_input_layout.setEnabled(false);
                                 }
                             }
 
@@ -451,25 +484,6 @@ public class IssueDetailFragment extends DialogFragment {
                             ibtn_confirm_done_issue.setVisibility(View.VISIBLE);
                         }else {
                             ibtn_confirm_done_issue.setVisibility(View.GONE);
-                        }
-
-                        if (issue.getIssue_ProcessType().toLowerCase().equals("done")){
-                            spinner_process_issue_detail.setEnabled(false);
-                            spinner_issue_type_detail.setEnabled(false);
-                            spinner_priority_issue_detail.setEnabled(false);
-                            description_issue_detail_text_input_layout.setEnabled(false);
-                            start_date_issue_detail_text_input_layout.setEnabled(false);
-                            estimate_date_finish_issue_detail_text_input_layout.setEnabled(false);
-                            btn_update_issue_detail.setVisibility(View.GONE);
-                            btn_cancel_issue_detail.setVisibility(View.GONE);
-                        }else {
-                            spinner_process_issue_detail.setEnabled(true);
-                            spinner_issue_type_detail.setEnabled(true);
-                            spinner_priority_issue_detail.setEnabled(true);
-                            description_issue_detail_text_input_layout.setEnabled(true);
-                            estimate_date_finish_issue_detail_text_input_layout.setEnabled(true);
-                            btn_update_issue_detail.setVisibility(View.VISIBLE);
-                            btn_cancel_issue_detail.setVisibility(View.VISIBLE);
                         }
                     }
                 }
