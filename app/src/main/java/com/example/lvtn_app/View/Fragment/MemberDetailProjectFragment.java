@@ -20,6 +20,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.lvtn_app.Model.Group_Chat_Users;
+import com.example.lvtn_app.Model.Project_Users;
 import com.example.lvtn_app.Model.User;
 import com.example.lvtn_app.R;
 import com.google.android.material.textfield.TextInputLayout;
@@ -43,7 +45,7 @@ public class MemberDetailProjectFragment extends DialogFragment {
     CircleImageView avatar_member_detail;
     TextView tv_username_member_detail, tv_email_member_detail, tv_phoneNumber_member_detail, tv_position_member_detail;
     ImageButton ibtn_back_member_detail;
-    Button btn_confirm_update_profile;
+    Button btn_confirm_update_member;
     TextInputLayout position_member_detail_text_input_layout;
 
     SharedPreferences sharedPreferences_user, sharedPreferences_project;
@@ -107,7 +109,7 @@ public class MemberDetailProjectFragment extends DialogFragment {
         tv_phoneNumber_member_detail = view.findViewById(R.id.tv_phoneNumber_member_detail);
         tv_position_member_detail = view.findViewById(R.id.tv_position_member_detail);
         ibtn_back_member_detail = view.findViewById(R.id.ibtn_back_member_detail);
-        btn_confirm_update_profile = view.findViewById(R.id.btn_confirm_update_profile);
+        btn_confirm_update_member = view.findViewById(R.id.btn_confirm_update_member);
         position_member_detail_text_input_layout = view.findViewById(R.id.position_member_detail_text_input_layout);
 
         sharedPreferences_user = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE);
@@ -117,6 +119,7 @@ public class MemberDetailProjectFragment extends DialogFragment {
         //Set up
         Bundle bundle = getArguments();
         String member_id = bundle.getString("member_id_txt", "abc");
+        String project_id = bundle.getString("project_id_txt", "abc");
 
         username = sharedPreferences_user.getString("userName_txt", "abc");
         leader = sharedPreferences_project.getString("projectLeader_txt", "abc");
@@ -143,17 +146,37 @@ public class MemberDetailProjectFragment extends DialogFragment {
             }
         });
 
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("User_List_By_Project").child(project_id);
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    Project_Users users = dataSnapshot.getValue(Project_Users.class);
+//                        Toast.makeText(context, "" + users.getGroup_ID(), Toast.LENGTH_SHORT).show();
+                    if (member_id.equals(users.getUser_ID())){
+                        tv_position_member_detail.setText(users.getPosition());
+                        position_member_detail_text_input_layout.getEditText().setText(users.getPosition());
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
 //        Toast.makeText(getContext(), "" + member_name + "\n" + username +"\n" + leader, Toast.LENGTH_SHORT).show();
 
-        if (username.equals(leader)){
-            btn_confirm_update_profile.setVisibility(View.VISIBLE);
-            tv_position_member_detail.setVisibility(View.GONE);
-            position_member_detail_text_input_layout.setVisibility(View.VISIBLE);
-        }else {
-            btn_confirm_update_profile.setVisibility(View.GONE);
-            tv_position_member_detail.setVisibility(View.VISIBLE);
-            position_member_detail_text_input_layout.setVisibility(View.GONE);
-        }
+//        if (username.equals(leader)){
+////            btn_confirm_update_member.setVisibility(View.VISIBLE);
+//            tv_position_member_detail.setVisibility(View.VISIBLE);
+////            position_member_detail_text_input_layout.setVisibility(View.VISIBLE);
+//        }else {
+////            btn_confirm_update_member.setVisibility(View.GONE);
+//            tv_position_member_detail.setVisibility(View.VISIBLE);
+////            position_member_detail_text_input_layout.setVisibility(View.GONE);
+//        }
 
         //Event Handling
         ibtn_back_member_detail.setOnClickListener(new View.OnClickListener() {
@@ -163,9 +186,9 @@ public class MemberDetailProjectFragment extends DialogFragment {
             }
         });
 
-        btn_confirm_update_profile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+//        btn_confirm_update_member.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
 //                if (member_id>0 && position_member_detail_text_input_layout.getEditText().getText().toString().length()>0){
 //                    position_member_detail_text_input_layout.setErrorEnabled(false);
 //                    MemberProjectFragment.getInstance().updatePosition(member_id-1, position_member_detail_text_input_layout.getEditText().getText().toString());
@@ -174,8 +197,8 @@ public class MemberDetailProjectFragment extends DialogFragment {
 //                    position_member_detail_text_input_layout.setError("Please enter Position");
 //                    position_member_detail_text_input_layout.setErrorEnabled(true);
 //                }
-            }
-        });
+//            }
+//        });
 
         return view;
     }

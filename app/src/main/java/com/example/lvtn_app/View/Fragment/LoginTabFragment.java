@@ -275,6 +275,8 @@ public class LoginTabFragment extends Fragment {
                                 hashMap.put("user_Status", "online");
                                 reference1.updateChildren(hashMap);
                                 editor.putString("user_ID", firebaseUser.getUid());
+                                editor.putString("user_Email", txt_email);
+                                editor.putString("user_Pass", txt_pass);
                                 editor.commit();
                                 Toast.makeText(activity, activity.getString(R.string.login_success), Toast.LENGTH_SHORT).show();
                                 AppCompatActivity activity = (AppCompatActivity) getContext();
